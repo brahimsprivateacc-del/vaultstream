@@ -5,20 +5,16 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# ─────────────────────────────────────────
-# SETTINGS
-# ─────────────────────────────────────────
 VIDEOS_FOLDER = os.path.join(os.path.dirname(__file__), 'videos')
+STATIC_FOLDER = os.path.join(os.path.dirname(__file__), 'static')
 ALLOWED_EXTENSIONS = {'mp4', 'mkv', 'mov', 'avi', 'webm'}
 MAX_UPLOAD_MB = 4096
 app.config['MAX_CONTENT_LENGTH'] = MAX_UPLOAD_MB * 1024 * 1024
 
 os.makedirs(VIDEOS_FOLDER, exist_ok=True)
+os.makedirs(STATIC_FOLDER, exist_ok=True)
 
 
-# ─────────────────────────────────────────
-# HELPERS
-# ─────────────────────────────────────────
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -46,10 +42,6 @@ def get_all_videos():
     return videos
 
 
-# ─────────────────────────────────────────
-# ROUTES
-# ─────────────────────────────────────────
-
 @app.route('/')
 def index():
     videos = get_all_videos()
@@ -70,15 +62,23 @@ def watch(filename):
 
 @app.route('/videos/<filename>')
 def serve_video(filename):
-    """Serve video files publicly — accessible from any device, no restrictions."""
     response = send_from_directory(VIDEOS_FOLDER, secure_filename(filename))
-    # These headers make the video publicly accessible everywhere
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Range'
     response.headers['Accept-Ranges'] = 'bytes'
     response.headers['X-Frame-Options'] = 'ALLOWALL'
     response.headers['Content-Disposition'] = 'inline'
+    return response
+
+@app.route('/manifest.json')
+def manifest():
+    return send_from_directory('.', 'manifest.json', mimetype='application/manifest+json')
+
+@app.route('/sw.js')
+def service_worker():
+    response = send_from_directory('.', 'sw.js', mimetype='application/javascript')
+    response.headers['Service-Worker-Allowed'] = '/'
     return response
 
 @app.route('/upload', methods=['POST'])
@@ -108,16 +108,9 @@ def api_videos():
 
 @app.route('/api/status')
 def api_status():
-    return jsonify({'status': 'online', 'mode': 'local', 'video_count': len(get_all_videos())})
+    return jsonify({'status': 'online', 'video_count': len(get_all_videos())})
 
 
-# ─────────────────────────────────────────
-# START
-# ─────────────────────────────────────────
 if __name__ == '__main__':
-    print("\n" + "="*50)
-    print("  🎬 VAULTSTREAM — Local Video Platform")
-    print("="*50)
-    print(f"  Open your browser: http://localhost:5000")
-    print("="*50 + "\n")
+    print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
