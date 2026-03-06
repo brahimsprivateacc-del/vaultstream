@@ -266,6 +266,43 @@ def service_worker():
     response.headers['Service-Worker-Allowed'] = '/'
     return response
 
+
+@app.route('/upload_avatar', methods=['POST'])
+def upload_avatar():
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'error': 'Login required'}), 401
+    if 'avatar' not in request.files:
+        return jsonify({'success': False, 'error': 'No file'}), 400
+    file = request.files['avatar']
+    ext = file.filename.rsplit('.', 1)[-1].lower()
+    if ext not in {'jpg', 'jpeg', 'png', 'gif', 'webp'}:
+        return jsonify({'success': False, 'error': 'Invalid image type'}), 400
+
+    # Upload to Supabase Storage
+    filename = f"{user['id']}.{ext}"
+    file_data = file.read()
+    r = requests.put(
+        f"{SUPABASE_URL}/storage/v1/object/avatars/{filename}",
+        headers={
+            'apikey': SUPABASE_KEY,
+            'Authorization': f"Bearer {user['token']}",
+            'Content-Type': f'image/{ext}',
+            'x-upsert': 'true'
+        },
+        data=file_data
+    )
+    if r.ok:
+        avatar_url = f"{SUPABASE_URL}/storage/v1/object/public/avatars/{filename}"
+        # Update profile
+        requests.patch(
+            f"{SUPABASE_URL}/rest/v1/profiles?id=eq.{user['id']}",
+            headers=supabase_headers(user['token']),
+            json={'avatar_url': avatar_url}
+        )
+        return jsonify({'success': True, 'url': avatar_url})
+    return jsonify({'success': False, 'error': 'Upload failed'}), 500
+
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
