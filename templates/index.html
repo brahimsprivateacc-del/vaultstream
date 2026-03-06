@@ -126,7 +126,14 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
-    <button class="upload-btn" onclick="openModal()"><span>📤</span> Upload</button>
+    {% if user %}
+      <a href="/profile/{{ user.username }}" style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:none;color:var(--text);font-size:0.82rem;text-decoration:none;">👤 {{ user.username }}</a>
+      <button class="upload-btn" onclick="openModal()"><span>📤</span> Upload</button>
+      <a href="/logout" style="padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:none;color:var(--text2);font-size:0.82rem;text-decoration:none;">Logout</a>
+    {% else %}
+      <a href="/login" style="padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:none;color:var(--text);font-size:0.82rem;text-decoration:none;">Sign in</a>
+      <a href="/signup" style="padding:6px 14px;border-radius:20px;border:none;background:#ff0000;color:white;font-size:0.82rem;text-decoration:none;font-weight:500;">Sign up</a>
+    {% endif %}
   </div>
 </div>
 <div class="sidebar" id="sidebar">
