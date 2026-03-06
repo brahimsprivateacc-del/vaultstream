@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up — VaultStream</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+:root { --bg: #0f0f0f; --surface: #1a1a1a; --border: #3f3f3f; --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 36px; width: 90%; max-width: 400px; }
+.logo { display: flex; align-items: center; gap: 8px; margin-bottom: 28px; justify-content: center; text-decoration: none; color: var(--text); }
+.logo-icon { background: var(--accent); color: white; padding: 6px 10px; border-radius: 8px; font-size: 1rem; font-weight: 700; }
+.logo-text { font-size: 1.3rem; font-weight: 700; }
+h2 { font-size: 1.2rem; margin-bottom: 20px; text-align: center; }
+.field { margin-bottom: 14px; }
+label { display: block; font-size: 0.82rem; color: var(--text2); margin-bottom: 5px; }
+input { width: 100%; background: #111; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 0.9rem; font-family: 'Roboto', sans-serif; outline: none; transition: border 0.2s; }
+input:focus { border-color: var(--accent); }
+.btn { width: 100%; padding: 11px; border-radius: 8px; border: none; background: var(--accent); color: white; font-size: 0.95rem; font-weight: 500; font-family: 'Roboto', sans-serif; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
+.btn:hover { background: #cc0000; }
+.link { text-align: center; margin-top: 16px; font-size: 0.82rem; color: var(--text2); }
+.link a { color: var(--accent); text-decoration: none; }
+.error { background: rgba(255,0,0,0.1); border: 1px solid rgba(255,0,0,0.3); border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: #ff6b6b; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <a href="/" class="logo"><div class="logo-icon">VS</div><div class="logo-text">VaultStream</div></a>
+  <h2>Create account</h2>
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+  <form method="POST">
+    <div class="field"><label>Username</label><input type="text" name="username" required placeholder="cooluser123"></div>
+    <div class="field"><label>Email</label><input type="email" name="email" required placeholder="you@email.com"></div>
+    <div class="field"><label>Password</label><input type="password" name="password" required placeholder="min 6 characters"></div>
+    <button class="btn" type="submit">Create account</button>
+  </form>
+  <div class="link">Already have an account? <a href="/login">Sign in</a></div>
+</div>
+</body>
+</html>
