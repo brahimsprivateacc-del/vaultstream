@@ -3,11 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ff0000">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="VaultStream">
 <title>VaultStream</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
@@ -94,7 +89,25 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
 .toast.show { transform: translateX(-50%) translateY(0); }
 .search-label { font-size: 0.92rem; color: var(--text2); margin-bottom: 16px; }
 .search-label span { color: var(--text); font-weight: 500; }
-@media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main { margin-left: 0; padding: 16px; } .topbar-center { margin: 0 8px; } }
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.mobile-open { transform: translateX(0); }
+  .main { margin-left: 0 !important; padding: 12px; }
+  .topbar-center { margin: 0 8px; }
+  .topbar-left .logo-text { display: none; }
+  .video-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px 8px; }
+  .card-title { font-size: 0.78rem; }
+  .card-meta { font-size: 0.68rem; }
+  .card-avatar { width: 28px; height: 28px; font-size: 0.72rem; }
+  .upload-btn span:last-child { display: none; }
+  .topbar { padding: 0 10px; }
+  .chips { gap: 6px; }
+  .chip { padding: 5px 10px; font-size: 0.75rem; }
+}
+@media (max-width: 400px) {
+  .video-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .card-title { font-size: 0.72rem; }
+}
 </style>
 </head>
 <body>
@@ -242,11 +255,6 @@ function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'), 3000);
-}
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js');
 }
 </script>
 </body>
