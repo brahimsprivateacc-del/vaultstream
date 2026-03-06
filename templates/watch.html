@@ -3,112 +3,167 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ video.title }} — VAULTSTREAM</title>
+<title>{{ video.title }} — VaultStream</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
-:root {
-  --bg: #0a0a0c; --card: #16161e; --border: #22222e;
-  --accent: #e8ff47; --accent2: #ff4757; --text: #f0f0f8; --muted: #4a4a62; --sub: #8888aa;
-}
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+:root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #272727; --border: #3f3f3f; --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
-
-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 32px; border-bottom: 1px solid var(--border);
-  background: rgba(10,10,12,0.95); backdrop-filter: blur(12px);
-}
-.logo { font-family: 'Bebas Neue'; font-size: 1.8rem; letter-spacing: 3px; color: var(--accent); text-decoration: none; }
-.logo span { color: var(--text); }
-.back-btn {
-  padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border);
-  background: var(--card); color: var(--sub); font-size: 0.82rem;
-  cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
-}
-.back-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-.player-wrap {
-  max-width: 1100px; margin: 32px auto; padding: 0 24px;
-}
-
-video {
-  width: 100%; border-radius: 12px; background: #000;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-  border: 1px solid var(--border);
-}
-
-.video-info {
-  margin-top: 20px; padding: 20px 24px;
-  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-}
-
-.info-left h1 { font-size: 1.2rem; font-weight: 600; margin-bottom: 6px; }
-.info-meta { font-family: 'JetBrains Mono'; font-size: 0.65rem; color: var(--muted); display: flex; gap: 14px; flex-wrap: wrap; }
-
-.actions { display: flex; gap: 8px; }
-.action-btn {
-  padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border);
-  background: transparent; color: var(--sub); font-size: 0.78rem; cursor: pointer; transition: all 0.2s;
-  text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
-}
+body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; min-height: 100vh; }
+nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 100; }
+.logo { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text); }
+.logo-icon { background: var(--accent); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; }
+.logo-text { font-size: 1.1rem; font-weight: 700; }
+.nav-right { display: flex; gap: 10px; align-items: center; }
+.btn { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.82rem; cursor: pointer; text-decoration: none; font-family: 'Roboto', sans-serif; transition: background 0.2s; }
+.btn:hover { background: var(--surface2); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+.btn.primary:hover { background: #cc0000; }
+.wrap { max-width: 900px; margin: 28px auto; padding: 0 20px; }
+video { width: 100%; border-radius: 12px; background: #000; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
+.video-title { font-size: 1.15rem; font-weight: 600; margin: 16px 0 8px; }
+.video-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.meta-left { font-size: 0.82rem; color: var(--text2); }
+.meta-right { display: flex; gap: 8px; }
+.action-btn { display: flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 0.82rem; cursor: pointer; font-family: 'Roboto', sans-serif; transition: all 0.2s; }
 .action-btn:hover { border-color: var(--accent); color: var(--accent); }
-.action-btn.danger:hover { border-color: var(--accent2); color: var(--accent2); }
-
-.offline-tip {
-  margin-top: 14px; padding: 12px 16px;
-  background: rgba(232,255,71,0.04); border: 1px solid rgba(232,255,71,0.15);
-  border-radius: 8px; font-family: 'JetBrains Mono'; font-size: 0.65rem; color: var(--sub); line-height: 1.7;
-}
-.offline-tip strong { color: var(--accent); }
+.action-btn.liked { background: rgba(255,0,0,0.15); border-color: var(--accent); color: var(--accent); }
+.uploader { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.uploader-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; flex-shrink: 0; text-decoration: none; }
+.uploader-name { font-weight: 500; font-size: 0.9rem; text-decoration: none; color: var(--text); }
+.uploader-name:hover { color: var(--accent); }
+.uploader-sub { font-size: 0.75rem; color: var(--text2); }
+.comments-title { font-size: 1rem; font-weight: 600; margin-bottom: 16px; }
+.comment-box { display: flex; gap: 12px; margin-bottom: 24px; }
+.comment-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
+.comment-input { flex: 1; background: none; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.88rem; font-family: 'Roboto', sans-serif; padding: 6px 0; outline: none; }
+.comment-input:focus { border-bottom-color: var(--text); }
+.comment-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+.comment-btn { padding: 6px 14px; border-radius: 20px; border: none; font-size: 0.8rem; font-family: 'Roboto', sans-serif; cursor: pointer; }
+.comment-btn.cancel { background: none; color: var(--text2); }
+.comment-btn.submit { background: var(--accent); color: white; }
+.comment { display: flex; gap: 12px; margin-bottom: 18px; }
+.comment-body .name { font-size: 0.82rem; font-weight: 500; margin-bottom: 3px; }
+.comment-body .name a { color: var(--text); text-decoration: none; }
+.comment-body .name a:hover { color: var(--accent); }
+.comment-body .text { font-size: 0.85rem; line-height: 1.5; }
+.login-prompt { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; font-size: 0.85rem; color: var(--text2); margin-bottom: 20px; }
+.login-prompt a { color: var(--accent); text-decoration: none; }
 </style>
 </head>
 <body>
-
 <nav>
-  <a href="/" class="logo">VAULT<span>STREAM</span></a>
-  <a href="/" class="back-btn">← Back to Library</a>
+  <a href="/" class="logo"><div class="logo-icon">VS</div><div class="logo-text">VaultStream</div></a>
+  <div class="nav-right">
+    {% if user %}
+      <a href="/profile/{{ user.username }}" class="btn">👤 {{ user.username }}</a>
+      <a href="/logout" class="btn">Logout</a>
+    {% else %}
+      <a href="/login" class="btn">Sign in</a>
+      <a href="/signup" class="btn primary">Sign up</a>
+    {% endif %}
+  </div>
 </nav>
 
-<div class="player-wrap">
-
-  <!-- VIDEO PLAYER -->
+<div class="wrap">
   <video controls autoplay>
-    <source src="/videos/{{ video.filename }}" type="video/{{ 'mp4' if video.extension == 'MP4' else 'webm' if video.extension == 'WEBM' else 'mp4' }}">
-    Your browser doesn't support this video format. Try a different browser.
+    <source src="/videos/{{ video.filename }}">
   </video>
 
-  <!-- VIDEO INFO -->
-  <div class="video-info">
-    <div class="info-left">
-      <h1>{{ video.title }}</h1>
-      <div class="info-meta">
-        <span>📁 {{ video.filename }}</span>
-        <span>💾 {{ video.size }}</span>
-        <span>🎞 {{ video.extension }}</span>
-        <span>🟢 Stored locally</span>
+  <div class="video-title">{{ video.title }}</div>
+
+  <div class="video-meta">
+    <div class="meta-left">{{ video.size }} · {{ video.created_at[:10] }}</div>
+    <div class="meta-right">
+      <button class="action-btn {{ 'liked' if user_liked else '' }}" id="like-btn" onclick="toggleLike('{{ video.id }}')">
+        ❤️ <span id="like-count">{{ likes }}</span>
+      </button>
+      <a href="/videos/{{ video.filename }}" download class="action-btn">💾 Download</a>
+    </div>
+  </div>
+
+  {% if video.profiles %}
+  <div class="uploader">
+    <a href="/profile/{{ video.profiles.username }}" class="uploader-avatar">{{ video.profiles.username[0]|upper }}</a>
+    <div>
+      <a href="/profile/{{ video.profiles.username }}" class="uploader-name">{{ video.profiles.username }}</a>
+      <div class="uploader-sub">Uploaded {{ video.created_at[:10] }}</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- COMMENTS -->
+  <div class="comments-title">{{ comments|length }} Comment{{ 's' if comments|length != 1 else '' }}</div>
+
+  {% if user %}
+  <div class="comment-box">
+    <div class="comment-avatar" style="background:#ff0000;color:white;">{{ user.username[0]|upper }}</div>
+    <div style="flex:1;">
+      <input class="comment-input" id="comment-input" placeholder="Add a comment..." type="text">
+      <div class="comment-actions">
+        <button class="comment-btn cancel" onclick="document.getElementById('comment-input').value=''">Cancel</button>
+        <button class="comment-btn submit" onclick="postComment('{{ video.id }}')">Comment</button>
       </div>
     </div>
-    <div class="actions">
-      <a href="/videos/{{ video.filename }}" download class="action-btn">💾 Download</a>
-      <button class="action-btn danger" onclick="deleteAndGoHome('{{ video.filename }}')">🗑 Delete</button>
+  </div>
+  {% else %}
+  <div class="login-prompt">
+    <a href="/login">Sign in</a> to like and comment on videos
+  </div>
+  {% endif %}
+
+  <div id="comments-list">
+    {% for c in comments %}
+    <div class="comment">
+      <div class="comment-avatar" style="background:#333;">{{ c.profiles.username[0]|upper }}</div>
+      <div class="comment-body">
+        <div class="name"><a href="/profile/{{ c.profiles.username }}">{{ c.profiles.username }}</a> &nbsp;<span style="color:var(--text2);font-weight:400;font-size:0.75rem;">{{ c.created_at[:10] }}</span></div>
+        <div class="text">{{ c.content }}</div>
+      </div>
     </div>
+    {% endfor %}
   </div>
-
-  <div class="offline-tip">
-    💡 <strong>Offline mode:</strong> This video is stored on your local drive. You can watch it even without internet — just run <code>python app.py</code> and open your browser!
-  </div>
-
 </div>
 
 <script>
-function deleteAndGoHome(filename) {
-  if (!confirm('Delete this video? This cannot be undone.')) return;
-  fetch('/delete/' + filename, { method: 'POST' })
+function toggleLike(videoId) {
+  fetch('/like/' + videoId, {method: 'POST'})
     .then(r => r.json())
     .then(res => {
-      if (res.success) window.location = '/';
+      if (res.success) {
+        const btn = document.getElementById('like-btn');
+        btn.classList.toggle('liked', res.liked);
+        document.getElementById('like-count').textContent = res.count;
+      } else {
+        window.location = '/login';
+      }
     });
+}
+
+function postComment(videoId) {
+  const input = document.getElementById('comment-input');
+  const content = input.value.trim();
+  if (!content) return;
+  fetch('/comment/' + videoId, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({content})
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.success) {
+      const list = document.getElementById('comments-list');
+      const div = document.createElement('div');
+      div.className = 'comment';
+      div.innerHTML = `
+        <div class="comment-avatar" style="background:#333;">${res.username[0].toUpperCase()}</div>
+        <div class="comment-body">
+          <div class="name"><a href="/profile/${res.username}">${res.username}</a></div>
+          <div class="text">${res.content}</div>
+        </div>`;
+      list.prepend(div);
+      input.value = '';
+    }
+  });
 }
 </script>
 </body>
