@@ -3,258 +3,240 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VAULTSTREAM</title>
+<title>VaultStream</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 :root {
-  --bg: #0a0a0c; --surface: #111116; --card: #16161e; --border: #22222e;
-  --accent: #e8ff47; --accent2: #ff4757; --text: #f0f0f8; --muted: #4a4a62; --sub: #8888aa;
+  --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #272727; --border: #3f3f3f;
+  --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; --sidebar-w: 240px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
-
-nav {
+body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; min-height: 100vh; }
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: 56px; background: var(--bg);
   display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 32px; border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; background: rgba(10,10,12,0.95);
-  backdrop-filter: blur(12px); z-index: 100;
+  padding: 0 16px; z-index: 200; border-bottom: 1px solid #222;
 }
-.logo { font-family: 'Bebas Neue'; font-size: 1.8rem; letter-spacing: 3px; color: var(--accent); text-decoration: none; }
-.logo span { color: var(--text); }
-.nav-right { display: flex; align-items: center; gap: 12px; }
-.status-pill {
-  display: flex; align-items: center; gap: 6px; padding: 6px 12px;
-  border-radius: 999px; border: 1px solid rgba(232,255,71,0.3);
-  background: rgba(232,255,71,0.06); font-family: 'JetBrains Mono'; font-size: 0.62rem; color: var(--accent);
-}
-.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.btn {
-  padding: 8px 18px; border-radius: 6px; border: 1px solid var(--border);
-  background: var(--card); color: var(--sub); font-family: 'DM Sans'; font-size: 0.82rem;
-  cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
-}
-.btn:hover { border-color: var(--accent); color: var(--accent); }
-.btn.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
-.btn.primary:hover { background: #d4eb30; }
-
-.hero { padding: 36px 32px 20px; }
-.hero h1 { font-family: 'Bebas Neue'; font-size: clamp(2rem,5vw,3rem); letter-spacing: 2px; }
-.hero h1 span { color: var(--accent); }
-.hero-sub { font-family: 'JetBrains Mono'; font-size: 0.72rem; color: var(--sub); margin-top: 6px; }
-
-.phase-bar {
-  margin: 0 32px 20px; padding: 10px 16px;
-  background: rgba(232,255,71,0.04); border: 1px solid rgba(232,255,71,0.15);
-  border-radius: 8px; font-family: 'JetBrains Mono'; font-size: 0.68rem; color: var(--accent);
-  display: flex; align-items: center; gap: 8px;
-}
-
-.upload-zone {
-  margin: 0 32px 32px; border: 2px dashed var(--border); border-radius: 12px;
-  padding: 28px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--card);
-}
-.upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: rgba(232,255,71,0.03); }
-.upload-zone .icon { font-size: 2rem; margin-bottom: 8px; }
-.upload-zone h3 { font-size: 0.95rem; margin-bottom: 4px; }
-.upload-zone p { font-size: 0.72rem; color: var(--sub); font-family: 'JetBrains Mono'; }
-#file-input { display: none; }
-
-.progress-bar {
-  display: none; margin-top: 12px; background: var(--border);
-  border-radius: 999px; height: 6px; overflow: hidden;
-}
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.menu-btn { background: none; border: none; color: var(--text); cursor: pointer; padding: 8px; border-radius: 50%; font-size: 1.2rem; transition: background 0.2s; }
+.menu-btn:hover { background: var(--surface2); }
+.logo { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text); }
+.logo-icon { background: var(--accent); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; }
+.logo-text { font-size: 1.1rem; font-weight: 700; }
+.topbar-center { flex: 1; max-width: 640px; margin: 0 40px; display: flex; gap: 8px; }
+.search-wrap { flex: 1; display: flex; border: 1px solid var(--border); border-radius: 40px; overflow: hidden; background: var(--surface); }
+.search-input { flex: 1; background: none; border: none; outline: none; color: var(--text); padding: 8px 16px; font-size: 0.95rem; font-family: 'Roboto', sans-serif; }
+.search-btn { background: var(--surface2); border: none; border-left: 1px solid var(--border); color: var(--text2); padding: 0 20px; cursor: pointer; font-size: 1rem; }
+.search-btn:hover { background: #333; color: var(--text); }
+.upload-btn { display: flex; align-items: center; gap: 6px; background: none; border: 1px solid var(--border); border-radius: 20px; color: var(--text); padding: 6px 16px; cursor: pointer; font-size: 0.85rem; font-family: 'Roboto', sans-serif; font-weight: 500; transition: background 0.2s; white-space: nowrap; }
+.upload-btn:hover { background: var(--surface2); }
+.sidebar { position: fixed; top: 56px; left: 0; bottom: 0; width: var(--sidebar-w); background: var(--bg); padding: 12px 0; overflow-y: auto; z-index: 100; transition: transform 0.2s; }
+.sidebar.collapsed { transform: translateX(-100%); }
+.sidebar-item { display: flex; align-items: center; gap: 24px; padding: 10px 24px; cursor: pointer; border-radius: 10px; margin: 0 8px; transition: background 0.15s; text-decoration: none; color: var(--text); font-size: 0.88rem; font-weight: 500; }
+.sidebar-item:hover, .sidebar-item.active { background: var(--surface2); }
+.sidebar-divider { height: 1px; background: var(--border); margin: 10px 0; }
+.sidebar-section { padding: 8px 24px 4px; font-size: 0.78rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+.main { margin-top: 56px; margin-left: var(--sidebar-w); padding: 24px; transition: margin-left 0.2s; }
+.main.full { margin-left: 0; }
+.chips { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; }
+.chips::-webkit-scrollbar { height: 0; }
+.chip { padding: 6px 14px; border-radius: 8px; border: none; background: var(--surface2); color: var(--text); font-size: 0.82rem; font-family: 'Roboto', sans-serif; font-weight: 500; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+.chip:hover { background: #444; }
+.chip.active { background: var(--text); color: var(--bg); }
+.video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px 12px; }
+.video-card { cursor: pointer; text-decoration: none; color: inherit; display: block; }
+.video-card:hover .thumb-overlay { opacity: 1; }
+.video-card:hover .card-more { opacity: 1; }
+.thumb-wrap { position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 16/9; background: #1e1e1e; margin-bottom: 10px; }
+.thumb-bg { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+.thumb-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+.play-circle { width: 52px; height: 52px; border-radius: 50%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; padding-left: 4px; }
+.thumb-duration { position: absolute; bottom: 6px; right: 8px; background: rgba(0,0,0,0.85); color: white; font-size: 0.72rem; font-weight: 500; padding: 2px 5px; border-radius: 3px; }
+.delete-btn { display: none; position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.8); color: white; border: none; border-radius: 4px; padding: 3px 8px; font-size: 0.7rem; cursor: pointer; }
+.delete-btn:hover { background: var(--accent); }
+.thumb-wrap:hover .delete-btn { display: block; }
+.card-info { display: flex; gap: 10px; }
+.card-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: white; margin-top: 2px; }
+.card-details { flex: 1; min-width: 0; }
+.card-title { font-size: 0.9rem; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 4px; }
+.card-meta { font-size: 0.78rem; color: var(--text2); }
+.card-more { background: none; border: none; color: var(--text2); cursor: pointer; padding: 4px; border-radius: 50%; font-size: 1rem; opacity: 0; transition: opacity 0.15s; align-self: flex-start; flex-shrink: 0; }
+.card-more:hover { background: var(--surface2); color: var(--text); }
+.empty { grid-column: 1/-1; text-align: center; padding: 80px 20px; color: var(--text2); }
+.empty-icon { font-size: 4rem; margin-bottom: 16px; }
+.empty h2 { font-size: 1.1rem; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 500; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal { background: var(--surface); border-radius: 12px; width: 90%; max-width: 520px; padding: 28px; transform: scale(0.95); transition: transform 0.2s; }
+.modal-overlay.open .modal { transform: scale(1); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.modal-title { font-size: 1.1rem; font-weight: 600; }
+.modal-close { background: none; border: none; color: var(--text2); font-size: 1.4rem; cursor: pointer; padding: 4px; border-radius: 50%; }
+.modal-close:hover { background: var(--surface2); color: var(--text); }
+.drop-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
+.drop-zone:hover, .drop-zone.dragover { border-color: var(--accent); background: rgba(255,0,0,0.04); }
+.drop-icon { font-size: 2.5rem; margin-bottom: 10px; }
+.drop-title { font-weight: 500; margin-bottom: 6px; }
+.drop-sub { font-size: 0.8rem; color: var(--text2); }
+.select-btn { display: inline-block; margin-top: 14px; background: var(--accent); color: white; border: none; padding: 9px 22px; border-radius: 20px; font-size: 0.85rem; font-family: 'Roboto', sans-serif; font-weight: 500; cursor: pointer; }
+.select-btn:hover { background: #cc0000; }
+.progress-wrap { margin-top: 16px; display: none; }
+.progress-label { font-size: 0.78rem; color: var(--text2); margin-bottom: 6px; display: flex; justify-content: space-between; }
+.progress-track { background: var(--surface2); border-radius: 999px; height: 4px; overflow: hidden; }
 .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; border-radius: 999px; }
-.upload-msg { margin-top: 8px; font-family: 'JetBrains Mono'; font-size: 0.68rem; color: var(--sub); }
-
-.section { padding: 0 32px 40px; }
-.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.section-title { font-family: 'Bebas Neue'; font-size: 1.3rem; letter-spacing: 2px; }
-.video-count { font-family: 'JetBrains Mono'; font-size: 0.65rem; color: var(--muted); }
-
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
-
-.card {
-  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-  overflow: hidden; cursor: pointer; transition: all 0.22s; text-decoration: none; color: inherit; display: block;
-}
-.card:hover { border-color: rgba(232,255,71,0.4); transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
-
-.thumb {
-  aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center;
-  font-size: 2.2rem; position: relative; overflow: hidden;
-  background: linear-gradient(135deg, #1a1a28, #0d0d18);
-}
-.thumb-ext {
-  position: absolute; bottom: 6px; right: 8px;
-  font-family: 'JetBrains Mono'; font-size: 0.58rem;
-  background: rgba(0,0,0,0.85); padding: 2px 6px; border-radius: 3px;
-}
-
-.card-body { padding: 10px 12px 12px; }
-.card-title { font-size: 0.83rem; font-weight: 500; line-height: 1.4; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.card-meta { font-family: 'JetBrains Mono'; font-size: 0.6rem; color: var(--muted); display: flex; gap: 10px; }
-
-.card-actions {
-  display: flex; gap: 6px; padding: 0 12px 10px;
-}
-.card-btn {
-  flex: 1; padding: 5px; border-radius: 5px; border: 1px solid var(--border);
-  background: transparent; color: var(--muted); font-size: 0.68rem; cursor: pointer; transition: all 0.2s;
-}
-.card-btn:hover { border-color: var(--accent2); color: var(--accent2); }
-.card-btn.watch-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-.empty {
-  grid-column: 1/-1; text-align: center; padding: 60px 20px;
-  color: var(--muted); font-family: 'JetBrains Mono'; font-size: 0.78rem; line-height: 2;
-}
-.empty .big { font-size: 3rem; margin-bottom: 12px; }
-
-.toast {
-  position: fixed; bottom: 24px; right: 24px;
-  background: var(--card); border: 1px solid var(--accent); border-radius: 10px;
-  padding: 12px 20px; font-family: 'JetBrains Mono'; font-size: 0.72rem; color: var(--accent);
-  transform: translateY(80px); opacity: 0; transition: all 0.3s; z-index: 999;
-}
-.toast.show { transform: translateY(0); opacity: 1; }
-.toast.error { border-color: var(--accent2); color: var(--accent2); }
+#file-input { display: none; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); color: var(--text); border-radius: 8px; padding: 12px 24px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 999; transition: transform 0.3s; white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.search-label { font-size: 0.92rem; color: var(--text2); margin-bottom: 16px; }
+.search-label span { color: var(--text); font-weight: 500; }
+@media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main { margin-left: 0; padding: 16px; } .topbar-center { margin: 0 8px; } }
 </style>
 </head>
 <body>
-
-<nav>
-  <a href="/" class="logo">VAULT<span>STREAM</span></a>
-  <div class="nav-right">
-    <div class="status-pill"><div class="dot"></div>LOCAL · PORT 5000</div>
+<div class="topbar">
+  <div class="topbar-left">
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    <a href="/" class="logo">
+      <div class="logo-icon">VS</div>
+      <div class="logo-text">VaultStream</div>
+    </a>
   </div>
-</nav>
-
-<div class="phase-bar">
-  📍 PHASE 1 — LOCAL MODE &nbsp;·&nbsp; Videos stored on your computer &nbsp;·&nbsp; Works offline
-</div>
-
-<div class="hero">
-  <h1>YOUR <span>VIDEO</span> VAULT</h1>
-  <p class="hero-sub">// {{ videos|length }} video{{ 's' if videos|length != 1 else '' }} on local drive</p>
-</div>
-
-<!-- UPLOAD ZONE -->
-<div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
-  <div class="icon">📁</div>
-  <h3>Drop a video here to upload</h3>
-  <p>Supports MP4, MKV, MOV, AVI, WEBM · Max 4GB</p>
-  <div class="progress-bar" id="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-  <div class="upload-msg" id="upload-msg"></div>
-</div>
-<input type="file" id="file-input" accept=".mp4,.mkv,.mov,.avi,.webm">
-
-<!-- VIDEO GRID -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-title">ALL VIDEOS</div>
-    <div class="video-count">{{ videos|length }} FILE{{ 'S' if videos|length != 1 else '' }}</div>
+  <div class="topbar-center">
+    <div class="search-wrap">
+      <input type="text" class="search-input" id="search-input" placeholder="Search videos..." oninput="filterVideos()">
+      <button class="search-btn">🔍</button>
+    </div>
   </div>
-  <div class="grid" id="video-grid">
+  <div style="display:flex;align-items:center;gap:8px;">
+    <button class="upload-btn" onclick="openModal()"><span>📤</span> Upload</button>
+  </div>
+</div>
+<div class="sidebar" id="sidebar">
+  <a href="/" class="sidebar-item active"><span>🏠</span>&nbsp;&nbsp;Home</a>
+  <a href="/" class="sidebar-item"><span>🔥</span>&nbsp;&nbsp;Trending</a>
+  <a href="/" class="sidebar-item"><span>📁</span>&nbsp;&nbsp;Library</a>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-section">More</div>
+  <a href="/" class="sidebar-item"><span>⚙️</span>&nbsp;&nbsp;Settings</a>
+  <a href="/" class="sidebar-item"><span>❓</span>&nbsp;&nbsp;Help</a>
+</div>
+<div class="main" id="main">
+  <div class="chips">
+    <button class="chip active" onclick="filterChip(this,'all')">All</button>
+    <button class="chip" onclick="filterChip(this,'mp4')">MP4</button>
+    <button class="chip" onclick="filterChip(this,'mkv')">MKV</button>
+    <button class="chip" onclick="filterChip(this,'mov')">MOV</button>
+    <button class="chip" onclick="filterChip(this,'avi')">AVI</button>
+    <button class="chip" onclick="filterChip(this,'webm')">WEBM</button>
+  </div>
+  <div class="search-label" id="search-label" style="display:none;">Showing results for <span id="search-term"></span></div>
+  <div class="video-grid" id="video-grid">
     {% if videos %}
       {% for video in videos %}
-      <div class="card" id="card-{{ loop.index }}">
-        <a href="/watch/{{ video.filename }}" style="text-decoration:none;color:inherit;display:block;">
-          <div class="thumb">🎬<div class="thumb-ext">{{ video.extension }}</div></div>
-          <div class="card-body">
-            <div class="card-title" title="{{ video.title }}">{{ video.title }}</div>
-            <div class="card-meta"><span>{{ video.size }}</span><span>{{ video.added }}</span></div>
-          </div>
-        </a>
-        <div class="card-actions">
-          <button class="card-btn watch-btn" onclick="window.location='/watch/{{ video.filename }}'">▶ Watch</button>
-          <button class="card-btn" onclick="deleteVideo('{{ video.filename }}', {{ loop.index }})">🗑 Delete</button>
+      <a class="video-card" href="/watch/{{ video.filename }}" data-ext="{{ video.extension|lower }}" data-title="{{ video.title|lower }}">
+        <div class="thumb-wrap">
+          <div class="thumb-bg" style="background:{{ ['#1a1a2e','#16213e','#1e1e2e','#1a2a1a','#2a1a1a','#2a1a2a','#1a2a2a'][loop.index % 7] }};">🎬</div>
+          <div class="thumb-overlay"><div class="play-circle">▶</div></div>
+          <div class="thumb-duration">{{ video.extension }}</div>
+          <button class="delete-btn" onclick="event.preventDefault();deleteVideo('{{ video.filename }}',this)">🗑 Delete</button>
         </div>
-      </div>
+        <div class="card-info">
+          <div class="card-avatar">{{ video.title[0]|upper }}</div>
+          <div class="card-details">
+            <div class="card-title">{{ video.title }}</div>
+            <div class="card-meta">{{ video.size }} · {{ video.added }}</div>
+          </div>
+          <button class="card-more" onclick="event.preventDefault()">⋮</button>
+        </div>
+      </a>
       {% endfor %}
     {% else %}
       <div class="empty">
-        <div class="big">🎬</div>
-        No videos yet!<br>Drop a video file above to get started.
+        <div class="empty-icon">🎬</div>
+        <h2>No videos yet</h2>
+        <p>Click Upload to add your first video!</p>
       </div>
     {% endif %}
   </div>
 </div>
-
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Upload Video</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <div class="drop-icon">📁</div>
+      <div class="drop-title">Drag and drop your video here</div>
+      <div class="drop-sub">MP4, MKV, MOV, AVI, WEBM · Max 4GB</div>
+      <button class="select-btn" onclick="event.stopPropagation();document.getElementById('file-input').click()">Select File</button>
+    </div>
+    <div class="progress-wrap" id="progress-wrap">
+      <div class="progress-label"><span id="progress-name">Uploading...</span><span id="progress-pct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+  </div>
+</div>
+<input type="file" id="file-input" accept=".mp4,.mkv,.mov,.avi,.webm">
 <div class="toast" id="toast"></div>
-
 <script>
-// ── UPLOAD ──
+let sidebarOpen = true;
+function toggleSidebar() {
+  sidebarOpen = !sidebarOpen;
+  document.getElementById('sidebar').classList.toggle('collapsed', !sidebarOpen);
+  document.getElementById('main').classList.toggle('full', !sidebarOpen);
+}
+function openModal() { document.getElementById('modal').classList.add('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target===document.getElementById('modal')) closeModal(); }
 const dropZone = document.getElementById('drop-zone');
-const fileInput = document.getElementById('file-input');
-const progressBar = document.getElementById('progress-bar');
-const progressFill = document.getElementById('progress-fill');
-const uploadMsg = document.getElementById('upload-msg');
-
-fileInput.addEventListener('change', e => {
-  if (e.target.files[0]) uploadFile(e.target.files[0]);
-});
-
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault(); dropZone.classList.remove('dragover');
-  if (e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]);
-});
-
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); if (e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]); });
+document.getElementById('file-input').addEventListener('change', e => { if (e.target.files[0]) uploadFile(e.target.files[0]); });
 function uploadFile(file) {
   const formData = new FormData();
   formData.append('video', file);
-
-  progressBar.style.display = 'block';
-  uploadMsg.textContent = `Uploading "${file.name}"...`;
-
+  const wrap = document.getElementById('progress-wrap');
+  const fill = document.getElementById('progress-fill');
+  const name = document.getElementById('progress-name');
+  const pct = document.getElementById('progress-pct');
+  wrap.style.display = 'block';
+  name.textContent = file.name;
   const xhr = new XMLHttpRequest();
   xhr.upload.addEventListener('progress', e => {
-    if (e.lengthComputable) {
-      const pct = Math.round((e.loaded / e.total) * 100);
-      progressFill.style.width = pct + '%';
-      uploadMsg.textContent = `Uploading... ${pct}%`;
-    }
+    if (e.lengthComputable) { const p = Math.round((e.loaded/e.total)*100); fill.style.width=p+'%'; pct.textContent=p+'%'; }
   });
-
   xhr.addEventListener('load', () => {
     const res = JSON.parse(xhr.responseText);
-    if (res.success) {
-      showToast('✅ ' + res.message);
-      setTimeout(() => location.reload(), 1200);
-    } else {
-      showToast('❌ ' + res.error, true);
-      progressBar.style.display = 'none';
-      uploadMsg.textContent = '';
-    }
+    if (res.success) { closeModal(); showToast('✅ '+res.message); setTimeout(()=>location.reload(),1200); }
+    else { showToast('❌ '+res.error); wrap.style.display='none'; }
   });
-
   xhr.open('POST', '/upload');
   xhr.send(formData);
 }
-
-// ── DELETE ──
-function deleteVideo(filename, index) {
-  if (!confirm(`Delete "${filename}"? This cannot be undone.`)) return;
-  fetch('/delete/' + filename, { method: 'POST' })
-    .then(r => r.json())
-    .then(res => {
-      if (res.success) {
-        document.getElementById('card-' + index).remove();
-        showToast('🗑 Video deleted');
-      } else {
-        showToast('❌ Could not delete', true);
-      }
-    });
+function deleteVideo(filename, btn) {
+  if (!confirm('Delete "'+filename+'"?')) return;
+  fetch('/delete/'+filename, {method:'POST'}).then(r=>r.json()).then(res => {
+    if (res.success) { btn.closest('.video-card').remove(); showToast('🗑 Deleted'); }
+  });
 }
-
-// ── TOAST ──
-function showToast(msg, isError = false) {
+function filterVideos() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const label = document.getElementById('search-label');
+  document.querySelectorAll('.video-card').forEach(c => { c.style.display = c.dataset.title.includes(q) ? '' : 'none'; });
+  if (q) { label.style.display='block'; document.getElementById('search-term').textContent='"'+q+'"'; }
+  else { label.style.display='none'; }
+}
+function filterChip(el, ext) {
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.video-card').forEach(c => { c.style.display=(ext==='all'||c.dataset.ext===ext)?'':'none'; });
+}
+function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show' + (isError ? ' error' : '');
-  setTimeout(() => t.className = 'toast', 3000);
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
 }
 </script>
 </body>
