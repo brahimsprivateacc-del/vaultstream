@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VAULTSTREAM</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+:root {
+  --bg: #0a0a0c; --surface: #111116; --card: #16161e; --border: #22222e;
+  --accent: #e8ff47; --accent2: #ff4757; --text: #f0f0f8; --muted: #4a4a62; --sub: #8888aa;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 32px; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: rgba(10,10,12,0.95);
+  backdrop-filter: blur(12px); z-index: 100;
+}
+.logo { font-family: 'Bebas Neue'; font-size: 1.8rem; letter-spacing: 3px; color: var(--accent); text-decoration: none; }
+.logo span { color: var(--text); }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.status-pill {
+  display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+  border-radius: 999px; border: 1px solid rgba(232,255,71,0.3);
+  background: rgba(232,255,71,0.06); font-family: 'JetBrains Mono'; font-size: 0.62rem; color: var(--accent);
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.btn {
+  padding: 8px 18px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--card); color: var(--sub); font-family: 'DM Sans'; font-size: 0.82rem;
+  cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+.btn.primary:hover { background: #d4eb30; }
+
+.hero { padding: 36px 32px 20px; }
+.hero h1 { font-family: 'Bebas Neue'; font-size: clamp(2rem,5vw,3rem); letter-spacing: 2px; }
+.hero h1 span { color: var(--accent); }
+.hero-sub { font-family: 'JetBrains Mono'; font-size: 0.72rem; color: var(--sub); margin-top: 6px; }
+
+.phase-bar {
+  margin: 0 32px 20px; padding: 10px 16px;
+  background: rgba(232,255,71,0.04); border: 1px solid rgba(232,255,71,0.15);
+  border-radius: 8px; font-family: 'JetBrains Mono'; font-size: 0.68rem; color: var(--accent);
+  display: flex; align-items: center; gap: 8px;
+}
+
+.upload-zone {
+  margin: 0 32px 32px; border: 2px dashed var(--border); border-radius: 12px;
+  padding: 28px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--card);
+}
+.upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: rgba(232,255,71,0.03); }
+.upload-zone .icon { font-size: 2rem; margin-bottom: 8px; }
+.upload-zone h3 { font-size: 0.95rem; margin-bottom: 4px; }
+.upload-zone p { font-size: 0.72rem; color: var(--sub); font-family: 'JetBrains Mono'; }
+#file-input { display: none; }
+
+.progress-bar {
+  display: none; margin-top: 12px; background: var(--border);
+  border-radius: 999px; height: 6px; overflow: hidden;
+}
+.progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; border-radius: 999px; }
+.upload-msg { margin-top: 8px; font-family: 'JetBrains Mono'; font-size: 0.68rem; color: var(--sub); }
+
+.section { padding: 0 32px 40px; }
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.section-title { font-family: 'Bebas Neue'; font-size: 1.3rem; letter-spacing: 2px; }
+.video-count { font-family: 'JetBrains Mono'; font-size: 0.65rem; color: var(--muted); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  overflow: hidden; cursor: pointer; transition: all 0.22s; text-decoration: none; color: inherit; display: block;
+}
+.card:hover { border-color: rgba(232,255,71,0.4); transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
+
+.thumb {
+  aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center;
+  font-size: 2.2rem; position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #1a1a28, #0d0d18);
+}
+.thumb-ext {
+  position: absolute; bottom: 6px; right: 8px;
+  font-family: 'JetBrains Mono'; font-size: 0.58rem;
+  background: rgba(0,0,0,0.85); padding: 2px 6px; border-radius: 3px;
+}
+
+.card-body { padding: 10px 12px 12px; }
+.card-title { font-size: 0.83rem; font-weight: 500; line-height: 1.4; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-meta { font-family: 'JetBrains Mono'; font-size: 0.6rem; color: var(--muted); display: flex; gap: 10px; }
+
+.card-actions {
+  display: flex; gap: 6px; padding: 0 12px 10px;
+}
+.card-btn {
+  flex: 1; padding: 5px; border-radius: 5px; border: 1px solid var(--border);
+  background: transparent; color: var(--muted); font-size: 0.68rem; cursor: pointer; transition: all 0.2s;
+}
+.card-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+.card-btn.watch-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.empty {
+  grid-column: 1/-1; text-align: center; padding: 60px 20px;
+  color: var(--muted); font-family: 'JetBrains Mono'; font-size: 0.78rem; line-height: 2;
+}
+.empty .big { font-size: 3rem; margin-bottom: 12px; }
+
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--card); border: 1px solid var(--accent); border-radius: 10px;
+  padding: 12px 20px; font-family: 'JetBrains Mono'; font-size: 0.72rem; color: var(--accent);
+  transform: translateY(80px); opacity: 0; transition: all 0.3s; z-index: 999;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.error { border-color: var(--accent2); color: var(--accent2); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">VAULT<span>STREAM</span></a>
+  <div class="nav-right">
+    <div class="status-pill"><div class="dot"></div>LOCAL · PORT 5000</div>
+  </div>
+</nav>
+
+<div class="phase-bar">
+  📍 PHASE 1 — LOCAL MODE &nbsp;·&nbsp; Videos stored on your computer &nbsp;·&nbsp; Works offline
+</div>
+
+<div class="hero">
+  <h1>YOUR <span>VIDEO</span> VAULT</h1>
+  <p class="hero-sub">// {{ videos|length }} video{{ 's' if videos|length != 1 else '' }} on local drive</p>
+</div>
+
+<!-- UPLOAD ZONE -->
+<div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+  <div class="icon">📁</div>
+  <h3>Drop a video here to upload</h3>
+  <p>Supports MP4, MKV, MOV, AVI, WEBM · Max 4GB</p>
+  <div class="progress-bar" id="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="upload-msg" id="upload-msg"></div>
+</div>
+<input type="file" id="file-input" accept=".mp4,.mkv,.mov,.avi,.webm">
+
+<!-- VIDEO GRID -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-title">ALL VIDEOS</div>
+    <div class="video-count">{{ videos|length }} FILE{{ 'S' if videos|length != 1 else '' }}</div>
+  </div>
+  <div class="grid" id="video-grid">
+    {% if videos %}
+      {% for video in videos %}
+      <div class="card" id="card-{{ loop.index }}">
+        <a href="/watch/{{ video.filename }}" style="text-decoration:none;color:inherit;display:block;">
+          <div class="thumb">🎬<div class="thumb-ext">{{ video.extension }}</div></div>
+          <div class="card-body">
+            <div class="card-title" title="{{ video.title }}">{{ video.title }}</div>
+            <div class="card-meta"><span>{{ video.size }}</span><span>{{ video.added }}</span></div>
+          </div>
+        </a>
+        <div class="card-actions">
+          <button class="card-btn watch-btn" onclick="window.location='/watch/{{ video.filename }}'">▶ Watch</button>
+          <button class="card-btn" onclick="deleteVideo('{{ video.filename }}', {{ loop.index }})">🗑 Delete</button>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty">
+        <div class="big">🎬</div>
+        No videos yet!<br>Drop a video file above to get started.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── UPLOAD ──
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const progressBar = document.getElementById('progress-bar');
+const progressFill = document.getElementById('progress-fill');
+const uploadMsg = document.getElementById('upload-msg');
+
+fileInput.addEventListener('change', e => {
+  if (e.target.files[0]) uploadFile(e.target.files[0]);
+});
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]);
+});
+
+function uploadFile(file) {
+  const formData = new FormData();
+  formData.append('video', file);
+
+  progressBar.style.display = 'block';
+  uploadMsg.textContent = `Uploading "${file.name}"...`;
+
+  const xhr = new XMLHttpRequest();
+  xhr.upload.addEventListener('progress', e => {
+    if (e.lengthComputable) {
+      const pct = Math.round((e.loaded / e.total) * 100);
+      progressFill.style.width = pct + '%';
+      uploadMsg.textContent = `Uploading... ${pct}%`;
+    }
+  });
+
+  xhr.addEventListener('load', () => {
+    const res = JSON.parse(xhr.responseText);
+    if (res.success) {
+      showToast('✅ ' + res.message);
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      showToast('❌ ' + res.error, true);
+      progressBar.style.display = 'none';
+      uploadMsg.textContent = '';
+    }
+  });
+
+  xhr.open('POST', '/upload');
+  xhr.send(formData);
+}
+
+// ── DELETE ──
+function deleteVideo(filename, index) {
+  if (!confirm(`Delete "${filename}"? This cannot be undone.`)) return;
+  fetch('/delete/' + filename, { method: 'POST' })
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) {
+        document.getElementById('card-' + index).remove();
+        showToast('🗑 Video deleted');
+      } else {
+        showToast('❌ Could not delete', true);
+      }
+    });
+}
+
+// ── TOAST ──
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(() => t.className = 'toast', 3000);
+}
+</script>
+</body>
+</html>
