@@ -18,6 +18,7 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_UPLOAD_MB * 1024 * 1024
 # Supabase config
 SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://wweckerzweqjrrrbqysq.supabase.co')
 SUPABASE_KEY = os.environ.get('SUPABASE_KEY', 'sb_publishable_cxxK6Id-_Ttl18yWep2oNQ_BgO2rghG')
+SUPABASE_SERVICE_KEY = os.environ.get('SUPABASE_SERVICE_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3ZWNrZXJ6d2VxanJycmJxeXNxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjgyNTg5NSwiZXhwIjoyMDg4NDAxODk1fQ.6ZOMljwV5qt7mPPjn_6kpxaQHlt44J89Xdm2eeHET4g')
 
 # Cloudinary config
 cloudinary.config(
@@ -32,6 +33,14 @@ def supabase_headers(token=None):
     h = {'apikey': SUPABASE_KEY, 'Content-Type': 'application/json'}
     h['Authorization'] = f'Bearer {token}' if token else f'Bearer {SUPABASE_KEY}'
     return h
+
+def supabase_service_headers():
+    return {
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Authorization': f'Bearer {SUPABASE_SERVICE_KEY}',
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+    }
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -199,10 +208,10 @@ def upload():
     thumbnail_url = result.get('secure_url', '').rsplit('.', 1)[0].replace('/video/upload/', '/video/upload/so_0,w_400,h_225,c_fill/') + '.jpg'
     size = get_file_size(result.get('bytes', 0))
 
-    # Save to Supabase
+    # Save to Supabase using service key
     r = requests.post(
         f'{SUPABASE_URL}/rest/v1/videos',
-        headers={**supabase_headers(user['token']), 'Prefer': 'return=representation'},
+        headers=supabase_service_headers(),
         json={
             'user_id': user['id'],
             'filename': filename,
@@ -213,7 +222,7 @@ def upload():
             'thumbnail_url': thumbnail_url
         }
     )
-    return jsonify({'success': True, 'message': f'"{title}" uploaded!', 'video_url': video_url})
+    return jsonify({'success': True, 'message': f'"{title}" uploaded!'})
 
 @app.route('/videos/<filename>')
 def serve_video(filename):
