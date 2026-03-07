@@ -200,9 +200,9 @@ def upload():
     size = get_file_size(result.get('bytes', 0))
 
     # Save to Supabase
-    requests.post(
+    r = requests.post(
         f'{SUPABASE_URL}/rest/v1/videos',
-        headers=supabase_headers(user['token']),
+        headers={**supabase_headers(user['token']), 'Prefer': 'return=representation'},
         json={
             'user_id': user['id'],
             'filename': filename,
@@ -213,7 +213,7 @@ def upload():
             'thumbnail_url': thumbnail_url
         }
     )
-    return jsonify({'success': True, 'message': f'"{title}" uploaded!'})
+    return jsonify({'success': True, 'message': f'"{title}" uploaded!', 'video_url': video_url})
 
 @app.route('/videos/<filename>')
 def serve_video(filename):
