@@ -66,7 +66,7 @@ video { width: 100%; border-radius: 12px; background: #000; box-shadow: 0 20px 6
 
 <div class="wrap">
   <video controls autoplay>
-    <source src="/videos/{{ video.filename }}">
+    <source src="{{ video.video_url if video.video_url else '/videos/' + video.filename }}">
   </video>
 
   <div class="video-title">{{ video.title }}</div>
