@@ -306,6 +306,25 @@ def service_worker():
     response.headers['Service-Worker-Allowed'] = '/'
     return response
 
+
+@app.route('/debug_upload')
+def debug_upload():
+    """Test Supabase connection."""
+    r = requests.post(
+        f'{SUPABASE_URL}/rest/v1/videos',
+        headers=supabase_service_headers(),
+        json={
+            'user_id': '9e186088-8134-43d3-9ea6-8a3330335845',
+            'filename': 'test.mp4',
+            'title': 'Test Video',
+            'size': '1 MB',
+            'extension': 'MP4',
+            'video_url': 'https://test.com/test.mp4',
+            'thumbnail_url': 'https://test.com/test.jpg'
+        }
+    )
+    return jsonify({'status': r.status_code, 'response': r.text})
+
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
