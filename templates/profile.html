@@ -103,7 +103,11 @@ nav { display: flex; align-items: center; justify-content: space-between; paddin
     {% for video in videos %}
     <a class="video-card" href="/watch/{{ video.id }}">
       <div class="thumb-wrap">
-        <div class="thumb-bg" style="background:{{ ['#1a1a2e','#16213e','#1e1e2e','#1a2a1a','#2a1a1a'][loop.index % 5] }};">🎬</div>
+        {% if video.thumbnail_url %}
+          <img src="{{ video.thumbnail_url }}" alt="{{ video.title }}" style="width:100%;height:100%;object-fit:cover;">
+        {% else %}
+          <div class="thumb-bg" style="background:{{ ['#1a1a2e','#16213e','#1e1e2e','#1a2a1a','#2a1a1a'][loop.index % 5] }};">🎬</div>
+        {% endif %}
         <div class="thumb-overlay"><div class="play-circle">▶</div></div>
       </div>
       <div class="card-title">{{ video.title }}</div>
