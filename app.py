@@ -99,6 +99,13 @@ def watch(video_id):
         )
         user_liked = len(r4.json()) > 0 if r4.ok else False
 
+    # Increment view count
+    requests.post(
+        f'{SUPABASE_URL}/rpc/increment_views',
+        headers=supabase_service_headers(),
+        json={'video_id': video_id}
+    )
+
     return render_template('watch.html', video=video, comments=comments, likes=likes, user=user, user_liked=user_liked)
 
 @app.route('/profile/<username>')
