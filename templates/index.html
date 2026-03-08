@@ -177,7 +177,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
           <div class="card-avatar">{{ video.title[0]|upper }}</div>
           <div class="card-details">
             <div class="card-title">{{ video.title }}</div>
-            <div class="card-meta">{{ video.size }} · {{ video.added }}</div>
+            <div class="card-meta">{{ video.size }} · {{ video.views or 0 }} views</div>
           </div>
           <button class="card-more" onclick="event.preventDefault()">⋮</button>
         </div>
