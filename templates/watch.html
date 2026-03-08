@@ -48,6 +48,39 @@ video { width: 100%; border-radius: 12px; background: #000; box-shadow: 0 20px 6
 .comment-body .text { font-size: 0.85rem; line-height: 1.5; }
 .login-prompt { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; font-size: 0.85rem; color: var(--text2); margin-bottom: 20px; }
 .login-prompt a { color: var(--accent); text-decoration: none; }
+
+/* Connection status */
+.conn-status {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 999px;
+  font-size: 0.72rem; font-family: 'Roboto', sans-serif;
+  position: fixed; bottom: 20px; right: 20px; z-index: 999;
+  transition: all 0.3s; box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+.conn-status.online { background: rgba(0,200,100,0.15); border: 1px solid rgba(0,200,100,0.4); color: #00c864; }
+.conn-status.offline { background: rgba(255,70,70,0.15); border: 1px solid rgba(255,70,70,0.4); color: #ff4646; }
+.conn-status.slow { background: rgba(255,180,0,0.15); border: 1px solid rgba(255,180,0,0.4); color: #ffb400; }
+.conn-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+/* Download progress */
+.dl-progress {
+  display: none; margin-top: 8px;
+  background: var(--surface2); border-radius: 999px; height: 4px; overflow: hidden;
+}
+.dl-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; border-radius: 999px; }
+
+/* Low bandwidth banner */
+.bandwidth-banner {
+  display: none; background: rgba(255,180,0,0.1); border: 1px solid rgba(255,180,0,0.3);
+  border-radius: 8px; padding: 10px 14px; margin-bottom: 12px;
+  font-size: 0.78rem; color: #ffb400; display: flex; align-items: center;
+  justify-content: space-between; gap: 10px;
+}
+.bandwidth-banner button {
+  background: rgba(255,180,0,0.2); border: 1px solid rgba(255,180,0,0.4);
+  color: #ffb400; padding: 4px 10px; border-radius: 6px; cursor: pointer;
+  font-size: 0.72rem; font-family: 'Roboto', sans-serif;
+}
 </style>
 </head>
 <body>
@@ -65,9 +98,14 @@ video { width: 100%; border-radius: 12px; background: #000; box-shadow: 0 20px 6
 </nav>
 
 <div class="wrap">
-  <video controls autoplay>
+  <div class="bandwidth-banner" id="bandwidth-banner">
+    ⚠️ Slow connection detected — switch to low quality?
+    <button onclick="switchQuality()">Low Quality</button>
+  </div>
+  <video controls autoplay id="main-video">
     <source src="{{ video.video_url if video.video_url else '/videos/' + video.filename }}">
   </video>
+  <div class="dl-progress" id="dl-progress"><div class="dl-fill" id="dl-fill"></div></div>
 
   <div class="video-title">{{ video.title }}</div>
 
@@ -77,7 +115,7 @@ video { width: 100%; border-radius: 12px; background: #000; box-shadow: 0 20px 6
       <button class="action-btn {{ 'liked' if user_liked else '' }}" id="like-btn" onclick="toggleLike('{{ video.id }}')">
         ❤️ <span id="like-count">{{ likes }}</span>
       </button>
-      <a href="/videos/{{ video.filename }}" download class="action-btn">💾 Download</a>
+      <button class="action-btn" onclick="downloadVideo()">💾 Save Offline</button>
     </div>
   </div>
 
@@ -164,6 +202,107 @@ function postComment(videoId) {
       input.value = '';
     }
   });
+}
+</script>
+<!-- CONNECTION STATUS -->
+<div class="conn-status online" id="conn-status">
+  <div class="conn-dot"></div>
+  <span id="conn-label">Online</span>
+</div>
+
+<script>
+// ── CONNECTION DETECTOR ──
+let isSlowConnection = false;
+
+function updateConnectionStatus() {
+  const status = document.getElementById('conn-status');
+  const label = document.getElementById('conn-label');
+  const banner = document.getElementById('bandwidth-banner');
+
+  if (!navigator.onLine) {
+    status.className = 'conn-status offline';
+    label.textContent = 'Offline';
+    banner.style.display = 'none';
+  } else {
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (conn) {
+      const slow = conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g' || conn.downlink < 1;
+      if (slow) {
+        status.className = 'conn-status slow';
+        label.textContent = 'Slow connection';
+        banner.style.display = 'flex';
+        isSlowConnection = true;
+      } else {
+        status.className = 'conn-status online';
+        label.textContent = conn.effectiveType ? conn.effectiveType.toUpperCase() : 'Online';
+        banner.style.display = 'none';
+      }
+    } else {
+      status.className = 'conn-status online';
+      label.textContent = 'Online';
+    }
+  }
+}
+
+window.addEventListener('online', updateConnectionStatus);
+window.addEventListener('offline', updateConnectionStatus);
+updateConnectionStatus();
+setInterval(updateConnectionStatus, 5000);
+
+// ── LOW QUALITY MODE ──
+function switchQuality() {
+  const video = document.getElementById('main-video');
+  const src = video.querySelector('source').src;
+  // Add Cloudinary quality transformation
+  const lowQualitySrc = src.replace('/upload/', '/upload/q_30,w_640/');
+  video.querySelector('source').src = lowQualitySrc;
+  video.load();
+  video.play();
+  document.getElementById('bandwidth-banner').style.display = 'none';
+  showToast('📱 Switched to low quality mode');
+}
+
+// ── SAVE OFFLINE (Download) ──
+function downloadVideo() {
+  const src = document.querySelector('#main-video source').src;
+  const progress = document.getElementById('dl-progress');
+  const fill = document.getElementById('dl-fill');
+
+  progress.style.display = 'block';
+  showToast('💾 Saving video...');
+
+  fetch(src)
+    .then(r => {
+      const total = r.headers.get('content-length');
+      const reader = r.body.getReader();
+      const chunks = [];
+      let loaded = 0;
+
+      function read() {
+        return reader.read().then(({ done, value }) => {
+          if (done) {
+            const blob = new Blob(chunks, { type: 'video/mp4' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '{{ video.filename }}';
+            a.click();
+            progress.style.display = 'none';
+            showToast('✅ Saved to your device!');
+            return;
+          }
+          chunks.push(value);
+          loaded += value.length;
+          if (total) fill.style.width = Math.round((loaded / total) * 100) + '%';
+          return read();
+        });
+      }
+      return read();
+    })
+    .catch(() => {
+      progress.style.display = 'none';
+      showToast('❌ Download failed');
+    });
 }
 </script>
 </body>
