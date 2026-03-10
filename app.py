@@ -349,6 +349,26 @@ def update_bio():
     )
     return jsonify({'success': True})
 
+
+@app.route('/delete_video/<video_id>', methods=['POST'])
+def delete_video(video_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'error': 'Login required'}), 401
+    # Check ownership
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&user_id=eq.{user["id"]}',
+        headers=supabase_service_headers()
+    )
+    if not r.json():
+        return jsonify({'success': False, 'error': 'Not your video'}), 403
+    # Delete from Supabase
+    requests.delete(
+        f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}',
+        headers=supabase_service_headers()
+    )
+    return jsonify({'success': True})
+
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
