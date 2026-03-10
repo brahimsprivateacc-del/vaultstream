@@ -369,6 +369,20 @@ def delete_video(video_id):
     )
     return jsonify({'success': True})
 
+
+@app.route('/search')
+def search():
+    user = get_current_user()
+    q = request.args.get('q', '').strip()
+    videos = []
+    if q:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/videos?select=*,profiles(username)&title=ilike.*{q}*&order=views.desc',
+            headers=supabase_headers()
+        )
+        videos = r.json() if r.ok else []
+    return render_template('search.html', videos=videos, query=q, user=user)
+
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
