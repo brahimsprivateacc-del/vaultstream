@@ -1,44 +1,98 @@
-# 🎬 VAULTSTREAM — Your Local Video Platform
+# 🎬 VaultStream
 
-## How to Run (Windows)
+A YouTube-style video platform built for **everywhere** — city, remote, or off-grid. Watch, share and store videos even on the slowest connections. 🛰️
 
-### Step 1 — Install Python
-1. Go to https://python.org
-2. Click "Download Python"
-3. Run the installer
-4. ✅ IMPORTANT: Check "Add Python to PATH" before clicking Install
-
-### Step 2 — Start the app
-Double-click **START.bat**
-That's it! It will install everything and start the server.
-
-### Step 3 — Open your browser
-Go to: **http://localhost:5000**
+🌐 **Live at:** [vaultstream-xy04.onrender.com](https://vaultstream-xy04.onrender.com)
 
 ---
 
-## What you can do
-- 📁 Upload videos (drag & drop or click)
-- ▶️  Watch any video in your browser
-- 🗑  Delete videos
-- 💾 Download videos
+## ✨ Features
 
-## Supported formats
-MP4, MKV, MOV, AVI, WEBM
-
-## Where are my videos stored?
-In the `videos/` folder next to app.py
+- 🎬 **Upload & watch videos** — supports MP4, MKV, MOV, AVI, WEBM
+- ☁️ **Permanent cloud storage** — powered by Cloudinary, videos never disappear
+- 🖼️ **Auto thumbnails** — generated automatically from every video
+- 👤 **User accounts** — sign up, log in, profile pages with photos
+- ❤️ **Likes & comments** — interact with videos and creators
+- 🔥 **Trending page** — discover the most watched videos
+- 📊 **View counts** — track how many times videos have been watched
+- 📱 **PWA** — installable on iPhone and Android like a native app
+- 🛰️ **Satellite ready** — low bandwidth mode + offline download for remote areas
+- 🌙 **Dark theme** — YouTube-style dark UI
 
 ---
 
-## Project Structure
+## 🗺️ Roadmap
+
+| Phase | Status | Description |
+|-------|--------|-------------|
+| Phase 1 | ✅ Done | Local Python video player |
+| Phase 2 | ✅ Done | Online platform with user accounts |
+| Phase 3 | 🔴 Active | Offline sync, PWA, low bandwidth mode |
+| Phase 4 | 🔵 Future | Full satellite connectivity for remote areas |
+
+---
+
+## 🛠️ Built With
+
+| Technology | Purpose |
+|---|---|
+| Python + Flask | Backend server |
+| Supabase | Database + authentication |
+| Cloudinary | Video + image storage |
+| Render | Hosting |
+| HTML/CSS/JS | Frontend UI |
+
+---
+
+## 🚀 Run Locally
+
+1. Clone the repo:
+```bash
+git clone https://github.com/brahimsprivateacc-del/vaultstream
+cd vaultstream
 ```
-vaultstream/
-├── app.py              ← Main server (Python)
-├── requirements.txt    ← Libraries needed
-├── START.bat           ← Double-click to run on Windows
-├── videos/             ← Your videos go here
-└── templates/
-    ├── index.html      ← Home page
-    └── watch.html      ← Video player page
+
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
 ```
+
+3. Set environment variables:
+```
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_key
+SUPABASE_SERVICE_KEY=your_service_key
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
+
+4. Run the app:
+```bash
+python app.py
+```
+
+5. Open [http://localhost:5000](http://localhost:5000) 🎉
+
+---
+
+## 📱 Install as App (PWA)
+
+**iPhone:** Open in Safari → Share → Add to Home Screen
+
+**Android:** Open in Chrome → Menu → Add to Home Screen
+
+---
+
+## 🛰️ Satellite Features
+
+VaultStream is designed to work in remote areas with slow or satellite internet:
+
+- **Auto-detects** slow connections and warns the user
+- **Low quality mode** — reduces video quality to save bandwidth
+- **Offline download** — save videos to your device with a progress bar
+- Works with **Starlink, HughesNet** and any satellite provider
+
+---
+
+*Built from scratch by a beginner coder with big dreams* 🚀
