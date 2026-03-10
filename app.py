@@ -314,6 +314,27 @@ def service_worker():
     return response
 
 
+
+@app.route('/trending')
+def trending():
+    user = get_current_user()
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/videos?select=*,profiles(username)&order=views.desc',
+        headers=supabase_headers()
+    )
+    videos = r.json() if r.ok else []
+    return render_template('trending.html', videos=videos, user=user)
+
+@app.route('/settings')
+def settings():
+    user = get_current_user()
+    return render_template('settings.html', user=user)
+
+@app.route('/about')
+def about():
+    user = get_current_user()
+    return render_template('about.html', user=user)
+
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
