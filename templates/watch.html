@@ -107,7 +107,16 @@ video { width: 100%; border-radius: 12px; background: #000; box-shadow: 0 20px 6
   </video>
   <div class="dl-progress" id="dl-progress"><div class="dl-fill" id="dl-fill"></div></div>
 
+  {% if user and video.user_id == user.id %}
+  <div class="video-title" id="video-title" onclick="editTitle()" title="Click to edit" style="cursor:pointer;">
+    {{ video.title }} <span style="font-size:0.7rem;color:var(--text2);margin-left:6px;">✏️</span>
+  </div>
+  <input type="text" id="title-input" value="{{ video.title }}"
+    style="display:none;font-size:1.15rem;font-weight:600;background:var(--surface2);border:1px solid var(--accent);border-radius:8px;padding:6px 12px;color:var(--text);font-family:'Roboto',sans-serif;outline:none;width:100%;margin:16px 0 8px;"
+    onblur="saveTitle('{{ video.id }}')" onkeydown="if(event.key==='Enter') saveTitle('{{ video.id }}')">
+  {% else %}
   <div class="video-title">{{ video.title }}</div>
+  {% endif %}
 
   <div class="video-meta">
     <div class="meta-left">{{ video.size }} · {{ video.created_at[:10] }}</div>
@@ -166,6 +175,37 @@ video { width: 100%; border-radius: 12px; background: #000; box-shadow: 0 20px 6
 </div>
 
 <script>
+function editTitle() {
+  document.getElementById('video-title').style.display = 'none';
+  const input = document.getElementById('title-input');
+  input.style.display = 'block';
+  input.focus();
+  input.select();
+}
+
+function saveTitle(videoId) {
+  const input = document.getElementById('title-input');
+  const newTitle = input.value.trim();
+  if (!newTitle) return;
+  fetch('/update_title/' + videoId, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({title: newTitle})
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.success) {
+      input.style.display = 'none';
+      const titleEl = document.getElementById('video-title');
+      titleEl.innerHTML = newTitle + ' <span style="font-size:0.7rem;color:var(--text2);margin-left:6px;">✏️</span>';
+      titleEl.style.display = 'block';
+      showToast('✅ Title updated!');
+    } else {
+      showToast('❌ ' + res.error);
+    }
+  });
+}
+
 function deleteVideo(videoId, title) {
   if (!confirm('Delete "' + title + '"? This cannot be undone!')) return;
   fetch('/delete_video/' + videoId, {method: 'POST'})
