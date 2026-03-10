@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings — VaultStream</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+:root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #272727; --border: #3f3f3f; --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; --sidebar-w: 240px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; }
+nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56px; border-bottom: 1px solid var(--border); background: var(--bg); position: fixed; top: 0; left: 0; right: 0; z-index: 200; }
+.logo { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text); margin-left: 8px; }
+.logo-icon { background: var(--accent); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; }
+.logo-text { font-size: 1.1rem; font-weight: 700; }
+.nav-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.btn { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.82rem; cursor: pointer; text-decoration: none; }
+.btn:hover { background: var(--surface2); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+.sidebar { position: fixed; top: 56px; left: 0; bottom: 0; width: var(--sidebar-w); background: var(--bg); padding: 12px 0; overflow-y: auto; z-index: 100; border-right: 1px solid var(--border); }
+.sidebar-item { display: flex; align-items: center; gap: 24px; padding: 10px 24px; cursor: pointer; border-radius: 10px; margin: 0 8px; transition: background 0.15s; text-decoration: none; color: var(--text); font-size: 0.88rem; font-weight: 500; }
+.sidebar-item:hover, .sidebar-item.active { background: var(--surface2); }
+.sidebar-divider { height: 1px; background: var(--border); margin: 10px 0; }
+.sidebar-section { padding: 8px 24px 4px; font-size: 0.78rem; font-weight: 600; color: var(--text2); text-transform: uppercase; }
+.main { margin-top: 56px; margin-left: var(--sidebar-w); padding: 24px; max-width: 700px; }
+.page-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 24px; }
+.section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 20px; overflow: hidden; }
+.section-header { padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 0.9rem; font-weight: 600; }
+.setting-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--border); }
+.setting-row:last-child { border-bottom: none; }
+.setting-label { font-size: 0.88rem; }
+.setting-desc { font-size: 0.75rem; color: var(--text2); margin-top: 2px; }
+.toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 999px; cursor: pointer; transition: 0.2s; }
+.toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.2s; }
+input:checked + .toggle-slider { background: var(--accent); }
+input:checked + .toggle-slider:before { transform: translateX(20px); }
+.danger-btn { padding: 8px 18px; border-radius: 8px; border: 1px solid #ff4444; background: none; color: #ff4444; font-size: 0.82rem; cursor: pointer; font-family: 'Roboto', sans-serif; transition: all 0.2s; }
+.danger-btn:hover { background: rgba(255,68,68,0.1); }
+.save-btn { padding: 9px 24px; border-radius: 8px; border: none; background: var(--accent); color: white; font-size: 0.85rem; font-weight: 500; cursor: pointer; font-family: 'Roboto', sans-serif; margin-top: 8px; }
+.save-btn:hover { background: #cc0000; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); color: var(--text); border-radius: 8px; padding: 12px 24px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 999; transition: transform 0.3s; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.not-logged-in { text-align: center; padding: 60px 20px; color: var(--text2); }
+.not-logged-in a { color: var(--accent); text-decoration: none; }
+input[type="text"] { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--text); font-size: 0.85rem; font-family: 'Roboto', sans-serif; outline: none; width: 200px; }
+input[type="text"]:focus { border-color: var(--accent); }
+@media(max-width:768px) { .sidebar { display: none; } .main { margin-left: 0; } }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo"><div class="logo-icon">VS</div><div class="logo-text">VaultStream</div></a>
+  <div class="nav-right">
+    {% if user %}
+      <a href="/profile/{{ user.username }}" class="btn">👤 {{ user.username }}</a>
+      <a href="/logout" class="btn">Logout</a>
+    {% else %}
+      <a href="/login" class="btn">Sign in</a>
+      <a href="/signup" class="btn primary">Sign up</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="/" class="sidebar-item"><span>🏠</span>&nbsp;&nbsp;Home</a>
+  <a href="/trending" class="sidebar-item"><span>🔥</span>&nbsp;&nbsp;Trending</a>
+  {% if user %}
+  <a href="/profile/{{ user.username }}" class="sidebar-item"><span>📁</span>&nbsp;&nbsp;My Videos</a>
+  {% else %}
+  <a href="/login" class="sidebar-item"><span>📁</span>&nbsp;&nbsp;My Videos</a>
+  {% endif %}
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-section">More</div>
+  <a href="/settings" class="sidebar-item active"><span>⚙️</span>&nbsp;&nbsp;Settings</a>
+  <a href="/about" class="sidebar-item"><span>❓</span>&nbsp;&nbsp;About</a>
+</div>
+
+<div class="main">
+  <div class="page-title">⚙️ Settings</div>
+
+  {% if user %}
+  <!-- Account -->
+  <div class="section">
+    <div class="section-header">👤 Account</div>
+    <div class="setting-row">
+      <div><div class="setting-label">Username</div><div class="setting-desc">Your public display name</div></div>
+      <input type="text" id="username-input" value="{{ user.username }}">
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">Profile page</div><div class="setting-desc">View your public profile</div></div>
+      <a href="/profile/{{ user.username }}" class="btn">View Profile</a>
+    </div>
+  </div>
+
+  <!-- Playback -->
+  <div class="section">
+    <div class="section-header">▶️ Playback</div>
+    <div class="setting-row">
+      <div><div class="setting-label">Autoplay</div><div class="setting-desc">Automatically play videos</div></div>
+      <label class="toggle"><input type="checkbox" id="autoplay" checked><span class="toggle-slider"></span></label>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">Low bandwidth mode</div><div class="setting-desc">Reduce quality on slow connections</div></div>
+      <label class="toggle"><input type="checkbox" id="lowbandwidth"><span class="toggle-slider"></span></label>
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  <div class="section">
+    <div class="section-header">🔔 Notifications</div>
+    <div class="setting-row">
+      <div><div class="setting-label">Likes</div><div class="setting-desc">When someone likes your video</div></div>
+      <label class="toggle"><input type="checkbox" id="notif-likes" checked><span class="toggle-slider"></span></label>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">Comments</div><div class="setting-desc">When someone comments on your video</div></div>
+      <label class="toggle"><input type="checkbox" id="notif-comments" checked><span class="toggle-slider"></span></label>
+    </div>
+  </div>
+
+  <!-- Danger zone -->
+  <div class="section">
+    <div class="section-header" style="color:#ff4444;">⚠️ Danger Zone</div>
+    <div class="setting-row">
+      <div><div class="setting-label">Sign out</div><div class="setting-desc">Log out of your account</div></div>
+      <a href="/logout" class="danger-btn">Sign out</a>
+    </div>
+  </div>
+
+  <button class="save-btn" onclick="saveSettings()">Save Changes</button>
+
+  {% else %}
+  <div class="not-logged-in">
+    <p style="font-size:1.1rem;margin-bottom:12px;">You're not logged in</p>
+    <p><a href="/login">Sign in</a> to access settings</p>
+  </div>
+  {% endif %}
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function saveSettings() {
+  localStorage.setItem('autoplay', document.getElementById('autoplay').checked);
+  localStorage.setItem('lowbandwidth', document.getElementById('lowbandwidth').checked);
+  showToast('✅ Settings saved!');
+}
+
+function loadSettings() {
+  const autoplay = localStorage.getItem('autoplay');
+  const lowbandwidth = localStorage.getItem('lowbandwidth');
+  if (autoplay !== null) document.getElementById('autoplay').checked = autoplay === 'true';
+  if (lowbandwidth !== null) document.getElementById('lowbandwidth').checked = lowbandwidth === 'true';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+loadSettings();
+</script>
+</body>
+</html>
