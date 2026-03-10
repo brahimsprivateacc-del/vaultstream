@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trending — VaultStream</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+:root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #272727; --border: #3f3f3f; --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; --sidebar-w: 240px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; }
+nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56px; border-bottom: 1px solid var(--border); background: var(--bg); position: fixed; top: 0; left: 0; right: 0; z-index: 200; }
+.logo { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text); margin-left: 8px; }
+.logo-icon { background: var(--accent); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; }
+.logo-text { font-size: 1.1rem; font-weight: 700; }
+.nav-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.btn { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.82rem; cursor: pointer; text-decoration: none; }
+.btn:hover { background: var(--surface2); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+.sidebar { position: fixed; top: 56px; left: 0; bottom: 0; width: var(--sidebar-w); background: var(--bg); padding: 12px 0; overflow-y: auto; z-index: 100; border-right: 1px solid var(--border); }
+.sidebar-item { display: flex; align-items: center; gap: 24px; padding: 10px 24px; cursor: pointer; border-radius: 10px; margin: 0 8px; transition: background 0.15s; text-decoration: none; color: var(--text); font-size: 0.88rem; font-weight: 500; }
+.sidebar-item:hover, .sidebar-item.active { background: var(--surface2); }
+.sidebar-divider { height: 1px; background: var(--border); margin: 10px 0; }
+.sidebar-section { padding: 8px 24px 4px; font-size: 0.78rem; font-weight: 600; color: var(--text2); text-transform: uppercase; }
+.main { margin-top: 56px; margin-left: var(--sidebar-w); padding: 24px; }
+.page-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+.video-list { display: flex; flex-direction: column; gap: 16px; max-width: 860px; }
+.video-row { display: flex; gap: 16px; text-decoration: none; color: inherit; padding: 10px; border-radius: 12px; transition: background 0.15s; }
+.video-row:hover { background: var(--surface); }
+.rank { font-size: 1.4rem; font-weight: 700; color: var(--text2); width: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.rank.top { color: var(--accent); }
+.thumb { width: 180px; flex-shrink: 0; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; background: var(--surface2); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.thumb-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+.info { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+.info-title { font-size: 0.95rem; font-weight: 500; }
+.info-meta { font-size: 0.78rem; color: var(--text2); }
+.info-views { font-size: 0.82rem; color: var(--accent); font-weight: 500; }
+.empty { text-align: center; padding: 60px; color: var(--text2); }
+@media(max-width:768px) { .sidebar { display: none; } .main { margin-left: 0; } .thumb { width: 120px; } }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo"><div class="logo-icon">VS</div><div class="logo-text">VaultStream</div></a>
+  <div class="nav-right">
+    {% if user %}
+      <a href="/profile/{{ user.username }}" class="btn">👤 {{ user.username }}</a>
+      <a href="/logout" class="btn">Logout</a>
+    {% else %}
+      <a href="/login" class="btn">Sign in</a>
+      <a href="/signup" class="btn primary">Sign up</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="/" class="sidebar-item"><span>🏠</span>&nbsp;&nbsp;Home</a>
+  <a href="/trending" class="sidebar-item active"><span>🔥</span>&nbsp;&nbsp;Trending</a>
+  {% if user %}
+  <a href="/profile/{{ user.username }}" class="sidebar-item"><span>📁</span>&nbsp;&nbsp;My Videos</a>
+  {% else %}
+  <a href="/login" class="sidebar-item"><span>📁</span>&nbsp;&nbsp;My Videos</a>
+  {% endif %}
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-section">More</div>
+  <a href="/settings" class="sidebar-item"><span>⚙️</span>&nbsp;&nbsp;Settings</a>
+  <a href="/about" class="sidebar-item"><span>❓</span>&nbsp;&nbsp;About</a>
+</div>
+
+<div class="main">
+  <div class="page-title">🔥 Trending</div>
+  {% if videos %}
+  <div class="video-list">
+    {% for video in videos %}
+    <a class="video-row" href="/watch/{{ video.id }}">
+      <div class="rank {{ 'top' if loop.index <= 3 else '' }}">{{ loop.index }}</div>
+      <div class="thumb">
+        {% if video.thumbnail_url %}
+          <img src="{{ video.thumbnail_url }}" alt="{{ video.title }}">
+        {% else %}
+          <div class="thumb-placeholder">🎬</div>
+        {% endif %}
+      </div>
+      <div class="info">
+        <div class="info-title">{{ video.title }}</div>
+        <div class="info-meta">{{ video.profiles.username if video.profiles else 'Unknown' }} · {{ video.size }}</div>
+        <div class="info-views">{{ video.views or 0 }} views</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">No videos yet — be the first to upload! 🎬</div>
+  {% endif %}
+</div>
+</body>
+</html>
