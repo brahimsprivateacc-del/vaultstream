@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — VaultStream</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+:root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #272727; --border: #3f3f3f; --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; --sidebar-w: 240px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; }
+nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56px; border-bottom: 1px solid var(--border); background: var(--bg); position: fixed; top: 0; left: 0; right: 0; z-index: 200; }
+.logo { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text); margin-left: 8px; }
+.logo-icon { background: var(--accent); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; }
+.logo-text { font-size: 1.1rem; font-weight: 700; }
+.nav-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.btn { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.82rem; cursor: pointer; text-decoration: none; }
+.btn:hover { background: var(--surface2); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+.sidebar { position: fixed; top: 56px; left: 0; bottom: 0; width: var(--sidebar-w); background: var(--bg); padding: 12px 0; overflow-y: auto; z-index: 100; border-right: 1px solid var(--border); }
+.sidebar-item { display: flex; align-items: center; gap: 24px; padding: 10px 24px; cursor: pointer; border-radius: 10px; margin: 0 8px; transition: background 0.15s; text-decoration: none; color: var(--text); font-size: 0.88rem; font-weight: 500; }
+.sidebar-item:hover, .sidebar-item.active { background: var(--surface2); }
+.sidebar-divider { height: 1px; background: var(--border); margin: 10px 0; }
+.sidebar-section { padding: 8px 24px 4px; font-size: 0.78rem; font-weight: 600; color: var(--text2); text-transform: uppercase; }
+.main { margin-top: 56px; margin-left: var(--sidebar-w); padding: 40px 24px; max-width: 700px; }
+.hero { text-align: center; padding: 40px 0; }
+.hero-logo { font-size: 4rem; margin-bottom: 12px; }
+.hero-title { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+.hero-sub { font-size: 0.95rem; color: var(--text2); line-height: 1.6; }
+.features { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin: 32px 0; }
+.feature { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.feature-icon { font-size: 1.6rem; margin-bottom: 8px; }
+.feature-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+.feature-desc { font-size: 0.78rem; color: var(--text2); line-height: 1.5; }
+.roadmap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+.roadmap-title { font-size: 1rem; font-weight: 600; margin-bottom: 16px; }
+.phase { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+.phase-badge { padding: 3px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; flex-shrink: 0; margin-top: 2px; }
+.phase-badge.done { background: rgba(0,200,100,0.15); color: #00c864; border: 1px solid rgba(0,200,100,0.3); }
+.phase-badge.active { background: rgba(255,0,0,0.15); color: var(--accent); border: 1px solid rgba(255,0,0,0.3); }
+.phase-badge.future { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+.phase-name { font-size: 0.88rem; font-weight: 500; }
+.phase-desc { font-size: 0.78rem; color: var(--text2); }
+@media(max-width:768px) { .sidebar { display: none; } .main { margin-left: 0; } }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo"><div class="logo-icon">VS</div><div class="logo-text">VaultStream</div></a>
+  <div class="nav-right">
+    {% if user %}
+      <a href="/profile/{{ user.username }}" class="btn">👤 {{ user.username }}</a>
+      <a href="/logout" class="btn">Logout</a>
+    {% else %}
+      <a href="/login" class="btn">Sign in</a>
+      <a href="/signup" class="btn primary">Sign up</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="sidebar">
+  <a href="/" class="sidebar-item"><span>🏠</span>&nbsp;&nbsp;Home</a>
+  <a href="/trending" class="sidebar-item"><span>🔥</span>&nbsp;&nbsp;Trending</a>
+  {% if user %}
+  <a href="/profile/{{ user.username }}" class="sidebar-item"><span>📁</span>&nbsp;&nbsp;My Videos</a>
+  {% else %}
+  <a href="/login" class="sidebar-item"><span>📁</span>&nbsp;&nbsp;My Videos</a>
+  {% endif %}
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-section">More</div>
+  <a href="/settings" class="sidebar-item"><span>⚙️</span>&nbsp;&nbsp;Settings</a>
+  <a href="/about" class="sidebar-item active"><span>❓</span>&nbsp;&nbsp;About</a>
+</div>
+
+<div class="main">
+  <div class="hero">
+    <div class="hero-logo">🎬</div>
+    <div class="hero-title">VaultStream</div>
+    <div class="hero-sub">A video platform built for everywhere — city, remote, or off-grid.<br>Watch, share and store videos even on the slowest connections. 🛰️</div>
+  </div>
+
+  <div class="features">
+    <div class="feature"><div class="feature-icon">☁️</div><div class="feature-title">Cloud Storage</div><div class="feature-desc">Videos stored permanently on Cloudinary — never lost.</div></div>
+    <div class="feature"><div class="feature-icon">📱</div><div class="feature-title">Works Everywhere</div><div class="feature-desc">Installable PWA — works like a native app on any device.</div></div>
+    <div class="feature"><div class="feature-icon">🛰️</div><div class="feature-title">Satellite Ready</div><div class="feature-desc">Low bandwidth mode and offline sync for remote areas.</div></div>
+    <div class="feature"><div class="feature-icon">💾</div><div class="feature-title">Offline Watching</div><div class="feature-desc">Download videos to watch without any connection.</div></div>
+    <div class="feature"><div class="feature-icon">👥</div><div class="feature-title">Community</div><div class="feature-desc">Likes, comments and profiles for every creator.</div></div>
+    <div class="feature"><div class="feature-icon">🔥</div><div class="feature-title">Trending</div><div class="feature-desc">Discover the most watched videos on the platform.</div></div>
+  </div>
+
+  <div class="roadmap">
+    <div class="roadmap-title">🗺️ Roadmap</div>
+    <div class="phase"><span class="phase-badge done">✅ Done</span><div><div class="phase-name">Phase 1 — Local Player</div><div class="phase-desc">Python Flask local video player</div></div></div>
+    <div class="phase"><span class="phase-badge done">✅ Done</span><div><div class="phase-name">Phase 2 — Online Platform</div><div class="phase-desc">Cloud hosting, user accounts, likes & comments</div></div></div>
+    <div class="phase"><span class="phase-badge active">🔴 Active</span><div><div class="phase-name">Phase 3 — Offline Sync</div><div class="phase-desc">Download videos, low bandwidth mode, PWA</div></div></div>
+    <div class="phase"><span class="phase-badge future">🔵 Future</span><div><div class="phase-name">Phase 4 — Satellite</div><div class="phase-desc">Full satellite connectivity for remote areas worldwide</div></div></div>
+  </div>
+</div>
+</body>
+</html>
