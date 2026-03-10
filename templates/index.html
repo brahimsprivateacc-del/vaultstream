@@ -138,12 +138,16 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
 </div>
 <div class="sidebar" id="sidebar">
   <a href="/" class="sidebar-item active"><span>🏠</span>&nbsp;&nbsp;Home</a>
-  <a href="/" class="sidebar-item"><span>🔥</span>&nbsp;&nbsp;Trending</a>
-  <a href="/" class="sidebar-item"><span>📁</span>&nbsp;&nbsp;Library</a>
+  <a href="/trending" class="sidebar-item"><span>🔥</span>&nbsp;&nbsp;Trending</a>
+  {% if user %}
+  <a href="/profile/{{ user.username }}" class="sidebar-item"><span>📁</span>&nbsp;&nbsp;My Videos</a>
+  {% else %}
+  <a href="/login" class="sidebar-item"><span>📁</span>&nbsp;&nbsp;My Videos</a>
+  {% endif %}
   <div class="sidebar-divider"></div>
   <div class="sidebar-section">More</div>
-  <a href="/" class="sidebar-item"><span>⚙️</span>&nbsp;&nbsp;Settings</a>
-  <a href="/" class="sidebar-item"><span>❓</span>&nbsp;&nbsp;Help</a>
+  <a href="/settings" class="sidebar-item"><span>⚙️</span>&nbsp;&nbsp;Settings</a>
+  <a href="/about" class="sidebar-item"><span>❓</span>&nbsp;&nbsp;About</a>
 </div>
 <div class="main" id="main">
   <div class="chips">
