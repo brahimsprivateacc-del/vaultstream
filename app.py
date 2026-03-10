@@ -383,6 +383,69 @@ def search():
         videos = r.json() if r.ok else []
     return render_template('search.html', videos=videos, query=q, user=user)
 
+
+@app.route('/dashboard')
+def dashboard():
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    # Get user's videos with like and comment counts
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/videos?user_id=eq.{user["id"]}&order=views.desc',
+        headers=supabase_service_headers()
+    )
+    videos = r.json() if r.ok else []
+
+    # Get like counts per video
+    for video in videos:
+        r2 = requests.get(
+            f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{video["id"]}',
+            headers=supabase_service_headers()
+        )
+        video['like_count'] = len(r2.json()) if r2.ok else 0
+
+        r3 = requests.get(
+            f'{SUPABASE_URL}/rest/v1/comments?video_id=eq.{video["id"]}',
+            headers=supabase_service_headers()
+        )
+        video['comment_count'] = len(r3.json()) if r3.ok else 0
+
+    total_views = sum(v.get('views') or 0 for v in videos)
+    total_likes = sum(v.get('like_count') or 0 for v in videos)
+    total_comments = sum(v.get('comment_count') or 0 for v in videos)
+
+    return render_template('dashboard.html',
+        user=user,
+        videos=videos,
+        total_views=total_views,
+        total_likes=total_likes,
+        total_comments=total_comments
+    )
+
+
+@app.route('/update_title/<video_id>', methods=['POST'])
+def update_title(video_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'error': 'Login required'}), 401
+    title = request.json.get('title', '').strip()
+    if not title:
+        return jsonify({'success': False, 'error': 'Title cannot be empty'}), 400
+    # Check ownership
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&user_id=eq.{user["id"]}',
+        headers=supabase_service_headers()
+    )
+    if not r.json():
+        return jsonify({'success': False, 'error': 'Not your video'}), 403
+    requests.patch(
+        f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}',
+        headers=supabase_service_headers(),
+        json={'title': title}
+    )
+    return jsonify({'success': True})
+
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
