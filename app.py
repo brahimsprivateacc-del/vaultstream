@@ -335,6 +335,20 @@ def about():
     user = get_current_user()
     return render_template('about.html', user=user)
 
+
+@app.route('/update_bio', methods=['POST'])
+def update_bio():
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'error': 'Login required'}), 401
+    bio = request.json.get('bio', '').strip()
+    requests.patch(
+        f"{SUPABASE_URL}/rest/v1/profiles?id=eq.{user['id']}",
+        headers=supabase_service_headers(),
+        json={'bio': bio}
+    )
+    return jsonify({'success': True})
+
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
