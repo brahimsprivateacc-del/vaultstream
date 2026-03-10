@@ -126,6 +126,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
+    <button onclick="toggleTheme()" id="theme-btn" style="background:none;border:1px solid var(--border);border-radius:20px;padding:6px 12px;color:var(--text);cursor:pointer;font-size:0.9rem;">🌙</button>
     {% if user %}
       <a href="/profile/{{ user.username }}" style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:none;color:var(--text);font-size:0.82rem;text-decoration:none;">👤 {{ user.username }}</a>
       <button class="upload-btn" onclick="openModal()"><span>📤</span> Upload</button>
@@ -275,6 +276,23 @@ function showToast(msg) {
   t.textContent = msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'), 3000);
 }
+</script>
+<script>
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  document.getElementById('theme-btn').textContent = isLight ? '☀️' : '🌙';
+}
+
+// Load saved theme
+(function() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'light') {
+    document.body.classList.add('light');
+    const btn = document.getElementById('theme-btn');
+    if (btn) btn.textContent = '☀️';
+  }
+})();
 </script>
 </body>
 </html>
