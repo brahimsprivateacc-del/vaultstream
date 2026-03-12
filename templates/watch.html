@@ -115,7 +115,17 @@ video { width: 100%; border-radius: 12px; background: #000; box-shadow: 0 20px 6
     style="display:none;font-size:1.15rem;font-weight:600;background:var(--surface2);border:1px solid var(--accent);border-radius:8px;padding:6px 12px;color:var(--text);font-family:'Roboto',sans-serif;outline:none;width:100%;margin:16px 0 8px;"
     onblur="saveTitle('{{ video.id }}')" onkeydown="if(event.key==='Enter') saveTitle('{{ video.id }}')">
   {% else %}
+  {% if user and video.user_id == user.id %}
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+    <input type="text" id="title-input" value="{{ video.title }}" maxlength="100"
+      style="background:none;border:none;border-bottom:1px solid transparent;color:var(--text);font-size:1.15rem;font-weight:600;font-family:'Roboto',sans-serif;outline:none;width:100%;padding:2px 0;"
+      onfocus="this.style.borderBottomColor='var(--accent)'"
+      onblur="this.style.borderBottomColor='transparent';saveTitle('{{ video.id }}')">
+    <span style="font-size:0.75rem;color:var(--text2);flex-shrink:0;">✏️ click to edit</span>
+  </div>
+  {% else %}
   <div class="video-title">{{ video.title }}</div>
+  {% endif %}
   {% endif %}
 
   <div class="video-meta">
@@ -203,6 +213,20 @@ function saveTitle(videoId) {
     } else {
       showToast('❌ ' + res.error);
     }
+  });
+}
+
+function saveTitle(videoId) {
+  const title = document.getElementById('title-input').value.trim();
+  if (!title) return;
+  fetch('/update_title/' + videoId, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({title})
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.success) showToast('✅ Title updated!');
   });
 }
 
