@@ -142,6 +142,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
   <a href="/trending" class="sidebar-item"><span>🔥</span>&nbsp;&nbsp;Trending</a>
   {% if user %}
   <a href="/profile/{{ user.username }}" class="sidebar-item"><span>📁</span>&nbsp;&nbsp;My Videos</a>
+  <a href="/dashboard" class="sidebar-item"><span>📊</span>&nbsp;&nbsp;Dashboard</a>
   {% else %}
   <a href="/login" class="sidebar-item"><span>📁</span>&nbsp;&nbsp;My Videos</a>
   {% endif %}
