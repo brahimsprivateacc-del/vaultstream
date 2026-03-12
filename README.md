@@ -2,7 +2,7 @@
 
 A YouTube-style video platform built for **everywhere** — city, remote, or off-grid. Watch, share and store videos even on the slowest connections. 🛰️
 
-🌐 **Live at:** [https://vaultstream.online/](https://vaultstream.online/)
+🌐 **Live at:** [https://vaultstream.online](https://vaultstream.online)
 
 ---
 
