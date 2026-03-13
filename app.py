@@ -146,6 +146,7 @@ def signup():
                 headers=supabase_headers(token),
                 json={'id': user_id, 'username': username}
             )
+            session.permanent = True
             session['user'] = {'id': user_id, 'username': username, 'token': token}
             return redirect(url_for('index'))
         else:
