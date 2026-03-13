@@ -130,7 +130,6 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
-    <button onclick="toggleTheme()" id="theme-btn" style="background:none;border:1px solid var(--border);border-radius:20px;padding:6px 12px;color:var(--text);cursor:pointer;font-size:0.9rem;">🌙</button>
     {% if user %}
       <a href="/profile/{{ user.username }}" style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:none;color:var(--text);font-size:0.82rem;text-decoration:none;">👤 {{ user.username }}</a>
       <button class="upload-btn" onclick="openModal()"><span>📤</span> Upload</button>
@@ -157,12 +156,14 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
 </div>
 <div class="main" id="main">
   <div class="chips">
-    <button class="chip active" onclick="filterChip(this,'all')">All</button>
-    <button class="chip" onclick="filterChip(this,'mp4')">MP4</button>
-    <button class="chip" onclick="filterChip(this,'mkv')">MKV</button>
-    <button class="chip" onclick="filterChip(this,'mov')">MOV</button>
-    <button class="chip" onclick="filterChip(this,'avi')">AVI</button>
-    <button class="chip" onclick="filterChip(this,'webm')">WEBM</button>
+    <button class="chip active" onclick="filterChip(this,'all')">🎬 All</button>
+    <button class="chip" onclick="filterChip(this,'gaming')">🎮 Gaming</button>
+    <button class="chip" onclick="filterChip(this,'travel')">✈️ Travel</button>
+    <button class="chip" onclick="filterChip(this,'funny')">😂 Funny</button>
+    <button class="chip" onclick="filterChip(this,'vlog')">📹 Vlog</button>
+    <button class="chip" onclick="filterChip(this,'music')">🎵 Music</button>
+    <button class="chip" onclick="filterChip(this,'sport')">⚽ Sport</button>
+    <button class="chip" onclick="filterChip(this,'food')">🍕 Food</button>
   </div>
   <div class="search-label" id="search-label" style="display:none;">Showing results for <span id="search-term"></span></div>
   <div class="video-grid" id="video-grid">
@@ -271,10 +272,12 @@ function filterVideos() {
   if (q) { label.style.display='block'; document.getElementById('search-term').textContent='"'+q+'"'; }
   else { label.style.display='none'; }
 }
-function filterChip(el, ext) {
+function filterChip(el, cat) {
   document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
-  document.querySelectorAll('.video-card').forEach(c => { c.style.display=(ext==='all'||c.dataset.ext===ext)?'':'none'; });
+  document.querySelectorAll('.video-card').forEach(c => {
+    c.style.display = (cat === 'all' || c.dataset.title.includes(cat)) ? '' : 'none';
+  });
 }
 function showToast(msg) {
   const t = document.getElementById('toast');
