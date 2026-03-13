@@ -454,6 +454,17 @@ def privacy():
     user = get_current_user()
     return render_template('privacy.html', user=user)
 
+
+@app.route('/privacy')
+def privacy():
+    user = get_current_user()
+    return render_template('privacy.html', user=user)
+
+@app.route('/terms')
+def terms():
+    user = get_current_user()
+    return render_template('terms.html', user=user)
+
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
