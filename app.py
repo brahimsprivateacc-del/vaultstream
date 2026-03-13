@@ -454,12 +454,6 @@ def privacy():
     user = get_current_user()
     return render_template('privacy.html', user=user)
 
-
-@app.route('/privacy')
-def privacy():
-    user = get_current_user()
-    return render_template('privacy.html', user=user)
-
 @app.route('/terms')
 def terms():
     user = get_current_user()
