@@ -447,6 +447,39 @@ def update_title(video_id):
     return jsonify({'success': True})
 
 
+
+@app.route('/dashboard')
+def dashboard():
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    # Get user's videos
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/videos?user_id=eq.{user["id"]}&order=views.desc',
+        headers=supabase_service_headers()
+    )
+    videos = r.json() if r.ok else []
+    # Total views
+    total_views = sum(v.get('views') or 0 for v in videos)
+    # Total likes
+    r2 = requests.get(
+        f'{SUPABASE_URL}/rest/v1/likes?user_id=eq.{user["id"]}',
+        headers=supabase_service_headers()
+    )
+    total_likes = len(r2.json()) if r2.ok else 0
+    # Total comments on user's videos
+    video_ids = [v['id'] for v in videos]
+    total_comments = 0
+    for vid_id in video_ids:
+        r3 = requests.get(
+            f'{SUPABASE_URL}/rest/v1/comments?video_id=eq.{vid_id}',
+            headers=supabase_service_headers()
+        )
+        if r3.ok:
+            total_comments += len(r3.json())
+    return render_template('dashboard.html', user=user, videos=videos,
+        total_views=total_views, total_likes=total_likes, total_comments=total_comments)
+
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
