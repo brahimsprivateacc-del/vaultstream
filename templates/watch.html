@@ -49,6 +49,45 @@ video { width: 100%; border-radius: 12px; background: #000; box-shadow: 0 20px 6
 .login-prompt { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; font-size: 0.85rem; color: var(--text2); margin-bottom: 20px; }
 .login-prompt a { color: var(--accent); text-decoration: none; }
 
+/* Ad overlay */
+.ad-overlay {
+  position: relative; width: 100%; background: #000;
+  border-radius: 12px; overflow: hidden; display: none;
+  aspect-ratio: 16/9; margin-bottom: 0;
+}
+.ad-overlay.show { display: block; }
+.ad-content {
+  width: 100%; height: 100%; display: flex; align-items: center;
+  justify-content: center; background: #111; flex-direction: column; gap: 12px;
+}
+.ad-label {
+  position: absolute; top: 10px; left: 10px;
+  background: rgba(0,0,0,0.7); color: #ffcc00;
+  font-size: 0.7rem; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+}
+.ad-skip-wrap {
+  position: absolute; bottom: 14px; right: 14px; display: flex;
+  align-items: center; gap: 8px;
+}
+.ad-countdown {
+  background: rgba(0,0,0,0.7); color: white;
+  font-size: 0.8rem; padding: 6px 14px; border-radius: 4px;
+}
+.ad-skip-btn {
+  display: none; background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.4); color: white;
+  padding: 6px 14px; border-radius: 4px; cursor: pointer;
+  font-size: 0.82rem; font-family: 'Roboto', sans-serif;
+  transition: background 0.2s;
+}
+.ad-skip-btn:hover { background: rgba(255,255,255,0.3); }
+.ad-placeholder {
+  width: 100%; height: 100%; display: flex; align-items: center;
+  justify-content: center; flex-direction: column; gap: 8px; color: #666;
+}
+.ad-placeholder-icon { font-size: 2rem; }
+.ad-placeholder-text { font-size: 0.78rem; }
+
 /* Connection status */
 .conn-status {
   display: flex; align-items: center; gap: 6px;
@@ -98,11 +137,27 @@ video { width: 100%; border-radius: 12px; background: #000; box-shadow: 0 20px 6
 </nav>
 
 <div class="wrap">
+  <!-- AD OVERLAY -->
+  <div class="ad-overlay" id="ad-overlay">
+    <div class="ad-content">
+      <!-- Replace this div with your Google AdSense code when approved -->
+      <div class="ad-placeholder">
+        <div class="ad-placeholder-icon">📢</div>
+        <div class="ad-placeholder-text">Advertisement</div>
+      </div>
+    </div>
+    <div class="ad-label">Ad</div>
+    <div class="ad-skip-wrap">
+      <div class="ad-countdown" id="ad-countdown">Skip in 5</div>
+      <button class="ad-skip-btn" id="ad-skip-btn" onclick="skipAd()">Skip Ad ›</button>
+    </div>
+  </div>
+
   <div class="bandwidth-banner" id="bandwidth-banner">
     ⚠️ Slow connection detected — switch to low quality?
     <button onclick="switchQuality()">Low Quality</button>
   </div>
-  <video controls autoplay id="main-video">
+  <video controls id="main-video" style="display:none;">
     <source src="{{ video.video_url if video.video_url else '/videos/' + video.filename }}">
   </video>
   <div class="dl-progress" id="dl-progress"><div class="dl-fill" id="dl-fill"></div></div>
@@ -124,6 +179,12 @@ video { width: 100%; border-radius: 12px; background: #000; box-shadow: 0 20px 6
     <span style="font-size:0.75rem;color:var(--text2);flex-shrink:0;">✏️ click to edit</span>
   </div>
   {% else %}
+  <!-- GOOGLE ADSENSE AD -->
+  <div style="width:100%;background:var(--surface);border:1px dashed var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:0.75rem;margin:12px 0;min-height:90px;">
+    <!-- Replace this comment with your AdSense code when approved -->
+    <span>Advertisement</span>
+  </div>
+
   <div class="video-title">{{ video.title }}</div>
   {% endif %}
   {% endif %}
@@ -229,6 +290,47 @@ function saveTitle(videoId) {
     if (res.success) showToast('✅ Title updated!');
   });
 }
+
+// ── PRE-ROLL AD ──
+function runAd() {
+  // 30% chance of showing an ad
+  if (Math.random() > 0.3) {
+    showVideo();
+    return;
+  }
+
+  const overlay = document.getElementById('ad-overlay');
+  overlay.classList.add('show');
+
+  let seconds = 5;
+  const countdown = document.getElementById('ad-countdown');
+  const skipBtn = document.getElementById('ad-skip-btn');
+
+  const timer = setInterval(() => {
+    seconds--;
+    if (seconds <= 0) {
+      clearInterval(timer);
+      countdown.style.display = 'none';
+      skipBtn.style.display = 'block';
+    } else {
+      countdown.textContent = 'Skip in ' + seconds;
+    }
+  }, 1000);
+}
+
+function skipAd() {
+  document.getElementById('ad-overlay').classList.remove('show');
+  showVideo();
+}
+
+function showVideo() {
+  const video = document.getElementById('main-video');
+  video.style.display = 'block';
+  video.play().catch(() => {});
+}
+
+// Run ad on page load
+window.addEventListener('load', runAd);
 
 function deleteVideo(videoId, title) {
   if (!confirm('Delete "' + title + '"? This cannot be undone!')) return;
