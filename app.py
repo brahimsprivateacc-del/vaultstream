@@ -200,6 +200,7 @@ def upload():
     filename = secure_filename(file.filename)
     ext = filename.rsplit('.', 1)[1].upper()
     title = os.path.splitext(filename)[0].replace('_', ' ').replace('-', ' ')
+    category = request.form.get('category', 'general')
 
     # Upload to Cloudinary
     result = cloudinary.uploader.upload(
@@ -227,7 +228,8 @@ def upload():
             'size': size,
             'extension': ext,
             'video_url': video_url,
-            'thumbnail_url': thumbnail_url
+            'thumbnail_url': thumbnail_url,
+            'category': category
         }
     )
     return jsonify({'success': True, 'message': f'"{title}" uploaded!'})
