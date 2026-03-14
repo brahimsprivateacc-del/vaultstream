@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1673723146227353" crossorigin="anonymous"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VaultStream</title>
 <style>
@@ -89,6 +90,14 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
 .progress-track { background: var(--surface2); border-radius: 999px; height: 4px; overflow: hidden; }
 .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; border-radius: 999px; }
 #file-input { display: none; }
+.ad-slot {
+  width: 100%; background: var(--surface); border: 1px dashed var(--border);
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  color: var(--text2); font-size: 0.75rem; margin-bottom: 20px; min-height: 90px;
+  overflow: hidden;
+}
+.ad-slot ins { display: block; width: 100%; }
+
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); color: var(--text); border-radius: 8px; padding: 12px 24px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 999; transition: transform 0.3s; white-space: nowrap; }
 .toast.show { transform: translateX(-50%) translateY(0); }
 .search-label { font-size: 0.92rem; color: var(--text2); margin-bottom: 16px; }
@@ -153,6 +162,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
   <div class="sidebar-section">More</div>
   <a href="/settings" class="sidebar-item"><span>⚙️</span>&nbsp;&nbsp;Settings</a>
   <a href="/about" class="sidebar-item"><span>❓</span>&nbsp;&nbsp;About</a>
+  <a href="/privacy" class="sidebar-item"><span>🔒</span>&nbsp;&nbsp;Privacy Policy</a>
 </div>
 <div class="main" id="main">
   <div class="chips">
@@ -165,11 +175,17 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
     <button class="chip" onclick="filterChip(this,'sport')">⚽ Sport</button>
     <button class="chip" onclick="filterChip(this,'food')">🍕 Food</button>
   </div>
+  <!-- GOOGLE ADSENSE BANNER AD -->
+  <div class="ad-slot" id="ad-banner">
+    <!-- Replace this comment with your AdSense code when approved -->
+    <span>Advertisement</span>
+  </div>
+
   <div class="search-label" id="search-label" style="display:none;">Showing results for <span id="search-term"></span></div>
   <div class="video-grid" id="video-grid">
     {% if videos %}
       {% for video in videos %}
-      <a class="video-card" href="/watch/{{ video.id }}" data-ext="{{ video.extension|lower }}" data-title="{{ video.title|lower }}">
+      <a class="video-card" href="/watch/{{ video.id }}" data-ext="{{ video.extension|lower }}" data-title="{{ video.title|lower }}" data-category="{{ video.category or 'general' }}">
         <div class="thumb-wrap">
           {% if video.thumbnail_url %}
           <img src="{{ video.thumbnail_url }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
@@ -209,6 +225,19 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
       <div class="modal-title">Upload Video</div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:0.82rem;color:var(--text2);display:block;margin-bottom:6px;">Category</label>
+      <select id="category-select" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.88rem;font-family:'Roboto',sans-serif;outline:none;">
+        <option value="general">🎬 General</option>
+        <option value="gaming">🎮 Gaming</option>
+        <option value="travel">✈️ Travel</option>
+        <option value="funny">😂 Funny</option>
+        <option value="vlog">📹 Vlog</option>
+        <option value="music">🎵 Music</option>
+        <option value="sport">⚽ Sport</option>
+        <option value="food">🍕 Food</option>
+      </select>
+    </div>
     <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
       <div class="drop-icon">📁</div>
       <div class="drop-title">Drag and drop your video here</div>
@@ -241,6 +270,7 @@ document.getElementById('file-input').addEventListener('change', e => { if (e.ta
 function uploadFile(file) {
   const formData = new FormData();
   formData.append('video', file);
+  formData.append('category', document.getElementById('category-select').value);
   const wrap = document.getElementById('progress-wrap');
   const fill = document.getElementById('progress-fill');
   const name = document.getElementById('progress-name');
@@ -276,7 +306,7 @@ function filterChip(el, cat) {
   document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
   document.querySelectorAll('.video-card').forEach(c => {
-    c.style.display = (cat === 'all' || c.dataset.title.includes(cat)) ? '' : 'none';
+    c.style.display = (cat === 'all' || c.dataset.category === cat) ? '' : 'none';
   });
 }
 function showToast(msg) {
