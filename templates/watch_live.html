@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ stream.title }} — Live on VaultStream</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1673723146227353" crossorigin="anonymous"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+:root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #272727; --border: #3f3f3f; --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; }
+nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56px; border-bottom: 1px solid var(--border); background: var(--bg); position: fixed; top: 0; left: 0; right: 0; z-index: 200; }
+.logo { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text); }
+.logo-icon { background: var(--accent); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; }
+.logo-text { font-size: 1.1rem; font-weight: 700; }
+.nav-right { margin-left: auto; display: flex; gap: 10px; }
+.btn { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.82rem; cursor: pointer; text-decoration: none; }
+.wrap { margin-top: 56px; max-width: 900px; margin-left: auto; margin-right: auto; padding: 28px 20px; }
+.video-container { position: relative; border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 16/9; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; }
+.offline-msg { text-align: center; color: var(--text2); }
+.offline-icon { font-size: 3rem; margin-bottom: 12px; }
+.live-badge { position: absolute; top: 12px; left: 12px; background: var(--accent); color: white; font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; display: flex; align-items: center; gap: 5px; }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: white; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+.viewer-badge { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); color: white; font-size: 0.78rem; padding: 4px 10px; border-radius: 4px; }
+.stream-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 8px; }
+.stream-meta { font-size: 0.82rem; color: var(--text2); display: flex; align-items: center; gap: 8px; }
+.ended-banner { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; text-align: center; margin-top: 20px; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo"><div class="logo-icon">VS</div><div class="logo-text">VaultStream</div></a>
+  <div class="nav-right">
+    {% if user %}
+      <a href="/profile/{{ user.username }}" class="btn">👤 {{ user.username }}</a>
+    {% else %}
+      <a href="/login" class="btn">Sign in</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="wrap">
+  {% if stream.is_live %}
+  <div class="video-container" id="video-container">
+    <div class="offline-msg" id="connecting-msg">
+      <div class="offline-icon">📡</div>
+      <div>Connecting to stream...</div>
+    </div>
+    <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+    <div class="viewer-badge">👁️ <span id="viewer-count">0</span> viewers</div>
+  </div>
+
+  <div class="stream-title">{{ stream.title }}</div>
+  <div class="stream-meta">
+    🔴 Live now · Started {{ stream.created_at[:16].replace('T', ' ') }}
+  </div>
+
+  {% else %}
+  <div class="video-container">
+    <div class="offline-msg">
+      <div class="offline-icon">📴</div>
+      <div>This stream has ended</div>
+    </div>
+  </div>
+  <div class="ended-banner">
+    <p style="margin-bottom:12px;">This stream has ended.</p>
+    <a href="/" style="color:var(--accent);text-decoration:none;">← Back to VaultStream</a>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+{% if stream.is_live %}
+// Track viewer
+fetch('/join_stream/{{ stream.id }}', {method: 'POST'});
+
+// Update viewer count
+function updateViewers() {
+  fetch('/stream_viewers/{{ stream.id }}')
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('viewer-count').textContent = data.count || 0;
+      // Check if stream ended
+      if (!data.is_live) {
+        document.getElementById('video-container').innerHTML = `
+          <div style="text-align:center;color:#aaa;">
+            <div style="font-size:3rem;margin-bottom:12px;">📴</div>
+            <div>Stream has ended</div>
+          </div>`;
+        clearInterval(viewerInterval);
+      }
+    });
+}
+
+const viewerInterval = setInterval(updateViewers, 5000);
+updateViewers();
+
+// Leave stream when page closes
+window.addEventListener('beforeunload', () => {
+  navigator.sendBeacon('/leave_stream/{{ stream.id }}');
+});
+{% endif %}
+</script>
+</body>
+</html>
