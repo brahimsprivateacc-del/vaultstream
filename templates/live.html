@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go Live — VaultStream</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1673723146227353" crossorigin="anonymous"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+:root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #272727; --border: #3f3f3f; --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; --sidebar-w: 240px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; }
+nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56px; border-bottom: 1px solid var(--border); background: var(--bg); position: fixed; top: 0; left: 0; right: 0; z-index: 200; }
+.logo { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text); }
+.logo-icon { background: var(--accent); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; }
+.logo-text { font-size: 1.1rem; font-weight: 700; }
+.nav-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.btn { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.82rem; cursor: pointer; text-decoration: none; font-family: 'Roboto', sans-serif; }
+.btn:hover { background: var(--surface2); }
+.main { margin-top: 56px; max-width: 900px; margin-left: auto; margin-right: auto; padding: 28px 20px; }
+.setup-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px; margin-bottom: 24px; }
+.setup-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; }
+.field { margin-bottom: 16px; }
+label { display: block; font-size: 0.82rem; color: var(--text2); margin-bottom: 6px; }
+input[type="text"] { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 0.88rem; font-family: 'Roboto', sans-serif; outline: none; }
+input[type="text"]:focus { border-color: var(--accent); }
+.go-live-btn { display: flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: 8px; border: none; background: var(--accent); color: white; font-size: 0.95rem; font-weight: 600; font-family: 'Roboto', sans-serif; cursor: pointer; transition: background 0.2s; }
+.go-live-btn:hover { background: #cc0000; }
+.go-live-btn.live { background: #333; }
+.live-dot { width: 10px; height: 10px; border-radius: 50%; background: white; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+.stream-wrap { display: none; }
+.stream-wrap.show { display: block; }
+.video-container { position: relative; border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 16/9; margin-bottom: 16px; }
+video { width: 100%; height: 100%; object-fit: cover; }
+.live-badge { position: absolute; top: 12px; left: 12px; background: var(--accent); color: white; font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; display: flex; align-items: center; gap: 5px; }
+.viewer-badge { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); color: white; font-size: 0.78rem; padding: 4px 10px; border-radius: 4px; }
+.stream-controls { display: flex; gap: 10px; margin-bottom: 20px; }
+.ctrl-btn { padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 0.82rem; cursor: pointer; font-family: 'Roboto', sans-serif; transition: all 0.2s; }
+.ctrl-btn:hover { background: #444; }
+.ctrl-btn.danger { border-color: #ff4444; color: #ff4444; }
+.ctrl-btn.danger:hover { background: rgba(255,68,68,0.1); }
+.share-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.share-url { flex: 1; font-size: 0.82rem; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.copy-btn { padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.78rem; cursor: pointer; font-family: 'Roboto', sans-serif; white-space: nowrap; }
+.copy-btn:hover { background: var(--surface); }
+.not-logged { text-align: center; padding: 60px; color: var(--text2); }
+.not-logged a { color: var(--accent); text-decoration: none; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); color: var(--text); border-radius: 8px; padding: 12px 24px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 999; transition: transform 0.3s; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo"><div class="logo-icon">VS</div><div class="logo-text">VaultStream</div></a>
+  <div class="nav-right">
+    {% if user %}
+      <a href="/profile/{{ user.username }}" class="btn">👤 {{ user.username }}</a>
+      <a href="/logout" class="btn">Logout</a>
+    {% else %}
+      <a href="/login" class="btn">Sign in</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="main">
+  {% if user %}
+  <!-- SETUP -->
+  <div class="setup-card" id="setup-card">
+    <div class="setup-title">🔴 Go Live</div>
+    <div class="field">
+      <label>Stream Title</label>
+      <input type="text" id="stream-title" placeholder="What are you streaming today?" maxlength="80">
+    </div>
+    <button class="go-live-btn" onclick="startStream()">
+      <div class="live-dot"></div> Start Streaming
+    </button>
+  </div>
+
+  <!-- STREAM -->
+  <div class="stream-wrap" id="stream-wrap">
+    <div class="video-container">
+      <video id="local-video" autoplay muted playsinline></video>
+      <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+      <div class="viewer-badge">👁️ <span id="viewer-count">0</span> viewers</div>
+    </div>
+
+    <div class="share-box">
+      <span class="share-url" id="share-url"></span>
+      <button class="copy-btn" onclick="copyLink()">Copy Link</button>
+    </div>
+
+    <div class="stream-controls">
+      <button class="ctrl-btn" onclick="toggleMic()" id="mic-btn">🎤 Mute</button>
+      <button class="ctrl-btn" onclick="toggleCam()" id="cam-btn">📷 Hide Camera</button>
+      <button class="ctrl-btn danger" onclick="endStream()">⏹ End Stream</button>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="not-logged">
+    <p style="font-size:1.2rem;margin-bottom:12px;">🔴 Go Live</p>
+    <p><a href="/login">Sign in</a> to start streaming</p>
+  </div>
+  {% endif %}
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let stream = null;
+let streamId = null;
+let viewerInterval = null;
+let micOn = true;
+let camOn = true;
+
+async function startStream() {
+  const title = document.getElementById('stream-title').value.trim() || 'Live Stream';
+
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    document.getElementById('local-video').srcObject = stream;
+
+    // Create stream record in DB
+    const res = await fetch('/start_stream', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({title})
+    });
+    const data = await res.json();
+    if (data.success) {
+      streamId = data.stream_id;
+      const shareUrl = `${window.location.origin}/watch_live/${streamId}`;
+      document.getElementById('share-url').textContent = shareUrl;
+      document.getElementById('setup-card').style.display = 'none';
+      document.getElementById('stream-wrap').classList.add('show');
+
+      // Update viewer count every 5 seconds
+      viewerInterval = setInterval(updateViewers, 5000);
+      showToast('🔴 You are live!');
+    }
+  } catch(e) {
+    showToast('❌ Could not access camera/mic');
+  }
+}
+
+async function updateViewers() {
+  if (!streamId) return;
+  const res = await fetch('/stream_viewers/' + streamId);
+  const data = await res.json();
+  document.getElementById('viewer-count').textContent = data.count || 0;
+}
+
+function toggleMic() {
+  micOn = !micOn;
+  stream.getAudioTracks().forEach(t => t.enabled = micOn);
+  document.getElementById('mic-btn').textContent = micOn ? '🎤 Mute' : '🔇 Unmute';
+}
+
+function toggleCam() {
+  camOn = !camOn;
+  stream.getVideoTracks().forEach(t => t.enabled = camOn);
+  document.getElementById('cam-btn').textContent = camOn ? '📷 Hide Camera' : '📷 Show Camera';
+}
+
+async function endStream() {
+  if (!confirm('End your stream?')) return;
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  if (viewerInterval) clearInterval(viewerInterval);
+  if (streamId) await fetch('/end_stream/' + streamId, {method: 'POST'});
+  showToast('Stream ended!');
+  setTimeout(() => window.location = '/', 1500);
+}
+
+function copyLink() {
+  const url = document.getElementById('share-url').textContent;
+  navigator.clipboard.writeText(url);
+  showToast('✅ Link copied!');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
