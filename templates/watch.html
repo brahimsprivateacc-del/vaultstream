@@ -2,31 +2,125 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ stream.title }} — Live on VaultStream</title>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1673723146227353" crossorigin="anonymous"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ video.title }} — VaultStream</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 :root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #272727; --border: #3f3f3f; --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; }
-nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56px; border-bottom: 1px solid var(--border); background: var(--bg); position: fixed; top: 0; left: 0; right: 0; z-index: 200; }
+body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; min-height: 100vh; }
+nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 100; }
 .logo { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text); }
 .logo-icon { background: var(--accent); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; }
 .logo-text { font-size: 1.1rem; font-weight: 700; }
-.nav-right { margin-left: auto; display: flex; gap: 10px; }
-.btn { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.82rem; cursor: pointer; text-decoration: none; }
-.wrap { margin-top: 56px; max-width: 900px; margin-left: auto; margin-right: auto; padding: 28px 20px; }
-.video-container { position: relative; border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 16/9; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; }
-.offline-msg { text-align: center; color: var(--text2); }
-.offline-icon { font-size: 3rem; margin-bottom: 12px; }
-.live-badge { position: absolute; top: 12px; left: 12px; background: var(--accent); color: white; font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; display: flex; align-items: center; gap: 5px; }
-.live-dot { width: 8px; height: 8px; border-radius: 50%; background: white; animation: pulse 1.5s infinite; }
-@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
-.viewer-badge { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); color: white; font-size: 0.78rem; padding: 4px 10px; border-radius: 4px; }
-.stream-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 8px; }
-.stream-meta { font-size: 0.82rem; color: var(--text2); display: flex; align-items: center; gap: 8px; }
-.ended-banner { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; text-align: center; margin-top: 20px; }
+.nav-right { display: flex; gap: 10px; align-items: center; }
+.btn { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.82rem; cursor: pointer; text-decoration: none; font-family: 'Roboto', sans-serif; transition: background 0.2s; }
+.btn:hover { background: var(--surface2); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+.btn.primary:hover { background: #cc0000; }
+.wrap { max-width: 900px; margin: 28px auto; padding: 0 20px; }
+video { width: 100%; border-radius: 12px; background: #000; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
+.video-title { font-size: 1.15rem; font-weight: 600; margin: 16px 0 8px; }
+.video-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.meta-left { font-size: 0.82rem; color: var(--text2); }
+.meta-right { display: flex; gap: 8px; }
+.action-btn { display: flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 0.82rem; cursor: pointer; font-family: 'Roboto', sans-serif; transition: all 0.2s; }
+.action-btn:hover { border-color: var(--accent); color: var(--accent); }
+.action-btn.liked { background: rgba(255,0,0,0.15); border-color: var(--accent); color: var(--accent); }
+.uploader { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.uploader-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; flex-shrink: 0; text-decoration: none; }
+.uploader-name { font-weight: 500; font-size: 0.9rem; text-decoration: none; color: var(--text); }
+.uploader-name:hover { color: var(--accent); }
+.uploader-sub { font-size: 0.75rem; color: var(--text2); }
+.comments-title { font-size: 1rem; font-weight: 600; margin-bottom: 16px; }
+.comment-box { display: flex; gap: 12px; margin-bottom: 24px; }
+.comment-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
+.comment-input { flex: 1; background: none; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.88rem; font-family: 'Roboto', sans-serif; padding: 6px 0; outline: none; }
+.comment-input:focus { border-bottom-color: var(--text); }
+.comment-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+.comment-btn { padding: 6px 14px; border-radius: 20px; border: none; font-size: 0.8rem; font-family: 'Roboto', sans-serif; cursor: pointer; }
+.comment-btn.cancel { background: none; color: var(--text2); }
+.comment-btn.submit { background: var(--accent); color: white; }
+.comment { display: flex; gap: 12px; margin-bottom: 18px; }
+.comment-body .name { font-size: 0.82rem; font-weight: 500; margin-bottom: 3px; }
+.comment-body .name a { color: var(--text); text-decoration: none; }
+.comment-body .name a:hover { color: var(--accent); }
+.comment-body .text { font-size: 0.85rem; line-height: 1.5; }
+.login-prompt { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; font-size: 0.85rem; color: var(--text2); margin-bottom: 20px; }
+.login-prompt a { color: var(--accent); text-decoration: none; }
+
+/* Ad overlay */
+.ad-overlay {
+  position: relative; width: 100%; background: #000;
+  border-radius: 12px; overflow: hidden; display: none;
+  aspect-ratio: 16/9; margin-bottom: 0;
+}
+.ad-overlay.show { display: block; }
+.ad-content {
+  width: 100%; height: 100%; display: flex; align-items: center;
+  justify-content: center; background: #111; flex-direction: column; gap: 12px;
+}
+.ad-label {
+  position: absolute; top: 10px; left: 10px;
+  background: rgba(0,0,0,0.7); color: #ffcc00;
+  font-size: 0.7rem; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+}
+.ad-skip-wrap {
+  position: absolute; bottom: 14px; right: 14px; display: flex;
+  align-items: center; gap: 8px;
+}
+.ad-countdown {
+  background: rgba(0,0,0,0.7); color: white;
+  font-size: 0.8rem; padding: 6px 14px; border-radius: 4px;
+}
+.ad-skip-btn {
+  display: none; background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.4); color: white;
+  padding: 6px 14px; border-radius: 4px; cursor: pointer;
+  font-size: 0.82rem; font-family: 'Roboto', sans-serif;
+  transition: background 0.2s;
+}
+.ad-skip-btn:hover { background: rgba(255,255,255,0.3); }
+.ad-placeholder {
+  width: 100%; height: 100%; display: flex; align-items: center;
+  justify-content: center; flex-direction: column; gap: 8px; color: #666;
+}
+.ad-placeholder-icon { font-size: 2rem; }
+.ad-placeholder-text { font-size: 0.78rem; }
+
+/* Connection status */
+.conn-status {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 999px;
+  font-size: 0.72rem; font-family: 'Roboto', sans-serif;
+  position: fixed; bottom: 20px; right: 20px; z-index: 999;
+  transition: all 0.3s; box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+.conn-status.online { background: rgba(0,200,100,0.15); border: 1px solid rgba(0,200,100,0.4); color: #00c864; }
+.conn-status.offline { background: rgba(255,70,70,0.15); border: 1px solid rgba(255,70,70,0.4); color: #ff4646; }
+.conn-status.slow { background: rgba(255,180,0,0.15); border: 1px solid rgba(255,180,0,0.4); color: #ffb400; }
+.conn-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+/* Download progress */
+.dl-progress {
+  display: none; margin-top: 8px;
+  background: var(--surface2); border-radius: 999px; height: 4px; overflow: hidden;
+}
+.dl-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; border-radius: 999px; }
+
+/* Low bandwidth banner */
+.bandwidth-banner {
+  display: none; background: rgba(255,180,0,0.1); border: 1px solid rgba(255,180,0,0.3);
+  border-radius: 8px; padding: 10px 14px; margin-bottom: 12px;
+  font-size: 0.78rem; color: #ffb400; display: flex; align-items: center;
+  justify-content: space-between; gap: 10px;
+}
+.bandwidth-banner button {
+  background: rgba(255,180,0,0.2); border: 1px solid rgba(255,180,0,0.4);
+  color: #ffb400; padding: 4px 10px; border-radius: 6px; cursor: pointer;
+  font-size: 0.72rem; font-family: 'Roboto', sans-serif;
+}
 </style>
 </head>
 <body>
@@ -35,73 +129,365 @@ nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56
   <div class="nav-right">
     {% if user %}
       <a href="/profile/{{ user.username }}" class="btn">👤 {{ user.username }}</a>
+      <a href="/logout" class="btn">Logout</a>
     {% else %}
       <a href="/login" class="btn">Sign in</a>
+      <a href="/signup" class="btn primary">Sign up</a>
     {% endif %}
   </div>
 </nav>
 
 <div class="wrap">
-  {% if stream.is_live %}
-  <div class="video-container" id="video-container">
-    <div class="offline-msg" id="connecting-msg">
-      <div class="offline-icon">📡</div>
-      <div>Connecting to stream...</div>
+  <!-- AD OVERLAY -->
+  <div class="ad-overlay" id="ad-overlay">
+    <div class="ad-content">
+      <!-- Replace this div with your Google AdSense code when approved -->
+      <div class="ad-placeholder">
+        <div class="ad-placeholder-icon">📢</div>
+        <div class="ad-placeholder-text">Advertisement</div>
+      </div>
     </div>
-    <div class="live-badge"><div class="live-dot"></div> LIVE</div>
-    <div class="viewer-badge">👁️ <span id="viewer-count">0</span> viewers</div>
+    <div class="ad-label">Ad</div>
+    <div class="ad-skip-wrap">
+      <div class="ad-countdown" id="ad-countdown">Skip in 5</div>
+      <button class="ad-skip-btn" id="ad-skip-btn" onclick="skipAd()">Skip Ad ›</button>
+    </div>
   </div>
 
-  <div class="stream-title">{{ stream.title }}</div>
-  <div class="stream-meta">
-    🔴 Live now · Started {{ stream.created_at[:16].replace('T', ' ') }}
+  <div class="bandwidth-banner" id="bandwidth-banner">
+    ⚠️ Slow connection detected — switch to low quality?
+    <button onclick="switchQuality()">Low Quality</button>
   </div>
+  <video controls id="main-video" style="display:none;">
+    <source src="{{ video.video_url if video.video_url else '/videos/' + video.filename }}">
+  </video>
+  <div class="dl-progress" id="dl-progress"><div class="dl-fill" id="dl-fill"></div></div>
 
+  {% if user and video.user_id == user.id %}
+  <div class="video-title" id="video-title" onclick="editTitle()" title="Click to edit" style="cursor:pointer;">
+    {{ video.title }} <span style="font-size:0.7rem;color:var(--text2);margin-left:6px;">✏️</span>
+  </div>
+  <input type="text" id="title-input" value="{{ video.title }}"
+    style="display:none;font-size:1.15rem;font-weight:600;background:var(--surface2);border:1px solid var(--accent);border-radius:8px;padding:6px 12px;color:var(--text);font-family:'Roboto',sans-serif;outline:none;width:100%;margin:16px 0 8px;"
+    onblur="saveTitle('{{ video.id }}')" onkeydown="if(event.key==='Enter') saveTitle('{{ video.id }}')">
   {% else %}
-  <div class="video-container">
-    <div class="offline-msg">
-      <div class="offline-icon">📴</div>
-      <div>This stream has ended</div>
+  {% if user and video.user_id == user.id %}
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+    <input type="text" id="title-input" value="{{ video.title }}" maxlength="100"
+      style="background:none;border:none;border-bottom:1px solid transparent;color:var(--text);font-size:1.15rem;font-weight:600;font-family:'Roboto',sans-serif;outline:none;width:100%;padding:2px 0;"
+      onfocus="this.style.borderBottomColor='var(--accent)'"
+      onblur="this.style.borderBottomColor='transparent';saveTitle('{{ video.id }}')">
+    <span style="font-size:0.75rem;color:var(--text2);flex-shrink:0;">✏️ click to edit</span>
+  </div>
+  {% else %}
+  <!-- GOOGLE ADSENSE AD -->
+  <div style="width:100%;background:var(--surface);border:1px dashed var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:0.75rem;margin:12px 0;min-height:90px;">
+    <!-- Replace this comment with your AdSense code when approved -->
+    <span>Advertisement</span>
+  </div>
+
+  <div class="video-title">{{ video.title }}</div>
+  {% endif %}
+  {% endif %}
+
+  <div class="video-meta">
+    <div class="meta-left">{{ video.size }} · {{ video.created_at[:10] }}</div>
+    <div class="meta-right">
+      <button class="action-btn {{ 'liked' if user_liked else '' }}" id="like-btn" onclick="toggleLike('{{ video.id }}')">
+        ❤️ <span id="like-count">{{ likes }}</span>
+      </button>
+      <button class="action-btn" onclick="downloadVideo()">💾 Save Offline</button>
+      {% if user and video.user_id == user.id %}
+      <button class="action-btn" id="delete-btn" onclick="deleteVideo('{{ video.id }}', '{{ video.title }}')" style="color:#ff4444;border-color:#ff4444;">🗑 Delete</button>
+      {% endif %}
     </div>
   </div>
-  <div class="ended-banner">
-    <p style="margin-bottom:12px;">This stream has ended.</p>
-    <a href="/" style="color:var(--accent);text-decoration:none;">← Back to VaultStream</a>
+
+  {% if video.profiles %}
+  <div class="uploader">
+    <a href="/profile/{{ video.profiles.username }}" class="uploader-avatar">{{ video.profiles.username[0]|upper }}</a>
+    <div>
+      <a href="/profile/{{ video.profiles.username }}" class="uploader-name">{{ video.profiles.username }}</a>
+      <div class="uploader-sub">Uploaded {{ video.created_at[:10] }}</div>
+    </div>
   </div>
   {% endif %}
+
+  <!-- COMMENTS -->
+  <div class="comments-title">{{ comments|length }} Comment{{ 's' if comments|length != 1 else '' }}</div>
+
+  {% if user %}
+  <div class="comment-box">
+    <div class="comment-avatar" style="background:#ff0000;color:white;">{{ user.username[0]|upper }}</div>
+    <div style="flex:1;">
+      <input class="comment-input" id="comment-input" placeholder="Add a comment..." type="text">
+      <div class="comment-actions">
+        <button class="comment-btn cancel" onclick="document.getElementById('comment-input').value=''">Cancel</button>
+        <button class="comment-btn submit" onclick="postComment('{{ video.id }}')">Comment</button>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="login-prompt">
+    <a href="/login">Sign in</a> to like and comment on videos
+  </div>
+  {% endif %}
+
+  <div id="comments-list">
+    {% for c in comments %}
+    <div class="comment">
+      <div class="comment-avatar" style="background:#333;">{{ c.profiles.username[0]|upper }}</div>
+      <div class="comment-body">
+        <div class="name"><a href="/profile/{{ c.profiles.username }}">{{ c.profiles.username }}</a> &nbsp;<span style="color:var(--text2);font-weight:400;font-size:0.75rem;">{{ c.created_at[:10] }}</span></div>
+        <div class="text">{{ c.content }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
 </div>
 
 <script>
-{% if stream.is_live %}
-// Track viewer
-fetch('/join_stream/{{ stream.id }}', {method: 'POST'});
+function editTitle() {
+  document.getElementById('video-title').style.display = 'none';
+  const input = document.getElementById('title-input');
+  input.style.display = 'block';
+  input.focus();
+  input.select();
+}
 
-// Update viewer count
-function updateViewers() {
-  fetch('/stream_viewers/{{ stream.id }}')
+function saveTitle(videoId) {
+  const input = document.getElementById('title-input');
+  const newTitle = input.value.trim();
+  if (!newTitle) return;
+  fetch('/update_title/' + videoId, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({title: newTitle})
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.success) {
+      input.style.display = 'none';
+      const titleEl = document.getElementById('video-title');
+      titleEl.innerHTML = newTitle + ' <span style="font-size:0.7rem;color:var(--text2);margin-left:6px;">✏️</span>';
+      titleEl.style.display = 'block';
+      showToast('✅ Title updated!');
+    } else {
+      showToast('❌ ' + res.error);
+    }
+  });
+}
+
+function saveTitle(videoId) {
+  const title = document.getElementById('title-input').value.trim();
+  if (!title) return;
+  fetch('/update_title/' + videoId, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({title})
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.success) showToast('✅ Title updated!');
+  });
+}
+
+// ── PRE-ROLL AD ──
+function runAd() {
+  // 30% chance of showing an ad
+  if (Math.random() > 0.3) {
+    showVideo();
+    return;
+  }
+
+  const overlay = document.getElementById('ad-overlay');
+  overlay.classList.add('show');
+
+  let seconds = 5;
+  const countdown = document.getElementById('ad-countdown');
+  const skipBtn = document.getElementById('ad-skip-btn');
+
+  const timer = setInterval(() => {
+    seconds--;
+    if (seconds <= 0) {
+      clearInterval(timer);
+      countdown.style.display = 'none';
+      skipBtn.style.display = 'block';
+    } else {
+      countdown.textContent = 'Skip in ' + seconds;
+    }
+  }, 1000);
+}
+
+function skipAd() {
+  document.getElementById('ad-overlay').classList.remove('show');
+  showVideo();
+}
+
+function showVideo() {
+  const video = document.getElementById('main-video');
+  video.style.display = 'block';
+  video.play().catch(() => {});
+}
+
+// Run ad on page load
+window.addEventListener('load', runAd);
+
+function deleteVideo(videoId, title) {
+  if (!confirm('Delete "' + title + '"? This cannot be undone!')) return;
+  fetch('/delete_video/' + videoId, {method: 'POST'})
     .then(r => r.json())
-    .then(data => {
-      document.getElementById('viewer-count').textContent = data.count || 0;
-      // Check if stream ended
-      if (!data.is_live) {
-        document.getElementById('video-container').innerHTML = `
-          <div style="text-align:center;color:#aaa;">
-            <div style="font-size:3rem;margin-bottom:12px;">📴</div>
-            <div>Stream has ended</div>
-          </div>`;
-        clearInterval(viewerInterval);
+    .then(res => {
+      if (res.success) {
+        showToast('🗑 Video deleted!');
+        setTimeout(() => window.location = '/', 1500);
+      } else {
+        showToast('❌ ' + res.error);
       }
     });
 }
 
-const viewerInterval = setInterval(updateViewers, 5000);
-updateViewers();
+function toggleLike(videoId) {
+  fetch('/like/' + videoId, {method: 'POST'})
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) {
+        const btn = document.getElementById('like-btn');
+        btn.classList.toggle('liked', res.liked);
+        document.getElementById('like-count').textContent = res.count;
+      } else {
+        window.location = '/login';
+      }
+    });
+}
 
-// Leave stream when page closes
-window.addEventListener('beforeunload', () => {
-  navigator.sendBeacon('/leave_stream/{{ stream.id }}');
-});
-{% endif %}
+function postComment(videoId) {
+  const input = document.getElementById('comment-input');
+  const content = input.value.trim();
+  if (!content) return;
+  fetch('/comment/' + videoId, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({content})
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.success) {
+      const list = document.getElementById('comments-list');
+      const div = document.createElement('div');
+      div.className = 'comment';
+      div.innerHTML = `
+        <div class="comment-avatar" style="background:#333;">${res.username[0].toUpperCase()}</div>
+        <div class="comment-body">
+          <div class="name"><a href="/profile/${res.username}">${res.username}</a></div>
+          <div class="text">${res.content}</div>
+        </div>`;
+      list.prepend(div);
+      input.value = '';
+    }
+  });
+}
+</script>
+<!-- CONNECTION STATUS -->
+<div class="conn-status online" id="conn-status">
+  <div class="conn-dot"></div>
+  <span id="conn-label">Online</span>
+</div>
+
+<script>
+// ── CONNECTION DETECTOR ──
+let isSlowConnection = false;
+
+function updateConnectionStatus() {
+  const status = document.getElementById('conn-status');
+  const label = document.getElementById('conn-label');
+  const banner = document.getElementById('bandwidth-banner');
+
+  if (!navigator.onLine) {
+    status.className = 'conn-status offline';
+    label.textContent = 'Offline';
+    banner.style.display = 'none';
+  } else {
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (conn) {
+      const slow = conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g' || conn.downlink < 1;
+      if (slow) {
+        status.className = 'conn-status slow';
+        label.textContent = 'Slow connection';
+        banner.style.display = 'flex';
+        isSlowConnection = true;
+      } else {
+        status.className = 'conn-status online';
+        label.textContent = conn.effectiveType ? conn.effectiveType.toUpperCase() : 'Online';
+        banner.style.display = 'none';
+      }
+    } else {
+      status.className = 'conn-status online';
+      label.textContent = 'Online';
+    }
+  }
+}
+
+window.addEventListener('online', updateConnectionStatus);
+window.addEventListener('offline', updateConnectionStatus);
+updateConnectionStatus();
+setInterval(updateConnectionStatus, 5000);
+
+// ── LOW QUALITY MODE ──
+function switchQuality() {
+  const video = document.getElementById('main-video');
+  const src = video.querySelector('source').src;
+  // Add Cloudinary quality transformation
+  const lowQualitySrc = src.replace('/upload/', '/upload/q_30,w_640/');
+  video.querySelector('source').src = lowQualitySrc;
+  video.load();
+  video.play();
+  document.getElementById('bandwidth-banner').style.display = 'none';
+  showToast('📱 Switched to low quality mode');
+}
+
+// ── SAVE OFFLINE (Download) ──
+function downloadVideo() {
+  const src = document.querySelector('#main-video source').src;
+  const progress = document.getElementById('dl-progress');
+  const fill = document.getElementById('dl-fill');
+
+  progress.style.display = 'block';
+  showToast('💾 Saving video...');
+
+  fetch(src)
+    .then(r => {
+      const total = r.headers.get('content-length');
+      const reader = r.body.getReader();
+      const chunks = [];
+      let loaded = 0;
+
+      function read() {
+        return reader.read().then(({ done, value }) => {
+          if (done) {
+            const blob = new Blob(chunks, { type: 'video/mp4' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '{{ video.filename }}';
+            a.click();
+            progress.style.display = 'none';
+            showToast('✅ Saved to your device!');
+            return;
+          }
+          chunks.push(value);
+          loaded += value.length;
+          if (total) fill.style.width = Math.round((loaded / total) * 100) + '%';
+          return read();
+        });
+      }
+      return read();
+    })
+    .catch(() => {
+      progress.style.display = 'none';
+      showToast('❌ Download failed');
+    });
+}
 </script>
 </body>
 </html>
