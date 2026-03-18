@@ -199,7 +199,8 @@ def upload():
 
     filename = secure_filename(file.filename)
     ext = filename.rsplit('.', 1)[1].upper()
-    title = os.path.splitext(filename)[0].replace('_', ' ').replace('-', ' ')
+    default_title = os.path.splitext(filename)[0].replace('_', ' ').replace('-', ' ')
+    title = request.form.get('title', '').strip() or default_title
     category = request.form.get('category', 'general')
 
     # Upload to Cloudinary
@@ -465,6 +466,88 @@ def terms():
 @app.route('/ads.txt')
 def ads_txt():
     return send_from_directory('.', 'ads.txt', mimetype='text/plain')
+
+
+@app.route('/live')
+def live():
+    user = get_current_user()
+    return render_template('live.html', user=user)
+
+@app.route('/start_stream', methods=['POST'])
+def start_stream():
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'error': 'Login required'}), 401
+    title = request.json.get('title', 'Live Stream')
+    # End any existing streams by this user
+    requests.patch(
+        f'{SUPABASE_URL}/rest/v1/streams?user_id=eq.{user["id"]}',
+        headers=supabase_service_headers(),
+        json={'is_live': False}
+    )
+    # Create new stream
+    r = requests.post(
+        f'{SUPABASE_URL}/rest/v1/streams',
+        headers=supabase_service_headers(),
+        json={'user_id': user['id'], 'title': title, 'is_live': True, 'viewer_count': 0}
+    )
+    data = r.json()
+    stream_id = data[0]['id'] if isinstance(data, list) and data else None
+    return jsonify({'success': True, 'stream_id': stream_id})
+
+@app.route('/end_stream/<stream_id>', methods=['POST'])
+def end_stream(stream_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False}), 401
+    requests.patch(
+        f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}&user_id=eq.{user["id"]}',
+        headers=supabase_service_headers(),
+        json={'is_live': False}
+    )
+    return jsonify({'success': True})
+
+@app.route('/watch_live/<stream_id>')
+def watch_live(stream_id):
+    user = get_current_user()
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}',
+        headers=supabase_service_headers()
+    )
+    streams = r.json()
+    if not streams:
+        return redirect(url_for('index'))
+    return render_template('watch_live.html', stream=streams[0], user=user)
+
+@app.route('/join_stream/<stream_id>', methods=['POST'])
+def join_stream(stream_id):
+    requests.rpc if False else None
+    requests.post(
+        f'{SUPABASE_URL}/rest/v1/rpc/increment_viewers',
+        headers=supabase_service_headers(),
+        json={'stream_id': stream_id}
+    )
+    return jsonify({'success': True})
+
+@app.route('/leave_stream/<stream_id>', methods=['POST'])
+def leave_stream(stream_id):
+    requests.post(
+        f'{SUPABASE_URL}/rest/v1/rpc/decrement_viewers',
+        headers=supabase_service_headers(),
+        json={'stream_id': stream_id}
+    )
+    return jsonify({'success': True})
+
+@app.route('/stream_viewers/<stream_id>')
+def stream_viewers(stream_id):
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}&select=viewer_count,is_live',
+        headers=supabase_service_headers()
+    )
+    data = r.json()
+    if data:
+        return jsonify({'count': data[0]['viewer_count'], 'is_live': data[0]['is_live']})
+    return jsonify({'count': 0, 'is_live': False})
 
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
