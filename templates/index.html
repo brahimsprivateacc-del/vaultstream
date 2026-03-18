@@ -141,6 +141,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
   <div style="display:flex;align-items:center;gap:8px;">
     {% if user %}
       <a href="/profile/{{ user.username }}" style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:none;color:var(--text);font-size:0.82rem;text-decoration:none;">👤 {{ user.username }}</a>
+      <a href="/live" style="display:flex;align-items:center;gap:6px;padding:6px 16px;border-radius:20px;border:1px solid #ff4444;background:none;color:#ff4444;font-size:0.82rem;text-decoration:none;font-weight:500;">🔴 Go Live</a>
       <button class="upload-btn" onclick="openModal()"><span>📤</span> Upload</button>
       <a href="/logout" style="padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:none;color:var(--text2);font-size:0.82rem;text-decoration:none;">Logout</a>
     {% else %}
@@ -152,6 +153,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
 <div class="sidebar" id="sidebar">
   <a href="/" class="sidebar-item active"><span>🏠</span>&nbsp;&nbsp;Home</a>
   <a href="/trending" class="sidebar-item"><span>🔥</span>&nbsp;&nbsp;Trending</a>
+  <a href="/live" class="sidebar-item" style="color:#ff4444;">🔴&nbsp;&nbsp;Go Live</a>
   {% if user %}
   <a href="/profile/{{ user.username }}" class="sidebar-item"><span>📁</span>&nbsp;&nbsp;My Videos</a>
   <a href="/dashboard" class="sidebar-item"><span>📊</span>&nbsp;&nbsp;Dashboard</a>
@@ -226,6 +228,11 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div style="margin-bottom:16px;">
+      <label style="font-size:0.82rem;color:var(--text2);display:block;margin-bottom:6px;">Title</label>
+      <input type="text" id="title-input" placeholder="Enter a title for your video..." maxlength="100"
+        style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.88rem;font-family:'Roboto',sans-serif;outline:none;">
+    </div>
+    <div style="margin-bottom:16px;">
       <label style="font-size:0.82rem;color:var(--text2);display:block;margin-bottom:6px;">Category</label>
       <select id="category-select" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.88rem;font-family:'Roboto',sans-serif;outline:none;">
         <option value="general">🎬 General</option>
@@ -266,11 +273,20 @@ const dropZone = document.getElementById('drop-zone');
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
 dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); if (e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]); });
+document.getElementById('file-input').addEventListener('change', e => {
+  if (e.target.files[0]) {
+    const name = e.target.files[0].name;
+    const title = name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
+    document.getElementById('title-input').value = title;
+  }
+});
 document.getElementById('file-input').addEventListener('change', e => { if (e.target.files[0]) uploadFile(e.target.files[0]); });
 function uploadFile(file) {
   const formData = new FormData();
   formData.append('video', file);
   formData.append('category', document.getElementById('category-select').value);
+  const titleVal = document.getElementById('title-input').value.trim();
+  if (titleVal) formData.append('title', titleVal);
   const wrap = document.getElementById('progress-wrap');
   const fill = document.getElementById('progress-fill');
   const name = document.getElementById('progress-name');
