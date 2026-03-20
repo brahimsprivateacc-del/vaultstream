@@ -93,6 +93,7 @@ video { width: 100%; height: 100%; object-fit: cover; }
     <div class="stream-controls">
       <button class="ctrl-btn" onclick="toggleMic()" id="mic-btn">🎤 Mute</button>
       <button class="ctrl-btn" onclick="toggleCam()" id="cam-btn">📷 Hide Camera</button>
+      <button class="ctrl-btn" onclick="toggleScreenShare()" id="screen-btn">🖥️ Share Screen</button>
       <button class="ctrl-btn danger" onclick="endStream()">⏹ End Stream</button>
     </div>
   </div>
@@ -149,6 +150,60 @@ async function updateViewers() {
   const res = await fetch('/stream_viewers/' + streamId);
   const data = await res.json();
   document.getElementById('viewer-count').textContent = data.count || 0;
+}
+
+let screenSharing = false;
+let originalVideoTrack = null;
+
+async function toggleScreenShare() {
+  const video = document.getElementById('local-video');
+  const btn = document.getElementById('screen-btn');
+
+  if (!screenSharing) {
+    try {
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({ 
+        video: true, 
+        audio: true 
+      });
+      // Save original camera track
+      originalVideoTrack = stream.getVideoTracks()[0];
+      // Replace with screen track
+      const screenTrack = screenStream.getVideoTracks()[0];
+      stream.removeTrack(originalVideoTrack);
+      stream.addTrack(screenTrack);
+      video.srcObject = stream;
+      screenSharing = true;
+      btn.textContent = '📷 Back to Camera';
+      btn.style.borderColor = 'var(--accent)';
+      btn.style.color = 'var(--accent)';
+      // Auto switch back when screen share stops
+      screenTrack.onended = () => {
+        switchBackToCamera();
+      };
+      showToast('🖥️ Screen sharing started!');
+    } catch(e) {
+      showToast('❌ Could not share screen');
+    }
+  } else {
+    switchBackToCamera();
+  }
+}
+
+function switchBackToCamera() {
+  const video = document.getElementById('local-video');
+  const btn = document.getElementById('screen-btn');
+  if (originalVideoTrack) {
+    const screenTrack = stream.getVideoTracks()[0];
+    stream.removeTrack(screenTrack);
+    screenTrack.stop();
+    stream.addTrack(originalVideoTrack);
+    video.srcObject = stream;
+  }
+  screenSharing = false;
+  btn.textContent = '🖥️ Share Screen';
+  btn.style.borderColor = '';
+  btn.style.color = '';
+  showToast('📷 Back to camera');
 }
 
 function toggleMic() {
