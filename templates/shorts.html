@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1673723146227353" crossorigin="anonymous"></script>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shorts — VaultStream</title>
 <style>
@@ -11,43 +11,47 @@
 :root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #272727; --border: #3f3f3f; --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #000; color: var(--text); font-family: 'Roboto', sans-serif; overflow: hidden; height: 100vh; }
-
-/* NAV */
-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 56px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); position: fixed; top: 0; left: 0; right: 0; z-index: 200; }
-.logo { display: flex; align-items: center; gap: 6px; text-decoration: none; color: white; }
+nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); position: fixed; top: 0; left: 0; right: 0; z-index: 200; }
+.logo { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text); }
 .logo-icon { background: var(--accent); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; }
 .logo-text { font-size: 1.1rem; font-weight: 700; }
-.nav-right { display: flex; gap: 10px; align-items: center; }
-.btn { padding: 7px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); background: none; color: white; font-size: 0.82rem; cursor: pointer; text-decoration: none; }
+.nav-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.btn { padding: 7px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); background: none; color: var(--text); font-size: 0.82rem; cursor: pointer; text-decoration: none; }
 
-/* SHORTS CONTAINER */
-.shorts-container { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+/* Shorts container */
+.shorts-container { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; }
 .shorts-container::-webkit-scrollbar { display: none; }
 
-/* SINGLE SHORT */
-.short { height: 100vh; scroll-snap-align: start; position: relative; display: flex; align-items: center; justify-content: center; background: #000; }
-video { height: 100%; max-width: 100%; object-fit: contain; }
+.short-item { height: 100vh; scroll-snap-align: start; display: flex; align-items: center; justify-content: center; position: relative; background: #000; }
 
-/* OVERLAY INFO */
-.short-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 16px 40px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); pointer-events: none; }
-.short-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; color: white; }
-.short-user { font-size: 0.82rem; color: rgba(255,255,255,0.8); display: flex; align-items: center; gap: 6px; }
-.short-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: white; }
+.short-video { height: 100vh; max-width: 400px; width: 100%; object-fit: cover; }
 
-/* ACTION BUTTONS */
-.short-actions { position: absolute; right: 12px; bottom: 100px; display: flex; flex-direction: column; gap: 20px; align-items: center; }
-.action-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; color: white; background: none; border: none; font-family: 'Roboto', sans-serif; }
-.action-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; transition: background 0.2s; backdrop-filter: blur(4px); }
-.action-icon:hover { background: rgba(255,255,255,0.3); }
-.action-icon.liked { background: rgba(255,0,0,0.4); }
-.action-label { font-size: 0.72rem; color: white; }
+/* Overlay */
+.short-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); }
+.short-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 6px; }
+.short-user { font-size: 0.82rem; color: rgba(255,255,255,0.8); text-decoration: none; display: flex; align-items: center; gap: 6px; }
+.short-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; flex-shrink: 0; }
 
-/* EMPTY */
-.empty-shorts { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text2); gap: 16px; }
-.empty-shorts a { color: var(--accent); text-decoration: none; }
+/* Side actions */
+.short-actions { position: absolute; right: 12px; bottom: 80px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.action-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: white; cursor: pointer; font-family: 'Roboto', sans-serif; }
+.action-icon { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: background 0.2s; backdrop-filter: blur(4px); }
+.action-btn:hover .action-icon { background: rgba(255,255,255,0.3); }
+.action-btn.liked .action-icon { background: rgba(255,0,0,0.4); }
+.action-label { font-size: 0.72rem; color: rgba(255,255,255,0.9); }
 
-/* UPLOAD SHORT BTN */
-.upload-short-btn { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; border: none; border-radius: 24px; padding: 12px 28px; font-size: 0.9rem; font-weight: 600; font-family: 'Roboto', sans-serif; cursor: pointer; z-index: 300; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 20px rgba(255,0,0,0.4); }
+/* Nav arrows */
+.nav-arrow { position: fixed; right: 20px; background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); z-index: 100; transition: background 0.2s; }
+.nav-arrow:hover { background: rgba(255,255,255,0.25); }
+.nav-arrow.up { top: 50%; transform: translateY(-60px); }
+.nav-arrow.down { top: 50%; transform: translateY(20px); }
+
+/* Empty state */
+.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: var(--text2); text-align: center; gap: 12px; }
+.empty-icon { font-size: 4rem; }
+
+/* Upload short button */
+.upload-short-btn { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; border: none; border-radius: 24px; padding: 12px 28px; font-size: 0.9rem; font-weight: 600; font-family: 'Roboto', sans-serif; cursor: pointer; z-index: 200; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 20px rgba(255,0,0,0.4); }
 
 .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); color: var(--text); border-radius: 8px; padding: 12px 24px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 999; transition: transform 0.3s; white-space: nowrap; }
 .toast.show { transform: translateX(-50%) translateY(0); }
@@ -56,6 +60,7 @@ video { height: 100%; max-width: 100%; object-fit: contain; }
 <body>
 <nav>
   <a href="/" class="logo"><div class="logo-icon">VS</div><div class="logo-text">VaultStream</div></a>
+  <div style="position:absolute;left:50%;transform:translateX(-50%);font-weight:600;font-size:1rem;">Shorts</div>
   <div class="nav-right">
     {% if user %}
       <a href="/profile/{{ user.username }}" class="btn">👤 {{ user.username }}</a>
@@ -68,63 +73,78 @@ video { height: 100%; max-width: 100%; object-fit: contain; }
 {% if shorts %}
 <div class="shorts-container" id="shorts-container">
   {% for short in shorts %}
-  <div class="short" id="short-{{ loop.index0 }}">
-    <video loop playsinline preload="metadata" onclick="togglePlay(this)">
-      <source src="{{ short.video_url if short.video_url else '/videos/' + short.filename }}">
+  <div class="short-item" id="short-{{ short.id }}">
+    <video class="short-video" loop playsinline preload="metadata"
+      onclick="togglePlay(this)"
+      data-id="{{ short.id }}">
+      <source src="{{ short.video_url or '/videos/' + short.filename }}">
     </video>
 
-    <!-- Info overlay -->
-    <div class="short-overlay">
-      <div class="short-title">{{ short.title }}</div>
-      <div class="short-user">
-        <div class="short-avatar">{{ short.profiles.username[0]|upper if short.profiles else 'V' }}</div>
-        {{ short.profiles.username if short.profiles else 'Unknown' }}
-      </div>
-    </div>
-
-    <!-- Action buttons -->
+    <!-- Side actions -->
     <div class="short-actions">
-      <button class="action-btn" onclick="toggleLike('{{ short.id }}', this)">
-        <div class="action-icon {{ 'liked' if short.id in liked_ids else '' }}">❤️</div>
+      <button class="action-btn" onclick="likeShort('{{ short.id }}', this)">
+        <div class="action-icon">❤️</div>
         <span class="action-label" id="likes-{{ short.id }}">{{ short.like_count or 0 }}</span>
       </button>
-      <a href="/watch/{{ short.id }}" class="action-btn">
+      <button class="action-btn" onclick="window.location='/watch/{{ short.id }}'">
         <div class="action-icon">💬</div>
-        <span class="action-label">Comments</span>
-      </a>
+        <span class="action-label">{{ short.comment_count or 0 }}</span>
+      </button>
       <button class="action-btn" onclick="shareShort('{{ short.id }}')">
         <div class="action-icon">↗️</div>
         <span class="action-label">Share</span>
       </button>
     </div>
+
+    <!-- Bottom overlay -->
+    <div class="short-overlay">
+      <div class="short-title">{{ short.title }}</div>
+      <a href="/profile/{{ short.profiles.username if short.profiles else '#' }}" class="short-user">
+        <div class="short-avatar">{{ short.profiles.username[0]|upper if short.profiles else 'V' }}</div>
+        {{ short.profiles.username if short.profiles else 'Unknown' }}
+      </a>
+    </div>
   </div>
   {% endfor %}
 </div>
 
+<!-- Nav arrows -->
+<button class="nav-arrow up" onclick="scrollShort(-1)">▲</button>
+<button class="nav-arrow down" onclick="scrollShort(1)">▼</button>
+
 {% else %}
-<div class="empty-shorts">
-  <div style="font-size:3rem;">📱</div>
-  <div style="font-size:1.1rem;font-weight:500;">No Shorts yet</div>
+<div class="empty">
+  <div class="empty-icon">📱</div>
+  <div style="font-size:1.1rem;font-weight:600;">No Shorts yet</div>
   <div style="font-size:0.85rem;">Upload a short vertical video to get started!</div>
-  {% if user %}
-  <a href="/" style="color:var(--accent);text-decoration:none;">← Back to home</a>
-  {% else %}
-  <a href="/login">Sign in to upload</a>
-  {% endif %}
 </div>
 {% endif %}
 
 {% if user %}
-<button class="upload-short-btn" onclick="window.location='/'">📱 Upload Short</button>
+<button class="upload-short-btn" onclick="window.location='/?upload_short=1'">
+  ＋ Upload Short
+</button>
 {% endif %}
 
 <div class="toast" id="toast"></div>
 
 <script>
-// Auto play visible short
+let currentIndex = 0;
+const items = document.querySelectorAll('.short-item');
+
+// Auto play first video
+window.addEventListener('load', () => {
+  if (items.length > 0) {
+    const firstVideo = items[0].querySelector('video');
+    if (firstVideo) firstVideo.play().catch(() => {});
+  }
+});
+
+// Intersection observer to autoplay on scroll
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     const video = entry.target.querySelector('video');
+    if (!video) return;
     if (entry.isIntersecting) {
       video.play().catch(() => {});
     } else {
@@ -134,20 +154,25 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.7 });
 
-document.querySelectorAll('.short').forEach(s => observer.observe(s));
+items.forEach(item => observer.observe(item));
+
+function scrollShort(dir) {
+  const container = document.getElementById('shorts-container');
+  const h = window.innerHeight;
+  container.scrollBy({ top: dir * h, behavior: 'smooth' });
+}
 
 function togglePlay(video) {
   if (video.paused) video.play();
   else video.pause();
 }
 
-function toggleLike(videoId, btn) {
+function likeShort(videoId, btn) {
   fetch('/like/' + videoId, {method: 'POST'})
     .then(r => r.json())
     .then(res => {
       if (res.success) {
-        const icon = btn.querySelector('.action-icon');
-        icon.classList.toggle('liked', res.liked);
+        btn.classList.toggle('liked', res.liked);
         document.getElementById('likes-' + videoId).textContent = res.count;
       } else {
         window.location = '/login';
@@ -166,6 +191,12 @@ function showToast(msg) {
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowDown') scrollShort(1);
+  if (e.key === 'ArrowUp') scrollShort(-1);
+});
 </script>
 </body>
 </html>
