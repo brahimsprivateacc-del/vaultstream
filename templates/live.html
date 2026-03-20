@@ -106,6 +106,8 @@ input[type="text"]:focus { border-color: var(--accent); }
 
 <script>
 const AGORA_APP_ID = '12e74aedf9af43ba91472232295fc6c7';
+const AGORA_TOKEN = '007eJxTYKiaP3GhSqWXcs31M5JNqtNzVq6KZlA4I6sRo3f3q+edWTEKDIZGqeYmiakpaZaJaSbGSYmWhibmRkbGRkaWpmnJZsnmYtP3ZjYEMjIk6K5hZmSAQBCfhaEktbiEgQEA6sAeDQ==';
+const AGORA_CHANNEL = 'vaultstream';
 let client = null;
 let localVideoTrack = null;
 let localAudioTrack = null;
@@ -135,8 +137,7 @@ async function startStream() {
     streamId = data.stream_id;
 
     // Join Agora channel using stream ID as channel name
-    const channel = streamId.replace(/-/g,'').substring(0, 16);
-    await client.join(AGORA_APP_ID, channel, null, null);
+    await client.join(AGORA_APP_ID, AGORA_CHANNEL, AGORA_TOKEN, null);
 
     // Create and publish local tracks
     [localAudioTrack, localVideoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
