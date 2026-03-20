@@ -549,6 +549,17 @@ def stream_viewers(stream_id):
         return jsonify({'count': data[0]['viewer_count'], 'is_live': data[0]['is_live']})
     return jsonify({'count': 0, 'is_live': False})
 
+
+@app.route('/update_viewers/<stream_id>', methods=['POST'])
+def update_viewers(stream_id):
+    count = request.json.get('count', 0)
+    requests.patch(
+        f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}',
+        headers=supabase_service_headers(),
+        json={'viewer_count': count}
+    )
+    return jsonify({'success': True})
+
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
