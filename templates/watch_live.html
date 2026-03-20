@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ stream.title }} — Live on VaultStream</title>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1673723146227353" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 :root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #272727; --border: #3f3f3f; --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; }
@@ -18,15 +19,18 @@ nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56
 .btn { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.82rem; cursor: pointer; text-decoration: none; }
 .wrap { margin-top: 56px; max-width: 900px; margin-left: auto; margin-right: auto; padding: 28px 20px; }
 .video-container { position: relative; border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 16/9; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; }
-.offline-msg { text-align: center; color: var(--text2); }
-.offline-icon { font-size: 3rem; margin-bottom: 12px; }
+video { width: 100%; height: 100%; object-fit: cover; display: none; }
+.status-msg { text-align: center; color: var(--text2); padding: 20px; }
+.status-icon { font-size: 3rem; margin-bottom: 12px; }
 .live-badge { position: absolute; top: 12px; left: 12px; background: var(--accent); color: white; font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; display: flex; align-items: center; gap: 5px; }
 .live-dot { width: 8px; height: 8px; border-radius: 50%; background: white; animation: pulse 1.5s infinite; }
 @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
 .viewer-badge { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); color: white; font-size: 0.78rem; padding: 4px 10px; border-radius: 4px; }
 .stream-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 8px; }
-.stream-meta { font-size: 0.82rem; color: var(--text2); display: flex; align-items: center; gap: 8px; }
+.stream-meta { font-size: 0.82rem; color: var(--text2); }
 .ended-banner { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; text-align: center; margin-top: 20px; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); color: var(--text); border-radius: 8px; padding: 12px 24px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 999; transition: transform 0.3s; }
+.toast.show { transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
@@ -44,23 +48,22 @@ nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56
 <div class="wrap">
   {% if stream.is_live %}
   <div class="video-container" id="video-container">
-    <div class="offline-msg" id="connecting-msg">
-      <div class="offline-icon">📡</div>
+    <video id="stream-video" autoplay playsinline controls></video>
+    <div class="status-msg" id="status-msg">
+      <div class="status-icon">📡</div>
       <div>Connecting to stream...</div>
     </div>
     <div class="live-badge"><div class="live-dot"></div> LIVE</div>
-    <div class="viewer-badge">👁️ <span id="viewer-count">0</span> viewers</div>
+    <div class="viewer-badge">👁️ <span id="viewer-count">{{ stream.viewer_count or 0 }}</span> viewers</div>
   </div>
 
   <div class="stream-title">{{ stream.title }}</div>
-  <div class="stream-meta">
-    🔴 Live now · Started {{ stream.created_at[:16].replace('T', ' ') }}
-  </div>
+  <div class="stream-meta">🔴 Live now</div>
 
   {% else %}
   <div class="video-container">
-    <div class="offline-msg">
-      <div class="offline-icon">📴</div>
+    <div class="status-msg">
+      <div class="status-icon">📴</div>
       <div>This stream has ended</div>
     </div>
   </div>
@@ -71,37 +74,87 @@ nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56
   {% endif %}
 </div>
 
-<script>
+<div class="toast" id="toast"></div>
+
 {% if stream.is_live %}
-// Track viewer
-fetch('/join_stream/{{ stream.id }}', {method: 'POST'});
+<script>
+const streamId = '{{ stream.id }}';
+let peer = null;
+let viewerInterval = null;
+
+function connectToStream() {
+  peer = new Peer({
+    host: '0.peerjs.com',
+    port: 443,
+    secure: true
+  });
+
+  peer.on('open', (myId) => {
+    // Call the streamer
+    const call = peer.call('vs-' + streamId, null);
+    if (!call) {
+      showStatus('📴', 'Stream not found or ended');
+      return;
+    }
+    call.on('stream', (remoteStream) => {
+      const video = document.getElementById('stream-video');
+      video.srcObject = remoteStream;
+      video.style.display = 'block';
+      document.getElementById('status-msg').style.display = 'none';
+      showToast('✅ Connected to stream!');
+    });
+    call.on('close', () => {
+      showStatus('📴', 'Stream has ended');
+    });
+    call.on('error', () => {
+      showStatus('❌', 'Connection failed');
+    });
+  });
+
+  peer.on('error', (err) => {
+    if (err.type === 'peer-unavailable') {
+      showStatus('⏳', 'Waiting for streamer...');
+      setTimeout(connectToStream, 5000);
+    } else {
+      showStatus('❌', 'Could not connect');
+    }
+  });
+}
+
+function showStatus(icon, msg) {
+  const s = document.getElementById('status-msg');
+  s.style.display = 'block';
+  s.innerHTML = `<div class="status-icon">${icon}</div><div>${msg}</div>`;
+  document.getElementById('stream-video').style.display = 'none';
+}
 
 // Update viewer count
 function updateViewers() {
-  fetch('/stream_viewers/{{ stream.id }}')
+  fetch('/stream_viewers/' + streamId)
     .then(r => r.json())
     .then(data => {
       document.getElementById('viewer-count').textContent = data.count || 0;
-      // Check if stream ended
       if (!data.is_live) {
-        document.getElementById('video-container').innerHTML = `
-          <div style="text-align:center;color:#aaa;">
-            <div style="font-size:3rem;margin-bottom:12px;">📴</div>
-            <div>Stream has ended</div>
-          </div>`;
+        showStatus('📴', 'Stream has ended');
         clearInterval(viewerInterval);
+        if (peer) peer.destroy();
       }
     });
 }
 
-const viewerInterval = setInterval(updateViewers, 5000);
-updateViewers();
+connectToStream();
+viewerInterval = setInterval(updateViewers, 5000);
 
-// Leave stream when page closes
 window.addEventListener('beforeunload', () => {
-  navigator.sendBeacon('/leave_stream/{{ stream.id }}');
+  if (peer) peer.destroy();
 });
-{% endif %}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
 </script>
+{% endif %}
 </body>
 </html>
