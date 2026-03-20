@@ -199,7 +199,8 @@ video { width: 100%; border-radius: 12px; background: #000; box-shadow: 0 20px 6
       </button>
       <button class="action-btn" onclick="downloadVideo()">💾 Save Offline</button>
       {% if user and (video.user_id == user.id or user.id == '9e186088-8134-43d3-9ea6-8a3330335845') %}
-      <button class="action-btn" id="delete-btn" onclick="deleteVideo('{{ video.id }}', '{{ video.title }}')" style="color:#ff4444;border-color:#ff4444;">🗑 Delete{% if user.id == '9e186088-8134-43d3-9ea6-8a3330335845' and video.user_id != user.id %} (Admin){% endif %}</button>
+      {% set is_admin_delete = user.id == '9e186088-8134-43d3-9ea6-8a3330335845' and video.user_id != user.id %}
+      <button class="action-btn" id="delete-btn" onclick="deleteVideo('{{ video.id }}', '{{ video.title }}', {{ 'true' if is_admin_delete else 'false' }})" style="color:#ff4444;border-color:#ff4444;">🗑 {% if is_admin_delete %}Delete (Admin){% else %}Delete{% endif %}</button>
       {% endif %}
     </div>
   </div>
@@ -334,9 +335,17 @@ function showVideo() {
 // Run ad on page load
 window.addEventListener('load', runAd);
 
-function deleteVideo(videoId, title) {
+function deleteVideo(videoId, title, isAdmin) {
   if (!confirm('Delete "' + title + '"? This cannot be undone!')) return;
-  fetch('/delete_video/' + videoId, {method: 'POST'})
+  let reason = '';
+  if (isAdmin) {
+    reason = prompt('Reason for deletion (user will be notified):', 'Spam') || '';
+  }
+  fetch('/delete_video/' + videoId, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({reason})
+  })
     .then(r => r.json())
     .then(res => {
       if (res.success) {
