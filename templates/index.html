@@ -141,6 +141,9 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
     {% if user %}
+      <a href="/notifications" style="position:relative;padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:none;color:var(--text);font-size:0.9rem;text-decoration:none;" id="notif-btn">
+        🔔<span id="notif-count" style="display:none;position:absolute;top:2px;right:2px;background:#ff0000;color:white;font-size:0.6rem;font-weight:700;padding:1px 4px;border-radius:999px;"></span>
+      </a>
       <a href="/profile/{{ user.username }}" style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:none;color:var(--text);font-size:0.82rem;text-decoration:none;">👤 {{ user.username }}</a>
       <a href="/live" style="display:flex;align-items:center;gap:6px;padding:6px 16px;border-radius:20px;border:1px solid #ff4444;background:none;color:#ff4444;font-size:0.82rem;text-decoration:none;font-weight:500;">🔴 Go Live</a>
       <button class="upload-btn" onclick="openModal()"><span>📤</span> Upload</button>
@@ -407,6 +410,20 @@ function toggleTheme() {
     if (btn) btn.textContent = '☀️';
   }
 })();
+</script>
+<script>
+// Check unread notifications
+{% if user %}
+fetch('/unread_notifications')
+  .then(r => r.json())
+  .then(data => {
+    if (data.count > 0) {
+      const badge = document.getElementById('notif-count');
+      badge.textContent = data.count;
+      badge.style.display = 'block';
+    }
+  });
+{% endif %}
 </script>
 </body>
 </html>
