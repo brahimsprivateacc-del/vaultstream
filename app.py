@@ -665,6 +665,6 @@ def shorts():
     return render_template('shorts.html', shorts=shorts_list, user=user)
 
 
-f __name__ == '__main__':
+if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
