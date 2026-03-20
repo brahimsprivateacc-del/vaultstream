@@ -665,33 +665,6 @@ def shorts():
     return render_template('shorts.html', shorts=shorts_list, user=user)
 
 
-@app.route('/shorts')
-def shorts():
-    user = get_current_user()
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/videos?is_short=eq.true&select=*,profiles(username)&order=created_at.desc',
-        headers=supabase_headers()
-    )
-    shorts = r.json() if r.ok else []
-
-    # Get like counts and check user liked
-    liked_ids = []
-    for short in shorts:
-        r2 = requests.get(
-            f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{short["id"]}&select=id',
-            headers=supabase_headers()
-        )
-        short['like_count'] = len(r2.json()) if r2.ok else 0
-        if user:
-            r3 = requests.get(
-                f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{short["id"]}&user_id=eq.{user["id"]}',
-                headers=supabase_headers()
-            )
-            if r3.ok and r3.json():
-                liked_ids.append(short['id'])
-
-    return render_template('shorts.html', shorts=shorts, user=user, liked_ids=liked_ids)
-
-if __name__ == '__main__':
+f __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
