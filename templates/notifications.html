@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1673723146227353" crossorigin="anonymous"></script>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications — VaultStream</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+:root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #272727; --border: #3f3f3f; --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; --sidebar-w: 240px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; }
+nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56px; border-bottom: 1px solid var(--border); background: var(--bg); position: fixed; top: 0; left: 0; right: 0; z-index: 200; }
+.logo { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text); }
+.logo-icon { background: var(--accent); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; }
+.logo-text { font-size: 1.1rem; font-weight: 700; }
+.nav-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.btn { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.82rem; cursor: pointer; text-decoration: none; }
+.btn:hover { background: var(--surface2); }
+.main { margin-top: 56px; max-width: 700px; margin-left: auto; margin-right: auto; padding: 28px 20px; }
+.page-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 24px; }
+.notif { display: flex; gap: 14px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+.notif.unread { border-color: var(--accent); background: rgba(255,0,0,0.05); }
+.notif-icon { font-size: 1.4rem; flex-shrink: 0; }
+.notif-msg { font-size: 0.88rem; line-height: 1.5; flex: 1; }
+.notif-time { font-size: 0.75rem; color: var(--text2); margin-top: 4px; }
+.empty { text-align: center; padding: 60px; color: var(--text2); }
+.empty-icon { font-size: 3rem; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo"><div class="logo-icon">VS</div><div class="logo-text">VaultStream</div></a>
+  <div class="nav-right">
+    {% if user %}
+      <a href="/profile/{{ user.username }}" class="btn">👤 {{ user.username }}</a>
+      <a href="/logout" class="btn">Logout</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="main">
+  <div class="page-title">🔔 Notifications</div>
+
+  {% if notifications %}
+    {% for notif in notifications %}
+    <div class="notif {{ 'unread' if not notif.is_read else '' }}">
+      <div class="notif-icon">🔔</div>
+      <div>
+        <div class="notif-msg">{{ notif.message }}</div>
+        <div class="notif-time">{{ notif.created_at[:16].replace('T', ' ') }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty">
+      <div class="empty-icon">🔔</div>
+      <div>No notifications yet</div>
+    </div>
+  {% endif %}
+</div>
+</body>
+</html>
