@@ -184,6 +184,27 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
   </div>
 
   <div class="search-label" id="search-label" style="display:none;">Showing results for <span id="search-term"></span></div>
+  <!-- LIVE STREAMS — shown as video cards -->
+  {% for stream in live_streams %}
+  <a class="video-card" href="/watch_live/{{ stream.id }}" style="text-decoration:none;color:inherit;display:block;">
+    <div class="thumb-wrap" style="border:2px solid #ff0000;">
+      <div class="thumb-bg" style="background:#1a0000;display:flex;align-items:center;justify-content:center;font-size:2.5rem;">📡</div>
+      <div class="thumb-overlay"><div class="play-circle">▶</div></div>
+      <div style="position:absolute;top:6px;left:6px;background:#ff0000;color:white;font-size:0.65rem;font-weight:700;padding:3px 8px;border-radius:4px;display:flex;align-items:center;gap:4px;">
+        <span style="width:6px;height:6px;border-radius:50%;background:white;display:inline-block;animation:pulse 1.5s infinite;"></span> LIVE
+      </div>
+      <div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.75);color:white;font-size:0.7rem;padding:2px 7px;border-radius:3px;">👁️ {{ stream.viewer_count or 0 }}</div>
+    </div>
+    <div class="card-info">
+      <div class="card-avatar" style="background:#ff0000;">{{ stream.profiles.username[0]|upper if stream.profiles else 'L' }}</div>
+      <div class="card-details">
+        <div class="card-title">{{ stream.title }}</div>
+        <div class="card-meta">{{ stream.profiles.username if stream.profiles else 'Unknown' }} · Live now</div>
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+
   <div class="video-grid" id="video-grid">
     {% if videos %}
       {% for video in videos %}
