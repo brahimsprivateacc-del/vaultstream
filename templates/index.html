@@ -154,6 +154,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
 <div class="sidebar" id="sidebar">
   <a href="/" class="sidebar-item active"><span>🏠</span>&nbsp;&nbsp;Home</a>
   <a href="/trending" class="sidebar-item"><span>🔥</span>&nbsp;&nbsp;Trending</a>
+  <a href="/shorts" class="sidebar-item"><span>📱</span>&nbsp;&nbsp;Shorts</a>
   <a href="/live" class="sidebar-item" style="color:#ff4444;">🔴&nbsp;&nbsp;Go Live</a>
   {% if user %}
   <a href="/profile/{{ user.username }}" class="sidebar-item"><span>📁</span>&nbsp;&nbsp;My Videos</a>
@@ -266,6 +267,27 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
         <option value="food">🍕 Food</option>
       </select>
     </div>
+    <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:0.88rem;font-weight:500;">📱 Upload as Short</div>
+        <div style="font-size:0.75rem;color:var(--text2);">Vertical video under 60 seconds</div>
+      </div>
+      <label style="position:relative;display:inline-block;width:44px;height:24px;">
+        <input type="checkbox" id="is-short-toggle" style="opacity:0;width:0;height:0;">
+        <span onclick="document.getElementById('is-short-toggle').click()" style="position:absolute;inset:0;background:var(--border);border-radius:999px;cursor:pointer;transition:0.2s;" id="short-slider"></span>
+      </label>
+    </div>
+    <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:0.88rem;font-weight:500;">📱 This is a Short</div>
+        <div style="font-size:0.75rem;color:var(--text2);">Vertical video under 60 seconds</div>
+      </div>
+      <label style="position:relative;width:44px;height:24px;flex-shrink:0;">
+        <input type="checkbox" id="is-short-toggle" style="opacity:0;width:0;height:0;">
+        <span id="short-slider" style="position:absolute;inset:0;background:var(--border);border-radius:999px;cursor:pointer;transition:0.2s;" onclick="toggleShortSlider()"></span>
+        <span id="short-knob" style="position:absolute;width:18px;height:18px;left:3px;top:3px;background:white;border-radius:50%;transition:0.2s;pointer-events:none;"></span>
+      </label>
+    </div>
     <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
       <div class="drop-icon">📁</div>
       <div class="drop-title">Drag and drop your video here</div>
@@ -306,6 +328,8 @@ function uploadFile(file) {
   const formData = new FormData();
   formData.append('video', file);
   formData.append('category', document.getElementById('category-select').value);
+  formData.append('is_short', document.getElementById('is-short-toggle').checked ? 'true' : 'false');
+  formData.append('is_short', document.getElementById('is-short-toggle').checked);
   const titleVal = document.getElementById('title-input').value.trim();
   if (titleVal) formData.append('title', titleVal);
   const wrap = document.getElementById('progress-wrap');
@@ -346,6 +370,14 @@ function filterChip(el, cat) {
     c.style.display = (cat === 'all' || c.dataset.category === cat) ? '' : 'none';
   });
 }
+let shortOn = false;
+function toggleShortSlider() {
+  shortOn = !shortOn;
+  document.getElementById('is-short-toggle').checked = shortOn;
+  document.getElementById('short-slider').style.background = shortOn ? '#ff0000' : 'var(--border)';
+  document.getElementById('short-knob').style.transform = shortOn ? 'translateX(20px)' : 'translateX(0)';
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
