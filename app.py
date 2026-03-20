@@ -208,6 +208,8 @@ def upload():
     default_title = os.path.splitext(filename)[0].replace('_', ' ').replace('-', ' ')
     title = request.form.get('title', '').strip() or default_title
     category = request.form.get('category', 'general')
+    is_short = request.form.get('is_short', 'false') == 'true' 
+    is_short = request.form.get('is_short', 'false') == 'true'
 
     # Upload to Cloudinary
     result = cloudinary.uploader.upload(
@@ -236,7 +238,9 @@ def upload():
             'extension': ext,
             'video_url': video_url,
             'thumbnail_url': thumbnail_url,
-            'category': category
+            'category': category,
+            'is_short': is_short,
+            'is_short': is_short
         }
     )
     return jsonify({'success': True, 'message': f'"{title}" uploaded!'})
@@ -627,6 +631,66 @@ def save_peer_id(stream_id):
 @app.route('/favicon.svg')
 def favicon():
     return send_from_directory('.', 'favicon.svg', mimetype='image/svg+xml')
+
+
+@app.route('/shorts')
+def shorts():
+    user = get_current_user()
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/videos?is_short=eq.true&select=*,profiles(username)&order=created_at.desc',
+        headers=supabase_headers()
+    )
+    shorts_list = r.json() if r.ok else []
+
+    # Get like counts and check if user liked
+    for short in shorts_list:
+        r2 = requests.get(
+            f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{short["id"]}',
+            headers=supabase_service_headers()
+        )
+        short['like_count'] = len(r2.json()) if r2.ok else 0
+        short['user_liked'] = False
+        if user:
+            r3 = requests.get(
+                f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{short["id"]}&user_id=eq.{user["id"]}',
+                headers=supabase_service_headers()
+            )
+            short['user_liked'] = len(r3.json()) > 0 if r3.ok else False
+        r4 = requests.get(
+            f'{SUPABASE_URL}/rest/v1/comments?video_id=eq.{short["id"]}',
+            headers=supabase_service_headers()
+        )
+        short['comment_count'] = len(r4.json()) if r4.ok else 0
+
+    return render_template('shorts.html', shorts=shorts_list, user=user)
+
+
+@app.route('/shorts')
+def shorts():
+    user = get_current_user()
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/videos?is_short=eq.true&select=*,profiles(username)&order=created_at.desc',
+        headers=supabase_headers()
+    )
+    shorts = r.json() if r.ok else []
+
+    # Get like counts and check user liked
+    liked_ids = []
+    for short in shorts:
+        r2 = requests.get(
+            f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{short["id"]}&select=id',
+            headers=supabase_headers()
+        )
+        short['like_count'] = len(r2.json()) if r2.ok else 0
+        if user:
+            r3 = requests.get(
+                f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{short["id"]}&user_id=eq.{user["id"]}',
+                headers=supabase_headers()
+            )
+            if r3.ok and r3.json():
+                liked_ids.append(short['id'])
+
+    return render_template('shorts.html', shorts=shorts, user=user, liked_ids=liked_ids)
 
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
