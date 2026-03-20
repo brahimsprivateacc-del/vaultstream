@@ -208,6 +208,7 @@ def upload():
     default_title = os.path.splitext(filename)[0].replace('_', ' ').replace('-', ' ')
     title = request.form.get('title', '').strip() or default_title
     category = request.form.get('category', 'general')
+    is_short = request.form.get('is_short', '0') == '1'
     is_short = request.form.get('is_short', 'false') == 'true' 
     is_short = request.form.get('is_short', 'false') == 'true'
 
