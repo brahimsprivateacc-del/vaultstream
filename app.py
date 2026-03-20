@@ -15,6 +15,9 @@ ALLOWED_EXTENSIONS = {'mp4', 'mkv', 'mov', 'avi', 'webm'}
 MAX_UPLOAD_MB = 4096
 app.config['MAX_CONTENT_LENGTH'] = MAX_UPLOAD_MB * 1024 * 1024
 
+# Admin user ID - only this user can delete any video
+ADMIN_USER_ID = '9e186088-8134-43d3-9ea6-8a3330335845'
+
 # Supabase config
 SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://wweckerzweqjrrrbqysq.supabase.co')
 SUPABASE_KEY = os.environ.get('SUPABASE_KEY', 'sb_publishable_cxxK6Id-_Ttl18yWep2oNQ_BgO2rghG')
@@ -370,13 +373,14 @@ def delete_video(video_id):
     user = get_current_user()
     if not user:
         return jsonify({'success': False, 'error': 'Login required'}), 401
-    # Check ownership
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&user_id=eq.{user["id"]}',
-        headers=supabase_service_headers()
-    )
-    if not r.json():
-        return jsonify({'success': False, 'error': 'Not your video'}), 403
+    # Allow admin or video owner to delete
+    if user['id'] != ADMIN_USER_ID:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&user_id=eq.{user["id"]}',
+            headers=supabase_service_headers()
+        )
+        if not r.json():
+            return jsonify({'success': False, 'error': 'Not your video'}), 403
     # Delete from Supabase
     requests.delete(
         f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}',
