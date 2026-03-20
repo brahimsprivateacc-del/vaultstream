@@ -2,138 +2,82 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ stream.title }} — Live on VaultStream</title>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1673723146227353" crossorigin="anonymous"></script>
-<script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Service — VaultStream</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-:root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #272727; --border: #3f3f3f; --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; }
+:root { --bg: #0f0f0f; --surface: #1a1a1a; --border: #3f3f3f; --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; }
 nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56px; border-bottom: 1px solid var(--border); background: var(--bg); position: fixed; top: 0; left: 0; right: 0; z-index: 200; }
 .logo { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text); }
 .logo-icon { background: var(--accent); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; }
 .logo-text { font-size: 1.1rem; font-weight: 700; }
-.nav-right { margin-left: auto; display: flex; gap: 10px; }
-.btn { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.82rem; cursor: pointer; text-decoration: none; }
-.wrap { margin-top: 56px; max-width: 900px; margin-left: auto; margin-right: auto; padding: 28px 20px; }
-.video-container { position: relative; border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 16/9; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; }
-#remote-video { width: 100%; height: 100%; }
-.status-msg { position: absolute; text-align: center; color: var(--text2); }
-.status-icon { font-size: 3rem; margin-bottom: 12px; }
-.live-badge { position: absolute; top: 12px; left: 12px; background: var(--accent); color: white; font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; display: flex; align-items: center; gap: 5px; }
-.live-dot { width: 8px; height: 8px; border-radius: 50%; background: white; animation: pulse 1.5s infinite; }
-@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
-.viewer-badge { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); color: white; font-size: 0.78rem; padding: 4px 10px; border-radius: 4px; }
-.stream-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 8px; }
-.stream-meta { font-size: 0.82rem; color: var(--text2); }
-.ended-banner { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; text-align: center; margin-top: 20px; }
-.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); color: var(--text); border-radius: 8px; padding: 12px 24px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 999; transition: transform 0.3s; }
-.toast.show { transform: translateX(-50%) translateY(0); }
+.main { margin-top: 56px; max-width: 800px; margin-left: auto; margin-right: auto; padding: 40px 24px; }
+h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; }
+.updated { font-size: 0.82rem; color: var(--text2); margin-bottom: 32px; }
+h2 { font-size: 1.05rem; font-weight: 600; margin: 28px 0 10px; }
+p { font-size: 0.88rem; color: var(--text2); line-height: 1.7; margin-bottom: 10px; }
+ul { padding-left: 20px; margin-bottom: 10px; }
+ul li { font-size: 0.88rem; color: var(--text2); line-height: 1.7; margin-bottom: 4px; }
+a { color: var(--accent); text-decoration: none; }
+.divider { height: 1px; background: var(--border); margin: 24px 0; }
 </style>
 </head>
 <body>
 <nav>
   <a href="/" class="logo"><div class="logo-icon">VS</div><div class="logo-text">VaultStream</div></a>
-  <div class="nav-right">
-    {% if user %}
-      <a href="/profile/{{ user.username }}" class="btn">👤 {{ user.username }}</a>
-    {% else %}
-      <a href="/login" class="btn">Sign in</a>
-    {% endif %}
-  </div>
 </nav>
+<div class="main">
+  <h1>Terms of Service</h1>
+  <div class="updated">Last updated: March 2026</div>
 
-<div class="wrap">
-  {% if stream.is_live %}
-  <div class="video-container">
-    <div id="remote-video"></div>
-    <div class="status-msg" id="status-msg">
-      <div class="status-icon">📡</div>
-      <div>Connecting to stream...</div>
-    </div>
-    <div class="live-badge"><div class="live-dot"></div> LIVE</div>
-    <div class="viewer-badge">👁️ <span id="viewer-count">{{ stream.viewer_count or 0 }}</span> viewers</div>
-  </div>
-  <div class="stream-title">{{ stream.title }}</div>
-  <div class="stream-meta">🔴 Live now</div>
+  <p>By using VaultStream at <a href="https://vaultstream.online">vaultstream.online</a>, you agree to these Terms of Service. Please read them carefully.</p>
 
-  {% else %}
-  <div class="video-container">
-    <div class="status-msg">
-      <div class="status-icon">📴</div>
-      <div>This stream has ended</div>
-    </div>
-  </div>
-  <div class="ended-banner">
-    <p style="margin-bottom:12px;">This stream has ended.</p>
-    <a href="/" style="color:var(--accent);text-decoration:none;">← Back to VaultStream</a>
-  </div>
-  {% endif %}
-</div>
+  <div class="divider"></div>
 
-<div class="toast" id="toast"></div>
+  <h2>1. Acceptance of Terms</h2>
+  <p>By creating an account or using VaultStream, you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree, please do not use the platform.</p>
 
-{% if stream.is_live %}
-<script>
-const AGORA_APP_ID = '12e74aedf9af43ba91472232295fc6c7';
-const AGORA_TOKEN = '007eJxTYDCKrW67E59pHRIdnnPz7KP4jslhilvFJ5913PLySXrLpyIFBkOjVHOTxNSUNMvENBPjpERLQxNzIyNjIyNL07Rks2TzwBl7MxsCGRn698gwMTJAIIjPzVCWWJpTUlxSlJqYy8AAAIP+I38=';
-const AGORA_CHANNEL = 'vaultstream';
-const streamId = '{{ stream.id }}';
-let client = null;
+  <h2>2. Your Account</h2>
+  <ul>
+    <li>You must be at least 13 years old to use VaultStream</li>
+    <li>You are responsible for keeping your account password secure</li>
+    <li>You are responsible for all activity that occurs under your account</li>
+    <li>You must provide accurate information when creating your account</li>
+  </ul>
 
-async function joinStream() {
-  try {
-    client = AgoraRTC.createClient({ mode: 'live', codec: 'vp8' });
-    await client.setClientRole('audience');
-    await client.join(AGORA_APP_ID, AGORA_CHANNEL, AGORA_TOKEN, null);
+  <h2>3. Content Rules</h2>
+  <p>You may NOT upload content that:</p>
+  <ul>
+    <li>Is illegal or promotes illegal activity</li>
+    <li>Contains nudity or sexually explicit material</li>
+    <li>Harasses, bullies, or threatens other users</li>
+    <li>Infringes on someone else's copyright or intellectual property</li>
+    <li>Contains malware, spam, or harmful code</li>
+    <li>Promotes hate speech or discrimination</li>
+    <li>Shows graphic violence or gore</li>
+  </ul>
 
-    // When streamer publishes their video
-    client.on('user-published', async (user, mediaType) => {
-      await client.subscribe(user, mediaType);
-      if (mediaType === 'video') {
-        user.videoTrack.play('remote-video');
-        document.getElementById('status-msg').style.display = 'none';
-        showToast('✅ Connected to stream!');
-      }
-      if (mediaType === 'audio') {
-        user.audioTrack.play();
-      }
-    });
+  <h2>4. Your Content</h2>
+  <p>You own the videos and content you upload to VaultStream. By uploading, you grant VaultStream a license to store, display, and deliver your content to other users of the platform.</p>
+  <p>You are solely responsible for the content you upload. Make sure you have the rights to upload it.</p>
 
-    client.on('user-unpublished', (user) => {
-      document.getElementById('status-msg').style.display = 'flex';
-      document.getElementById('status-msg').innerHTML = '<div class="status-icon">📴</div><div>Stream ended</div>';
-    });
+  <h2>5. Advertisements</h2>
+  <p>VaultStream displays advertisements to support the platform. By using VaultStream, you agree to see these advertisements. We use Google AdSense to serve ads.</p>
 
-    // Update viewer count every 5s
-    setInterval(() => {
-      fetch('/stream_viewers/' + streamId)
-        .then(r => r.json())
-        .then(data => {
-          document.getElementById('viewer-count').textContent = data.count || 0;
-        });
-    }, 5000);
+  <h2>6. Termination</h2>
+  <p>We reserve the right to suspend or terminate your account at any time if you violate these Terms of Service, without prior notice.</p>
 
-  } catch(e) {
-    console.error(e);
-    document.getElementById('status-msg').innerHTML = '<div class="status-icon">❌</div><div>Could not connect: ' + e.message + '</div>';
-  }
-}
+  <h2>7. Disclaimer</h2>
+  <p>VaultStream is provided "as is" without any warranties. We are not responsible for any content uploaded by users. We do not guarantee the platform will be available at all times.</p>
 
-joinStream();
+  <h2>8. Changes to Terms</h2>
+  <p>We may update these Terms of Service from time to time. Continued use of VaultStream after changes means you accept the new terms.</p>
 
-window.addEventListener('beforeunload', () => {
-  if (client) client.leave();
-});
+  <h2>9. Contact</h2>
+  <p>If you have questions about these Terms, contact us at <a href="/cdn-cgi/l/email-protection#dab6bfbdbbb69aacbbafb6aea9aea8bfbbb7f4b5b4b6b3b4bf"><span class="__cf_email__" data-cfemail="5e323b393f321e283f2b322a2d2a2c3b3f337031303237303b">[email&#160;protected]</span></a></p>
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-</script>
-{% endif %}
-</body>
-</html>
+  <div class="divider
