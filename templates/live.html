@@ -134,11 +134,7 @@ async function startStream() {
     streamId = data.stream_id;
 
     // Create PeerJS connection using stream ID
-    peer = new Peer('vs' + streamId.replace(/-/g,'').substring(0,10), {
-      host: '0.peerjs.com',
-      port: 443,
-      secure: true
-    });
+    peer = new Peer('vs' + streamId.replace(/-/g,'').substring(0,10));
 
     peer.on('open', (id) => {
       const shareUrl = `${window.location.origin}/watch_live/${streamId}`;
