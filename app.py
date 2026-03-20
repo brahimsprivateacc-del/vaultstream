@@ -65,7 +65,13 @@ def index():
         headers=supabase_headers()
     )
     videos = r.json() if r.ok else []
-    return render_template('index.html', videos=videos, user=user)
+    # Get live streams
+    r2 = requests.get(
+        f'{SUPABASE_URL}/rest/v1/streams?is_live=eq.true&select=*,profiles(username)&order=created_at.desc',
+        headers=supabase_service_headers()
+    )
+    live_streams = r2.json() if r2.ok else []
+    return render_template('index.html', videos=videos, user=user, live_streams=live_streams)
 
 @app.route('/watch/<video_id>')
 def watch(video_id):
