@@ -185,9 +185,10 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
   </div>
 
   <div class="search-label" id="search-label" style="display:none;">Showing results for <span id="search-term"></span></div>
+  <div class="video-grid" id="video-grid">
   <!-- LIVE STREAMS — shown as video cards -->
   {% for stream in live_streams %}
-  <a class="video-card" href="/watch_live/{{ stream.id }}" style="text-decoration:none;color:inherit;display:block;">
+  <a class="video-card" href="/watch_live/{{ stream.id }}">
     <div class="thumb-wrap" style="border:2px solid #ff0000;">
       <div class="thumb-bg" style="background:#1a0000;display:flex;align-items:center;justify-content:center;font-size:2.5rem;">📡</div>
       <div class="thumb-overlay"><div class="play-circle">▶</div></div>
@@ -205,8 +206,6 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
     </div>
   </a>
   {% endfor %}
-
-  <div class="video-grid" id="video-grid">
     {% if videos %}
       {% for video in videos %}
       <a class="video-card" href="/watch/{{ video.id }}" data-ext="{{ video.extension|lower }}" data-title="{{ video.title|lower }}" data-category="{{ video.category or 'general' }}">
