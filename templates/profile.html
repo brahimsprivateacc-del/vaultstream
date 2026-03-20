@@ -2,176 +2,42 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1673723146227353" crossorigin="anonymous"></script>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ profile_user.username }} — VaultStream</title>
+<title>Login — VaultStream</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-:root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #272727; --border: #3f3f3f; --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; }
+:root { --bg: #0f0f0f; --surface: #1a1a1a; --border: #3f3f3f; --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; min-height: 100vh; }
-nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 100; }
-.logo { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text); }
-.logo-icon { background: var(--accent); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; }
-.logo-text { font-size: 1.1rem; font-weight: 700; }
-.nav-right { display: flex; gap: 10px; align-items: center; }
-.btn { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.82rem; cursor: pointer; text-decoration: none; font-family: 'Roboto', sans-serif; transition: background 0.2s; }
-.btn:hover { background: var(--surface2); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
-.profile-banner { height: 160px; background: linear-gradient(135deg, #1a0000, #2a0a0a, #1a0000); }
-.profile-info { padding: 0 24px 24px; max-width: 1100px; margin: 0 auto; }
-.avatar-wrap { display: flex; align-items: flex-end; gap: 20px; margin-top: -40px; margin-bottom: 16px; }
-.avatar-container { position: relative; cursor: pointer; }
-.avatar {
-  width: 80px; height: 80px; border-radius: 50%;
-  background: var(--accent); display: flex; align-items: center; justify-content: center;
-  font-size: 2rem; font-weight: 700; color: white; border: 4px solid var(--bg);
-  overflow: hidden; flex-shrink: 0;
-}
-.avatar img { width: 100%; height: 100%; object-fit: cover; }
-.avatar-overlay {
-  position: absolute; inset: 4px; border-radius: 50%;
-  background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;
-  opacity: 0; transition: opacity 0.2s; font-size: 1.3rem;
-}
-.avatar-container:hover .avatar-overlay { opacity: 1; }
-.avatar-container.is-own { cursor: pointer; }
-#avatar-input { display: none; }
-.username { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
-.usermeta { font-size: 0.82rem; color: var(--text2); }
-.section { max-width: 1100px; margin: 0 auto; padding: 0 24px 40px; }
-.section-title { font-size: 1rem; font-weight: 600; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-.video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
-.video-card { text-decoration: none; color: inherit; display: block; }
-.video-card:hover .thumb-overlay { opacity: 1; }
-.thumb-wrap { position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 16/9; background: #1e1e1e; margin-bottom: 10px; }
-.thumb-bg { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
-.thumb-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
-.play-circle { width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; padding-left: 3px; }
-.card-title { font-size: 0.88rem; font-weight: 500; margin-bottom: 4px; }
-.card-meta { font-size: 0.75rem; color: var(--text2); }
-.empty { text-align: center; padding: 40px; color: var(--text2); font-size: 0.9rem; }
-.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); color: var(--text); border-radius: 8px; padding: 12px 24px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 999; transition: transform 0.3s; white-space: nowrap; }
-.toast.show { transform: translateX(-50%) translateY(0); }
+body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 36px; width: 90%; max-width: 400px; }
+.logo { display: flex; align-items: center; gap: 8px; margin-bottom: 28px; justify-content: center; text-decoration: none; color: var(--text); }
+.logo-icon { background: var(--accent); color: white; padding: 6px 10px; border-radius: 8px; font-size: 1rem; font-weight: 700; }
+.logo-text { font-size: 1.3rem; font-weight: 700; }
+h2 { font-size: 1.2rem; margin-bottom: 20px; text-align: center; }
+.field { margin-bottom: 14px; }
+label { display: block; font-size: 0.82rem; color: var(--text2); margin-bottom: 5px; }
+input { width: 100%; background: #111; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 0.9rem; font-family: 'Roboto', sans-serif; outline: none; transition: border 0.2s; }
+input:focus { border-color: var(--accent); }
+.btn { width: 100%; padding: 11px; border-radius: 8px; border: none; background: var(--accent); color: white; font-size: 0.95rem; font-weight: 500; font-family: 'Roboto', sans-serif; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
+.btn:hover { background: #cc0000; }
+.link { text-align: center; margin-top: 16px; font-size: 0.82rem; color: var(--text2); }
+.link a { color: var(--accent); text-decoration: none; }
+.error { background: rgba(255,0,0,0.1); border: 1px solid rgba(255,0,0,0.3); border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: #ff6b6b; margin-bottom: 16px; }
 </style>
 </head>
 <body>
-<nav>
+<div class="card">
   <a href="/" class="logo"><div class="logo-icon">VS</div><div class="logo-text">VaultStream</div></a>
-  <div class="nav-right">
-    {% if user %}
-      <a href="/profile/{{ user.username }}" class="btn">👤 {{ user.username }}</a>
-      <a href="/logout" class="btn">Logout</a>
-    {% else %}
-      <a href="/login" class="btn">Sign in</a>
-      <a href="/signup" class="btn primary">Sign up</a>
-    {% endif %}
-  </div>
-</nav>
-
-<div class="profile-banner"></div>
-<div class="profile-info">
-  <div class="avatar-wrap">
-    <div class="avatar-container {% if user and user.username == profile_user.username %}is-own{% endif %}"
-         {% if user and user.username == profile_user.username %}onclick="document.getElementById('avatar-input').click()"{% endif %}>
-      <div class="avatar" id="avatar-display">
-        {% if profile_user.avatar_url %}
-          <img src="{{ profile_user.avatar_url }}" alt="avatar">
-        {% else %}
-          {{ profile_user.username[0]|upper }}
-        {% endif %}
-      </div>
-      {% if user and user.username == profile_user.username %}
-        <div class="avatar-overlay">📷</div>
-      {% endif %}
-    </div>
-    <input type="file" id="avatar-input" accept="image/*" onchange="uploadAvatar(this)">
-    <div>
-      <div class="username">{{ profile_user.username }}</div>
-      <div class="usermeta">{{ videos|length }} video{{ 's' if videos|length != 1 else '' }} · Joined {{ profile_user.created_at[:10] }}
-        {% if user and user.username == profile_user.username %}
-          &nbsp;·&nbsp; <span style="color:var(--accent);cursor:pointer;" onclick="document.getElementById('avatar-input').click()">Change photo</span>
-        {% endif %}
-      </div>
-      {% if user and user.username == profile_user.username %}
-        <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
-          <input type="text" id="bio-input" value="{{ profile_user.bio or '' }}" placeholder="Add a bio..." maxlength="120"
-            style="background:#1a1a1a;border:1px solid #3f3f3f;border-radius:8px;padding:7px 12px;color:#f1f1f1;font-size:0.82rem;font-family:'Roboto',sans-serif;outline:none;width:280px;">
-          <button onclick="saveBio()" style="padding:7px 14px;border-radius:8px;border:none;background:#ff0000;color:white;font-size:0.78rem;cursor:pointer;font-family:'Roboto',sans-serif;">Save</button>
-        </div>
-      {% else %}
-        {% if profile_user.bio %}
-          <div style="margin-top:8px;font-size:0.85rem;color:#aaaaaa;max-width:500px;line-height:1.5;">{{ profile_user.bio }}</div>
-        {% endif %}
-      {% endif %}
-    </div>
-  </div>
+  <h2>Sign in</h2>
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+  <form method="POST">
+    <div class="field"><label>Email</label><input type="email" name="email" required placeholder="you@email.com"></div>
+    <div class="field"><label>Password</label><input type="password" name="password" required placeholder="••••••••"></div>
+    <button class="btn" type="submit">Sign in</button>
+  </form>
+  <div class="link">Don't have an account? <a href="/signup">Sign up</a></div>
 </div>
-
-<div class="section">
-  <div class="section-title">Videos</div>
-  {% if videos %}
-  <div class="video-grid">
-    {% for video in videos %}
-    <a class="video-card" href="/watch/{{ video.id }}">
-      <div class="thumb-wrap">
-        {% if video.thumbnail_url %}
-          <img src="{{ video.thumbnail_url }}" alt="{{ video.title }}" style="width:100%;height:100%;object-fit:cover;">
-        {% else %}
-          <div class="thumb-bg" style="background:{{ ['#1a1a2e','#16213e','#1e1e2e','#1a2a1a','#2a1a1a'][loop.index % 5] }};">🎬</div>
-        {% endif %}
-        <div class="thumb-overlay"><div class="play-circle">▶</div></div>
-      </div>
-      <div class="card-title">{{ video.title }}</div>
-      <div class="card-meta">{{ video.size }} · {{ video.created_at[:10] }}</div>
-    </a>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="empty">No videos uploaded yet.</div>
-  {% endif %}
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-function uploadAvatar(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const formData = new FormData();
-  formData.append('avatar', file);
-  showToast('Uploading photo...');
-  fetch('/upload_avatar', { method: 'POST', body: formData })
-    .then(r => r.json())
-    .then(res => {
-      if (res.success) {
-        const display = document.getElementById('avatar-display');
-        display.innerHTML = `<img src="${res.url}" alt="avatar" style="width:100%;height:100%;object-fit:cover;">`;
-        showToast('✅ Photo updated!');
-      } else {
-        showToast('❌ ' + res.error);
-      }
-    });
-}
-
-function saveBio() {
-  const bio = document.getElementById('bio-input').value.trim();
-  fetch('/update_bio', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({bio})
-  })
-  .then(r => r.json())
-  .then(res => {
-    if (res.success) showToast('✅ Bio updated!');
-    else showToast('❌ ' + res.error);
-  });
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-</script>
 </body>
 </html>
