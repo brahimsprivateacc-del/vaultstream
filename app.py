@@ -373,14 +373,31 @@ def delete_video(video_id):
     user = get_current_user()
     if not user:
         return jsonify({'success': False, 'error': 'Login required'}), 401
+    # Get video info first
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&select=*',
+        headers=supabase_service_headers()
+    )
+    videos = r.json()
+    if not videos:
+        return jsonify({'success': False, 'error': 'Video not found'}), 404
+    video = videos[0]
     # Allow admin or video owner to delete
     if user['id'] != ADMIN_USER_ID:
-        r = requests.get(
-            f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&user_id=eq.{user["id"]}',
-            headers=supabase_service_headers()
-        )
-        if not r.json():
+        if video['user_id'] != user['id']:
             return jsonify({'success': False, 'error': 'Not your video'}), 403
+    # Get delete reason (admin only)
+    reason = request.json.get('reason', '') if request.is_json else ''
+    # Send notification to video owner if admin is deleting
+    if user['id'] == ADMIN_USER_ID and video['user_id'] != user['id']:
+        msg = f'Your video "{video["title"]}" was removed by an admin.'
+        if reason:
+            msg += f' Reason: {reason}'
+        requests.post(
+            f'{SUPABASE_URL}/rest/v1/notifications',
+            headers=supabase_service_headers(),
+            json={'user_id': video['user_id'], 'message': msg}
+        )
     # Delete from Supabase
     requests.delete(
         f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}',
@@ -669,6 +686,37 @@ def shorts():
 
     return render_template('shorts.html', shorts=shorts_list, user=user)
 
+
+
+@app.route('/notifications')
+def notifications():
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/notifications?user_id=eq.{user["id"]}&order=created_at.desc',
+        headers=supabase_service_headers()
+    )
+    notifs = r.json() if r.ok else []
+    # Mark all as read
+    requests.patch(
+        f'{SUPABASE_URL}/rest/v1/notifications?user_id=eq.{user["id"]}',
+        headers=supabase_service_headers(),
+        json={'is_read': True}
+    )
+    return render_template('notifications.html', notifications=notifs, user=user)
+
+@app.route('/unread_notifications')
+def unread_notifications():
+    user = get_current_user()
+    if not user:
+        return jsonify({'count': 0})
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/notifications?user_id=eq.{user["id"]}&is_read=eq.false',
+        headers=supabase_service_headers()
+    )
+    count = len(r.json()) if r.ok else 0
+    return jsonify({'count': count})
 
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
