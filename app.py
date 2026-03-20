@@ -623,6 +623,11 @@ def save_peer_id(stream_id):
     )
     return jsonify({'success': True})
 
+
+@app.route('/favicon.svg')
+def favicon():
+    return send_from_directory('.', 'favicon.svg', mimetype='image/svg+xml')
+
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
