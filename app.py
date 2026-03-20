@@ -471,7 +471,7 @@ def ads_txt():
 @app.route('/live')
 def live():
     user = get_current_user()
-    return render_template('live.html', user=user)
+    return render_template('live.html', user=user, supabase_url=SUPABASE_URL, supabase_key=SUPABASE_KEY)
 
 @app.route('/start_stream', methods=['POST'])
 def start_stream():
@@ -541,12 +541,12 @@ def leave_stream(stream_id):
 @app.route('/stream_viewers/<stream_id>')
 def stream_viewers(stream_id):
     r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}&select=viewer_count,is_live',
+        f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}&select=viewer_count,is_live,peer_id',
         headers=supabase_service_headers()
     )
     data = r.json()
     if data:
-        return jsonify({'count': data[0]['viewer_count'], 'is_live': data[0]['is_live']})
+        return jsonify({'count': data[0]['viewer_count'], 'is_live': data[0]['is_live'], 'peer_id': data[0].get('peer_id')})
     return jsonify({'count': 0, 'is_live': False})
 
 
@@ -557,6 +557,63 @@ def update_viewers(stream_id):
         f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}',
         headers=supabase_service_headers(),
         json={'viewer_count': count}
+    )
+    return jsonify({'success': True})
+
+
+@app.route('/send_signal', methods=['POST'])
+def send_signal():
+    data = request.json
+    requests.post(
+        f'{SUPABASE_URL}/rest/v1/signals',
+        headers=supabase_service_headers(),
+        json={
+            'stream_id': data['stream_id'],
+            'target_id': data['target_id'],
+            'type': data['type'],
+            'data': json.dumps(data['data'])
+        }
+    )
+    return jsonify({'success': True})
+
+@app.route('/get_signals/<stream_id>/<signal_type>')
+def get_signals(stream_id, signal_type):
+    viewer_id = request.args.get('viewer_id', '')
+    if viewer_id:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/signals?stream_id=eq.{stream_id}&target_id=eq.{viewer_id}&order=created_at.asc',
+            headers=supabase_service_headers()
+        )
+    else:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/signals?stream_id=eq.{stream_id}&type=eq.{signal_type}&order=created_at.asc',
+            headers=supabase_service_headers()
+        )
+    signals = r.json() if r.ok else []
+    for s in signals:
+        if isinstance(s.get('data'), str):
+            try:
+                s['data'] = json.loads(s['data'])
+            except:
+                pass
+    return jsonify(signals)
+
+@app.route('/delete_signal/<signal_id>', methods=['POST'])
+def delete_signal(signal_id):
+    requests.delete(
+        f'{SUPABASE_URL}/rest/v1/signals?id=eq.{signal_id}',
+        headers=supabase_service_headers()
+    )
+    return jsonify({'success': True})
+
+
+@app.route('/save_peer_id/<stream_id>', methods=['POST'])
+def save_peer_id(stream_id):
+    peer_id = request.json.get('peer_id')
+    requests.patch(
+        f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}',
+        headers=supabase_service_headers(),
+        json={'peer_id': peer_id}
     )
     return jsonify({'success': True})
 
