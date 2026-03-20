@@ -288,6 +288,12 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
         <span id="short-knob" style="position:absolute;width:18px;height:18px;left:3px;top:3px;background:white;border-radius:50%;transition:0.2s;pointer-events:none;"></span>
       </label>
     </div>
+    <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.85rem;">
+        <input type="checkbox" id="is-short-check" style="width:16px;height:16px;accent-color:#ff0000;">
+        📱 Upload as Short (vertical video)
+      </label>
+    </div>
     <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
       <div class="drop-icon">📁</div>
       <div class="drop-title">Drag and drop your video here</div>
@@ -328,6 +334,7 @@ function uploadFile(file) {
   const formData = new FormData();
   formData.append('video', file);
   formData.append('category', document.getElementById('category-select').value);
+  formData.append('is_short', document.getElementById('is-short-check').checked ? '1' : '0');
   formData.append('is_short', document.getElementById('is-short-toggle').checked ? 'true' : 'false');
   formData.append('is_short', document.getElementById('is-short-toggle').checked);
   const titleVal = document.getElementById('title-input').value.trim();
