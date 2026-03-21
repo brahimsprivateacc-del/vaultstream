@@ -78,9 +78,6 @@ nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56
 
 {% if stream.is_live %}
 <script>
-const AGORA_APP_ID = '12e74aedf9af43ba91472232295fc6c7';
-const AGORA_TOKEN = '007eJxTYDCKrW67E59pHRIdnnPz7KP4jslhilvFJ5913PLySXrLpyIFBkOjVHOTxNSUNMvENBPjpERLQxNzIyNjIyNL07Rks2TzwBl7MxsCGRn698gwMTJAIIjPzVCWWJpTUlxSlJqYy8AAAIP+I38=';
-const AGORA_CHANNEL = 'vaultstream';
 const streamId = '{{ stream.id }}';
 let client = null;
 
@@ -88,7 +85,9 @@ async function joinStream() {
   try {
     client = AgoraRTC.createClient({ mode: 'live', codec: 'vp8' });
     await client.setClientRole('audience');
-    await client.join(AGORA_APP_ID, AGORA_CHANNEL, AGORA_TOKEN, null);
+    const tokenRes = await fetch('/agora_token?channel=' + AGORA_CHANNEL + '&role=publisher');
+    const tokenData = await tokenRes.json();
+    await client.join(AGORA_APP_ID, AGORA_CHANNEL, tokenData.token, null);
 
     // When streamer publishes their video
     client.on('user-published', async (user, mediaType) => {
