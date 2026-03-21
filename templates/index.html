@@ -102,6 +102,68 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); color: var(--text); border-radius: 8px; padding: 12px 24px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 999; transition: transform 0.3s; white-space: nowrap; }
 .toast.show { transform: translateX(-50%) translateY(0); }
 .search-label { font-size: 0.92rem; color: var(--text2); margin-bottom: 16px; }
+/* Admin Modal */
+.admin-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 600; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.admin-modal-overlay.open { opacity: 1; pointer-events: all; }
+.admin-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; width: 90%; max-width: 480px; overflow: hidden; transform: scale(0.95); transition: transform 0.2s; }
+.admin-modal-overlay.open .admin-modal { transform: scale(1); }
+.admin-modal-header { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.admin-modal-header-icon { width: 36px; height: 36px; border-radius: 8px; background: rgba(255,68,68,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.admin-modal-title { font-size: 1rem; font-weight: 600; }
+.admin-modal-subtitle { font-size: 0.78rem; color: var(--text2); margin-top: 2px; }
+.admin-modal-body { padding: 20px; }
+.admin-field { margin-bottom: 16px; }
+.admin-field label { display: block; font-size: 0.78rem; font-weight: 500; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.admin-select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 0.88rem; font-family: 'Roboto', sans-serif; outline: none; cursor: pointer; }
+.admin-select:focus { border-color: #ff4444; }
+.admin-textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 0.88rem; font-family: 'Roboto', sans-serif; outline: none; resize: none; height: 90px; line-height: 1.5; }
+.admin-textarea:focus { border-color: #ff4444; }
+.admin-video-preview { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.admin-video-thumb { width: 48px; height: 48px; border-radius: 6px; background: #1a0000; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+.admin-video-info { flex: 1; }
+.admin-video-title { font-size: 0.88rem; font-weight: 500; margin-bottom: 2px; }
+.admin-video-meta { font-size: 0.75rem; color: var(--text2); }
+.admin-modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+.admin-cancel-btn { padding: 9px 20px; border-radius: 8px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.85rem; cursor: pointer; font-family: 'Roboto', sans-serif; }
+.admin-cancel-btn:hover { background: var(--surface2); }
+.admin-delete-btn { padding: 9px 20px; border-radius: 8px; border: none; background: #ff4444; color: white; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: 'Roboto', sans-serif; display: flex; align-items: center; gap: 6px; }
+.admin-delete-btn:hover { background: #cc0000; }
+
+/* Admin Panel Modal */
+.admin-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 600; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.admin-overlay.open { opacity: 1; pointer-events: all; }
+.admin-panel { background: #1a1a1a; border: 1px solid #3f3f3f; border-radius: 16px; width: 90%; max-width: 480px; overflow: hidden; transform: scale(0.95); transition: transform 0.2s; }
+.admin-overlay.open .admin-panel { transform: scale(1); }
+.admin-header { background: #ff0000; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; }
+.admin-header-title { font-size: 1rem; font-weight: 700; color: white; display: flex; align-items: center; gap: 8px; }
+.admin-close { background: none; border: none; color: white; font-size: 1.3rem; cursor: pointer; opacity: 0.8; }
+.admin-close:hover { opacity: 1; }
+.admin-body { padding: 20px; }
+.admin-video-info { background: #111; border-radius: 10px; padding: 12px 14px; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+.admin-video-thumb { width: 60px; height: 38px; border-radius: 6px; background: #272727; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; overflow: hidden; }
+.admin-video-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.admin-video-name { font-size: 0.85rem; font-weight: 500; }
+.admin-video-user { font-size: 0.75rem; color: #aaa; margin-top: 2px; }
+.admin-field { margin-bottom: 14px; }
+.admin-label { font-size: 0.78rem; color: #aaa; margin-bottom: 6px; display: block; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.admin-select { width: 100%; background: #111; border: 1px solid #3f3f3f; border-radius: 8px; padding: 9px 12px; color: #f1f1f1; font-size: 0.85rem; font-family: 'Roboto', sans-serif; outline: none; }
+.admin-select:focus { border-color: #ff0000; }
+.admin-textarea { width: 100%; background: #111; border: 1px solid #3f3f3f; border-radius: 8px; padding: 9px 12px; color: #f1f1f1; font-size: 0.85rem; font-family: 'Roboto', sans-serif; outline: none; resize: vertical; min-height: 80px; }
+.admin-textarea:focus { border-color: #ff0000; }
+.admin-actions { display: flex; gap: 10px; padding: 16px 20px; border-top: 1px solid #3f3f3f; }
+.admin-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; font-size: 0.88rem; font-weight: 600; font-family: 'Roboto', sans-serif; cursor: pointer; transition: all 0.2s; }
+.admin-btn.cancel { background: #272727; color: #f1f1f1; }
+.admin-btn.cancel:hover { background: #333; }
+.admin-btn.delete { background: #ff0000; color: white; }
+.admin-btn.delete:hover { background: #cc0000; }
+.admin-warn { background: rgba(255,180,0,0.1); border: 1px solid rgba(255,180,0,0.3); border-radius: 8px; padding: 10px 12px; font-size: 0.78rem; color: #ffb400; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+.menu-dropdown { position: fixed; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 6px; min-width: 200px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); z-index: 500; display: none; }
+.menu-dropdown.show { display: block; }
+.menu-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text); transition: background 0.15s; border: none; background: none; width: 100%; text-align: left; font-family: 'Roboto', sans-serif; }
+.menu-item:hover { background: var(--surface2); }
+.menu-item.danger { color: #ff4444; }
+.menu-divider { height: 1px; background: var(--border); margin: 4px 0; }
 .search-label span { color: var(--text); font-weight: 500; }
 @media (max-width: 768px) {
   .sidebar { transform: translateX(-100%); }
@@ -233,7 +295,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
             <div class="card-title">{{ video.title }}</div>
             <div class="card-meta">{{ video.size }} · {{ video.views or 0 }} views</div>
           </div>
-          <button class="card-more" onclick="event.preventDefault()">⋮</button>
+          <button class="card-more" onclick="event.preventDefault();openMenu(event, '{{ video.id }}', '{{ video.title }}', '{{ video.user_id }}')">⋮</button>
         </div>
       </a>
       {% endfor %}
@@ -311,7 +373,194 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
 </div>
 <input type="file" id="file-input" accept=".mp4,.mkv,.mov,.avi,.webm">
 <div class="toast" id="toast"></div>
+<!-- ADMIN DELETE MODAL -->
+<div class="admin-modal-overlay" id="admin-modal-overlay" onclick="if(event.target===this)closeAdminModal()">
+  <div class="admin-modal">
+    <div class="admin-modal-header">
+      <div class="admin-modal-header-icon">🛡️</div>
+      <div>
+        <div class="admin-modal-title">Admin — Remove Video</div>
+        <div class="admin-modal-subtitle">This action will notify the user</div>
+      </div>
+    </div>
+    <div class="admin-modal-body">
+      <div class="admin-video-preview">
+        <div class="admin-video-thumb">🎬</div>
+        <div class="admin-video-info">
+          <div class="admin-video-title" id="admin-video-title">-</div>
+          <div class="admin-video-meta" id="admin-video-meta">Video ID: -</div>
+        </div>
+      </div>
+      <div class="admin-field">
+        <label>Removal Reason</label>
+        <select class="admin-select" id="admin-reason-select" onchange="updateAdminMessage()">
+          <option value="Spam">🚫 Spam</option>
+          <option value="Inappropriate content">⚠️ Inappropriate content</option>
+          <option value="Harassment">🚨 Harassment</option>
+          <option value="Copyright violation">©️ Copyright violation</option>
+          <option value="Misinformation">❌ Misinformation</option>
+          <option value="Other">📝 Other</option>
+        </select>
+      </div>
+      <div class="admin-field">
+        <label>Message to user</label>
+        <textarea class="admin-textarea" id="admin-message" placeholder="Your video has been removed..."></textarea>
+      </div>
+    </div>
+    <div class="admin-modal-footer">
+      <button class="admin-cancel-btn" onclick="closeAdminModal()">Cancel</button>
+      <button class="admin-delete-btn" onclick="confirmAdminDelete()">🗑 Remove Video</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL MODAL -->
+<div class="admin-overlay" id="admin-overlay" onclick="closeAdminPanel(event)">
+  <div class="admin-panel">
+    <div class="admin-header">
+      <div class="admin-header-title">🛡️ Admin — Remove Video</div>
+      <button class="admin-close" onclick="closeAdminPanelBtn()">✕</button>
+    </div>
+    <div class="admin-body">
+      <div class="admin-video-info">
+        <div class="admin-video-thumb" id="admin-thumb">🎬</div>
+        <div>
+          <div class="admin-video-name" id="admin-video-name">Video title</div>
+          <div class="admin-video-user" id="admin-video-user">by username</div>
+        </div>
+      </div>
+      <div class="admin-warn">⚠️ The user will be notified with your message below.</div>
+      <div class="admin-field">
+        <label class="admin-label">Violation Type</label>
+        <select class="admin-select" id="admin-reason-select" onchange="updateMessage()">
+          <option value="Spam">🚫 Spam</option>
+          <option value="Inappropriate content">🔞 Inappropriate content</option>
+          <option value="Harassment">😡 Harassment</option>
+          <option value="Copyright violation">©️ Copyright violation</option>
+          <option value="Misinformation">❌ Misinformation</option>
+          <option value="Other">📋 Other</option>
+        </select>
+      </div>
+      <div class="admin-field">
+        <label class="admin-label">Message to user</label>
+        <textarea class="admin-textarea" id="admin-message" placeholder="Explain why the video was removed..."></textarea>
+      </div>
+    </div>
+    <div class="admin-actions">
+      <button class="admin-btn cancel" onclick="closeAdminPanelBtn()">Cancel</button>
+      <button class="admin-btn delete" onclick="confirmAdminDelete()">🗑 Remove Video</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIDEO MENU DROPDOWN -->
+<div class="menu-dropdown" id="menu-dropdown">
+  <button class="menu-item" onclick="saveVideo()">💾 Save video</button>
+  <button class="menu-item" onclick="copyVideoLink()">🔗 Copy link</button>
+  <div class="menu-divider"></div>
+  <button class="menu-item" onclick="reportVideo()">🚩 Report</button>
+  <div id="admin-delete-item" style="display:none;">
+    <div class="menu-divider"></div>
+    <button class="menu-item danger" onclick="adminDeleteVideo()">🗑 Delete (Admin)</button>
+  </div>
+</div>
+
 <script>
+let menuVideoId = null;
+let menuVideoTitle = null;
+let menuVideoUserId = null;
+const ADMIN_ID = '9e186088-8134-43d3-9ea6-8a3330335845';
+const CURRENT_USER_ID = '{{ user.id if user else "" }}';
+
+function openMenu(event, videoId, title, userId) {
+  event.stopPropagation();
+  menuVideoId = videoId;
+  menuVideoTitle = title;
+  menuVideoUserId = userId;
+  const menu = document.getElementById('menu-dropdown');
+  const adminItem = document.getElementById('admin-delete-item');
+  // Show admin delete if current user is admin
+  adminItem.style.display = (CURRENT_USER_ID === ADMIN_ID) ? 'block' : 'none';
+  // Position menu near click
+  menu.style.top = (event.clientY + 8) + 'px';
+  menu.style.left = Math.min(event.clientX, window.innerWidth - 220) + 'px';
+  menu.classList.add('show');
+}
+
+function closeMenu() { document.getElementById('menu-dropdown').classList.remove('show'); }
+document.addEventListener('click', closeMenu);
+
+function saveVideo() {
+  closeMenu();
+  window.open('/watch/' + menuVideoId, '_blank');
+}
+
+function copyVideoLink() {
+  closeMenu();
+  navigator.clipboard.writeText(window.location.origin + '/watch/' + menuVideoId);
+  showToast('✅ Link copied!');
+}
+
+function reportVideo() {
+  closeMenu();
+  const reasons = ['Spam', 'Inappropriate content', 'Harassment', 'Copyright violation', 'Other'];
+  const reason = prompt('Why are you reporting this video?
+
+' + reasons.map((r,i) => `${i+1}. ${r}`).join('
+') + '
+
+Type your reason:');
+  if (!reason) return;
+  fetch('/report_video/' + menuVideoId, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({reason})
+  }).then(() => showToast('🚩 Report submitted!'));
+}
+
+function adminDeleteVideo() {
+  closeMenu();
+  // Open admin modal
+  document.getElementById('admin-video-title').textContent = menuVideoTitle;
+  document.getElementById('admin-video-meta').textContent = 'Video ID: ' + menuVideoId;
+  updateAdminMessage();
+  document.getElementById('admin-modal-overlay').classList.add('open');
+}
+
+function updateAdminMessage() {
+  const reason = document.getElementById('admin-reason-select').value;
+  const messages = {
+    'Spam': 'Your video has been removed because it was identified as spam. Please review our community guidelines before uploading again.',
+    'Inappropriate content': 'Your video has been removed because it contains content that violates our community guidelines.',
+    'Harassment': 'Your video has been removed because it contains harassment or bullying. This is not tolerated on VaultStream.',
+    'Copyright violation': 'Your video has been removed due to a copyright violation. Make sure you have the rights to upload content.',
+    'Misinformation': 'Your video has been removed because it contains misinformation or misleading content.',
+    'Other': 'Your video has been removed by an admin for violating our Terms of Service.'
+  };
+  document.getElementById('admin-message').value = messages[reason] || '';
+}
+
+function closeAdminModal() {
+  document.getElementById('admin-modal-overlay').classList.remove('open');
+}
+
+function confirmAdminDelete() {
+  const reason = document.getElementById('admin-reason-select').value;
+  const message = document.getElementById('admin-message').value.trim();
+  const fullReason = reason + (message ? ': ' + message : '');
+  fetch('/delete_video/' + menuVideoId, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({reason: fullReason})
+  }).then(r => r.json()).then(res => {
+    if (res.success) {
+      closeAdminModal();
+      showToast('🗑 Video removed!');
+      setTimeout(() => location.reload(), 1200);
+    }
+  });
+}
+
 let sidebarOpen = true;
 function toggleSidebar() {
   sidebarOpen = !sidebarOpen;
