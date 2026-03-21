@@ -6,6 +6,47 @@ import requests
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+import hmac
+import hashlib
+import struct
+import time
+import random
+import zlib
+import base64
+
+# ── AGORA TOKEN GENERATOR ──
+AGORA_APP_ID = '12e74aedf9af43ba91472232295fc6c7'
+AGORA_APP_CERTIFICATE = '907ad51f2a20407d98d9d389a0665d5f'
+AGORA_CHANNEL = 'vaultstream'
+
+def generate_agora_token():
+    """Generate a fresh Agora RTC token valid for 24 hours."""
+    try:
+        expire_time = int(time.time()) + 86400  # 24 hours
+        current_time = int(time.time())
+        uid = 0
+        role = 1  # Publisher
+
+        # Pack privileges
+        privileges = {1: expire_time, 2: expire_time, 3: expire_time, 4: expire_time, 5: expire_time, 6: expire_time, 7: expire_time}
+
+        # Build message
+        msg = struct.pack('<HII', 1, current_time, random.randint(0, 2**32 - 1))
+        msg += struct.pack('<H', len(AGORA_APP_ID)) + AGORA_APP_ID.encode()
+        msg += struct.pack('<H', len(AGORA_CHANNEL)) + AGORA_CHANNEL.encode()
+        msg += struct.pack('<I', uid)
+        msg += struct.pack('<H', len(privileges))
+        for k, v in sorted(privileges.items()):
+            msg += struct.pack('<HI', k, v)
+
+        sig = hmac.new(AGORA_APP_CERTIFICATE.encode(), msg, hashlib.sha256).digest()
+        content_msg = struct.pack('<H', len(sig)) + sig + struct.pack('<I', len(msg)) + msg
+        compressed = zlib.compress(content_msg)
+        token = '007' + base64.b64encode(compressed).decode()
+        return token
+    except Exception as e:
+        print(f'Token generation error: {e}')
+        return None
 
 app = Flask(__name__)
 app.secret_key = 'vaultstream-secret-change-this-later'
@@ -14,6 +55,10 @@ VIDEOS_FOLDER = os.path.join(os.path.dirname(__file__), 'videos')
 ALLOWED_EXTENSIONS = {'mp4', 'mkv', 'mov', 'avi', 'webm'}
 MAX_UPLOAD_MB = 4096
 app.config['MAX_CONTENT_LENGTH'] = MAX_UPLOAD_MB * 1024 * 1024
+
+# Agora credentials
+AGORA_APP_ID = os.environ.get('AGORA_APP_ID', '12e74aedf9af43ba91472232295fc6c7')
+AGORA_APP_CERT = os.environ.get('AGORA_APP_CERT', '907ad51f2a20407d98d9d389a0665d5f')
 
 # Admin user ID - only this user can delete any video
 ADMIN_USER_ID = '9e186088-8134-43d3-9ea6-8a3330335845'
@@ -820,6 +865,34 @@ def set_session():
     session.permanent = True
     session['user'] = {'id': user_id, 'username': username, 'token': token}
     return jsonify({'success': True})
+
+
+@app.route('/agora_token')
+def agora_token():
+    token = generate_agora_token()
+    if token:
+        return jsonify({'token': token, 'channel': AGORA_CHANNEL, 'app_id': AGORA_APP_ID})
+    return jsonify({'error': 'Failed to generate token'}), 500
+
+
+@app.route('/agora_token')
+def agora_token():
+    try:
+        from agora_token_builder import RtcTokenBuilder, Role_Subscriber, Role_Publisher
+        import time
+        channel = request.args.get('channel', 'vaultstream')
+        role = request.args.get('role', 'publisher')
+        uid = 0
+        expire_time = 3600 * 24  # 24 hours
+        current_time = int(time.time())
+        privilege_expire_time = current_time + expire_time
+        agora_role = Role_Publisher if role == 'publisher' else Role_Subscriber
+        token = RtcTokenBuilder.buildTokenWithUid(
+            AGORA_APP_ID, AGORA_APP_CERT, channel, uid, agora_role, privilege_expire_time
+        )
+        return jsonify({'token': token, 'channel': channel})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
