@@ -875,25 +875,6 @@ def agora_token():
     return jsonify({'error': 'Failed to generate token'}), 500
 
 
-@app.route('/agora_token')
-def agora_token():
-    try:
-        from agora_token_builder import RtcTokenBuilder, Role_Subscriber, Role_Publisher
-        import time
-        channel = request.args.get('channel', 'vaultstream')
-        role = request.args.get('role', 'publisher')
-        uid = 0
-        expire_time = 3600 * 24  # 24 hours
-        current_time = int(time.time())
-        privilege_expire_time = current_time + expire_time
-        agora_role = Role_Publisher if role == 'publisher' else Role_Subscriber
-        token = RtcTokenBuilder.buildTokenWithUid(
-            AGORA_APP_ID, AGORA_APP_CERT, channel, uid, agora_role, privilege_expire_time
-        )
-        return jsonify({'token': token, 'channel': channel})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
