@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1673723146227353" crossorigin="anonymous"></script>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Go Live — VaultStream</title>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1673723146227353" crossorigin="anonymous"></script>
 <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
@@ -18,8 +18,7 @@ nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56
 .logo-text { font-size: 1.1rem; font-weight: 700; }
 .nav-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
 .btn { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.82rem; cursor: pointer; text-decoration: none; font-family: 'Roboto', sans-serif; }
-.btn:hover { background: var(--surface2); }
-.main { margin-top: 56px; max-width: 900px; margin-left: auto; margin-right: auto; padding: 28px 20px; }
+.main { margin-top: 80px; max-width: 900px; margin-left: auto; margin-right: auto; padding: 0 20px 40px; }
 .setup-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px; margin-bottom: 24px; }
 .setup-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; }
 .field { margin-bottom: 16px; }
@@ -40,7 +39,6 @@ input[type="text"]:focus { border-color: var(--accent); }
 .ctrl-btn { padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 0.82rem; cursor: pointer; font-family: 'Roboto', sans-serif; transition: all 0.2s; }
 .ctrl-btn:hover { background: #444; }
 .ctrl-btn.danger { border-color: #ff4444; color: #ff4444; }
-.ctrl-btn.danger:hover { background: rgba(255,68,68,0.1); }
 .share-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
 .share-url { flex: 1; font-size: 0.82rem; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .copy-btn { padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.78rem; cursor: pointer; font-family: 'Roboto', sans-serif; white-space: nowrap; }
@@ -71,7 +69,7 @@ input[type="text"]:focus { border-color: var(--accent); }
       <label>Stream Title</label>
       <input type="text" id="stream-title" placeholder="What are you streaming today?" maxlength="80">
     </div>
-    <button class="go-live-btn" onclick="startStream()">
+    <button class="go-live-btn" id="go-live-btn">
       <div class="live-dot"></div> Start Streaming
     </button>
   </div>
@@ -82,17 +80,15 @@ input[type="text"]:focus { border-color: var(--accent); }
       <div class="live-badge"><div class="live-dot"></div> LIVE</div>
       <div class="viewer-badge">👁️ <span id="viewer-count">0</span> viewers</div>
     </div>
-
     <div class="share-box">
       <span class="share-url" id="share-url"></span>
-      <button class="copy-btn" onclick="copyLink()">Copy Link</button>
+      <button class="copy-btn" id="copy-btn">Copy Link</button>
     </div>
-
     <div class="stream-controls">
-      <button class="ctrl-btn" onclick="toggleMic()" id="mic-btn">🎤 Mute</button>
-      <button class="ctrl-btn" onclick="toggleCam()" id="cam-btn">📷 Hide Camera</button>
-      <button class="ctrl-btn" onclick="toggleScreenShare()" id="screen-btn">🖥️ Share Screen</button>
-      <button class="ctrl-btn danger" onclick="endStream()">⏹ End Stream</button>
+      <button class="ctrl-btn" id="mic-btn">🎤 Mute</button>
+      <button class="ctrl-btn" id="cam-btn">📷 Hide Camera</button>
+      <button class="ctrl-btn" id="screen-btn">🖥️ Share Screen</button>
+      <button class="ctrl-btn danger" id="end-btn">⏹ End Stream</button>
     </div>
   </div>
   {% else %}
@@ -106,6 +102,9 @@ input[type="text"]:focus { border-color: var(--accent); }
 <div class="toast" id="toast"></div>
 
 <script>
+const AGORA_APP_ID = '12e74aedf9af43ba91472232295fc6c7';
+const AGORA_CHANNEL = 'vaultstream';
+let AGORA_TOKEN = null;
 let client = null;
 let localVideoTrack = null;
 let localAudioTrack = null;
@@ -114,20 +113,24 @@ let streamId = null;
 let micOn = true;
 let camOn = true;
 let screenSharing = false;
-let viewerInterval = null;
+
+document.getElementById('go-live-btn').addEventListener('click', startStream);
+document.getElementById('copy-btn').addEventListener('click', copyLink);
+document.getElementById('mic-btn').addEventListener('click', toggleMic);
+document.getElementById('cam-btn').addEventListener('click', toggleCam);
+document.getElementById('screen-btn').addEventListener('click', toggleScreenShare);
+document.getElementById('end-btn').addEventListener('click', endStream);
 
 async function startStream() {
   const title = document.getElementById('stream-title').value.trim() || 'Live Stream';
-
   try {
-    // Create Agora client as host
-    // Fetch fresh token from server
+    showToast('Starting stream...');
+
+    // Get token from server
     const tokenRes = await fetch('/agora_token?role=publisher');
     const tokenData = await tokenRes.json();
+    if (tokenData.error) throw new Error(tokenData.error);
     AGORA_TOKEN = tokenData.token;
-
-    client = AgoraRTC.createClient({ mode: 'live', codec: 'vp8' });
-    await client.setClientRole('host');
 
     // Create stream record
     const res = await fetch('/start_stream', {
@@ -136,23 +139,22 @@ async function startStream() {
       body: JSON.stringify({title})
     });
     const data = await res.json();
-    if (!data.success) { showToast('❌ Could not start stream'); return; }
+    if (!data.success) throw new Error('Could not start stream');
     streamId = data.stream_id;
 
-    // Join Agora channel using stream ID as channel name
-    const tokenRes = await fetch('/agora_token?channel=' + AGORA_CHANNEL + '&role=publisher');
-    const tokenData = await tokenRes.json();
-    await client.join(AGORA_APP_ID, AGORA_CHANNEL, tokenData.token, null);
+    // Join Agora
+    client = AgoraRTC.createClient({ mode: 'live', codec: 'vp8' });
+    await client.setClientRole('host');
+    await client.join(AGORA_APP_ID, AGORA_CHANNEL, AGORA_TOKEN, null);
 
-    // Create and publish local tracks
+    // Create tracks
     [localAudioTrack, localVideoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
     localVideoTrack.play('local-video');
     await client.publish([localAudioTrack, localVideoTrack]);
 
-    // Track viewers
+    // Viewer events
     client.on('user-joined', () => {
-      const count = client.remoteUsers.length;
-      document.getElementById('viewer-count').textContent = count;
+      document.getElementById('viewer-count').textContent = client.remoteUsers.length;
       showToast('👁️ Someone joined!');
     });
     client.on('user-left', () => {
@@ -162,7 +164,7 @@ async function startStream() {
     // Show stream UI
     document.getElementById('setup-card').style.display = 'none';
     document.getElementById('stream-wrap').classList.add('show');
-    const shareUrl = `${window.location.origin}/watch_live/${streamId}`;
+    const shareUrl = window.location.origin + '/watch_live/' + streamId;
     document.getElementById('share-url').textContent = shareUrl;
     showToast('🔴 You are live!');
 
@@ -174,13 +176,13 @@ async function startStream() {
 
 async function toggleMic() {
   micOn = !micOn;
-  await localAudioTrack.setEnabled(micOn);
+  if (localAudioTrack) await localAudioTrack.setEnabled(micOn);
   document.getElementById('mic-btn').textContent = micOn ? '🎤 Mute' : '🔇 Unmute';
 }
 
 async function toggleCam() {
   camOn = !camOn;
-  await localVideoTrack.setEnabled(camOn);
+  if (localVideoTrack) await localVideoTrack.setEnabled(camOn);
   document.getElementById('cam-btn').textContent = camOn ? '📷 Hide Camera' : '📷 Show Camera';
 }
 
@@ -209,8 +211,10 @@ async function switchBackToCamera() {
     screenTrack.close();
     screenTrack = null;
   }
-  await client.publish(localVideoTrack);
-  localVideoTrack.play('local-video');
+  if (localVideoTrack) {
+    await client.publish(localVideoTrack);
+    localVideoTrack.play('local-video');
+  }
   screenSharing = false;
   document.getElementById('screen-btn').textContent = '🖥️ Share Screen';
   document.getElementById('screen-btn').style.color = '';
@@ -235,7 +239,8 @@ function copyLink() {
 
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
+  t.textContent = msg;
+  t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3500);
 }
 </script>
