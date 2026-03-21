@@ -126,11 +126,7 @@ async function startStream() {
   try {
     showToast('Starting stream...');
 
-    // Get token from server
-    const tokenRes = await fetch('/agora_token?role=publisher');
-    const tokenData = await tokenRes.json();
-    if (tokenData.error) throw new Error(tokenData.error);
-    AGORA_TOKEN = tokenData.token;
+    AGORA_TOKEN = '007eJxTYAh8MMvbIHLX3Pn+qWlPml6wCsjImFw/9t6dqXTt/AOrq2oUGAyNUs1NElNT0iwT00yMkxItDU3MjYyMjYwsTdOSzZLNJwnvz2wIZGRI68xkYIRCEJ+LoSyxNKekqDg1MZeBAQD/VyGV';
 
     // Create stream record
     const res = await fetch('/start_stream', {
