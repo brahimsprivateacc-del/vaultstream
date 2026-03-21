@@ -887,11 +887,11 @@ def set_session():
 @app.route('/agora_token')
 def agora_token():
     try:
-        from agora_token_builder import RtcTokenBuilder, Role_Publisher, Role_Subscriber
+        from agora_token_builder import RtcTokenBuilder
         import time
         channel = request.args.get('channel', AGORA_CHANNEL)
         role_str = request.args.get('role', 'publisher')
-        role = Role_Publisher if role_str == 'publisher' else Role_Subscriber
+        role = 1 if role_str == 'publisher' else 2  # 1=publisher, 2=subscriber
         expire = int(time.time()) + 86400 * 7  # 7 days
         token = RtcTokenBuilder.buildTokenWithUid(AGORA_APP_ID, AGORA_APP_CERT, channel, 0, role, expire)
         return jsonify({'token': token, 'channel': channel, 'app_id': AGORA_APP_ID})
