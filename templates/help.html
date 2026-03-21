@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1673723146227353" crossorigin="anonymous"></script>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help & Tutorial — VaultStream</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+:root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #272727; --border: #3f3f3f; --text: #f1f1f1; --text2: #aaaaaa; --accent: #ff0000; --sidebar-w: 240px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; }
+nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56px; border-bottom: 1px solid var(--border); background: var(--bg); position: fixed; top: 0; left: 0; right: 0; z-index: 200; }
+.logo { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text); }
+.logo-icon { background: var(--accent); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; }
+.logo-text { font-size: 1.1rem; font-weight: 700; }
+.nav-right { margin-left: auto; display: flex; gap: 10px; }
+.btn { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.82rem; cursor: pointer; text-decoration: none; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+
+.main { margin-top: 56px; max-width: 800px; margin-left: auto; margin-right: auto; padding: 40px 20px; }
+
+/* Hero */
+.hero { text-align: center; padding: 40px 0 48px; }
+.hero-logo { font-size: 3.5rem; margin-bottom: 16px; }
+.hero-title { font-size: 2rem; font-weight: 700; margin-bottom: 12px; }
+.hero-sub { font-size: 0.95rem; color: var(--text2); line-height: 1.6; max-width: 500px; margin: 0 auto 28px; }
+.hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.hero-btn { padding: 12px 28px; border-radius: 24px; font-size: 0.9rem; font-weight: 600; text-decoration: none; font-family: 'Roboto', sans-serif; transition: all 0.2s; }
+.hero-btn.primary { background: var(--accent); color: white; border: none; }
+.hero-btn.primary:hover { background: #cc0000; }
+.hero-btn.secondary { background: none; color: var(--text); border: 1px solid var(--border); }
+.hero-btn.secondary:hover { background: var(--surface2); }
+
+/* Tutorial steps */
+.section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.steps { display: flex; flex-direction: column; gap: 16px; margin-bottom: 48px; }
+.step { display: flex; gap: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; transition: border 0.2s; }
+.step:hover { border-color: var(--accent); }
+.step-num { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0; }
+.step-content { flex: 1; }
+.step-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+.step-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.6; }
+.step-tip { margin-top: 8px; background: rgba(255,0,0,0.08); border-left: 3px solid var(--accent); padding: 6px 10px; border-radius: 0 6px 6px 0; font-size: 0.78rem; color: var(--text2); }
+.step-img { margin-top: 10px; background: var(--surface2); border-radius: 8px; padding: 12px; font-size: 0.78rem; color: var(--text2); text-align: center; }
+
+/* FAQ */
+.faq { margin-bottom: 48px; }
+.faq-item { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
+.faq-q { padding: 14px 16px; cursor: pointer; font-size: 0.88rem; font-weight: 500; display: flex; align-items: center; justify-content: space-between; transition: background 0.15s; }
+.faq-q:hover { background: var(--surface2); }
+.faq-arrow { color: var(--accent); transition: transform 0.2s; font-size: 0.8rem; }
+.faq-item.open .faq-arrow { transform: rotate(180deg); }
+.faq-a { display: none; padding: 0 16px 14px; font-size: 0.82rem; color: var(--text2); line-height: 1.7; border-top: 1px solid var(--border); padding-top: 12px; }
+.faq-item.open .faq-a { display: block; }
+
+/* Features grid */
+.features { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 48px; }
+.feature { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+.feature-icon { font-size: 1.8rem; margin-bottom: 8px; }
+.feature-name { font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; }
+.feature-desc { font-size: 0.72rem; color: var(--text2); line-height: 1.5; }
+
+/* CTA */
+.cta { background: linear-gradient(135deg, #1a0000, #2a0505); border: 1px solid var(--accent); border-radius: 16px; padding: 32px; text-align: center; margin-bottom: 40px; }
+.cta-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+.cta-sub { font-size: 0.85rem; color: var(--text2); margin-bottom: 20px; }
+
+@media(max-width:600px) { .hero-title { font-size: 1.5rem; } .step { flex-direction: column; } }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo"><div class="logo-icon">VS</div><div class="logo-text">VaultStream</div></a>
+  <div class="nav-right">
+    {% if user %}
+      <a href="/" class="btn">← Home</a>
+    {% else %}
+      <a href="/login" class="btn">Sign in</a>
+      <a href="/signup" class="btn primary">Sign up</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="main">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-logo">🎬</div>
+    <div class="hero-title">Welcome to VaultStream!</div>
+    <div class="hero-sub">Your platform for watching, uploading and sharing videos — even from remote areas with satellite connection!</div>
+    <div class="hero-btns">
+      <a href="/signup" class="hero-btn primary">🚀 Create Account</a>
+      <a href="/login" class="hero-btn secondary">Sign In</a>
+    </div>
+  </div>
+
+  <!-- Getting Started -->
+  <div class="section-title">🚀 Getting Started</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Create your account</div>
+        <div class="step-desc">Click <strong>Sign Up</strong> in the top right corner. Enter a username, your email address and a password (at least 6 characters). Then click <strong>Create Account</strong>!</div>
+        <div class="step-tip">💡 Tip: Choose a cool username — it will show on all your videos!</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Sign in to your account</div>
+        <div class="step-desc">Already have an account? Click <strong>Sign In</strong> in the top right. Enter your email and password, then click <strong>Sign in</strong>. You'll stay logged in automatically!</div>
+        <div class="step-tip">💡 Tip: You don't need to sign in every time — we remember you for a whole year!</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Set up your profile</div>
+        <div class="step-desc">Click your username in the top right → click your avatar to upload a profile photo → click <strong>Change photo</strong>. Add a bio to tell people about yourself!</div>
+        <div class="step-tip">💡 Tip: A profile photo makes your channel look way more professional!</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Upload your first video</div>
+        <div class="step-desc">Click the <strong>📤 Upload</strong> button in the top right. Give your video a title, pick a category, then drag and drop your video file or click <strong>Select File</strong>. Supports MP4, MOV, MKV, AVI and WEBM!</div>
+        <div class="step-tip">💡 Tip: For Shorts (vertical videos) check the 📱 "Upload as Short" box before uploading!</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <div class="step-title">Watch and interact</div>
+        <div class="step-desc">Click any video to watch it. You can ❤️ like videos, 💬 leave comments, and 💾 save videos offline to watch without internet!</div>
+        <div class="step-tip">💡 Tip: Use the search bar at the top to find specific videos!</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <div class="step-title">Go Live!</div>
+        <div class="step-desc">Click <strong>🔴 Go Live</strong> in the sidebar or top bar. Enter a stream title and click <strong>Start Streaming</strong>. Copy the link and share it with friends so they can watch live!</div>
+        <div class="step-tip">💡 Tip: You can share your screen by clicking the 🖥️ Share Screen button while live!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="section-title">✨ What you can do</div>
+  <div class="features">
+    <div class="feature"><div class="feature-icon">🎬</div><div class="feature-name">Watch Videos</div><div class="feature-desc">Browse and watch all uploaded videos</div></div>
+    <div class="feature"><div class="feature-icon">📤</div><div class="feature-name">Upload</div><div class="feature-desc">Share your own videos with everyone</div></div>
+    <div class="feature"><div class="feature-icon">🔴</div><div class="feature-name">Go Live</div><div class="feature-desc">Stream live to your friends</div></div>
+    <div class="feature"><div class="feature-icon">📱</div><div class="feature-name">Shorts</div><div class="feature-desc">Watch & upload short vertical videos</div></div>
+    <div class="feature"><div class="feature-icon">❤️</div><div class="feature-name">Likes</div><div class="feature-desc">Like your favourite videos</div></div>
+    <div class="feature"><div class="feature-icon">💬</div><div class="feature-name">Comments</div><div class="feature-desc">Talk about videos with others</div></div>
+    <div class="feature"><div class="feature-icon">💾</div><div class="feature-name">Offline</div><div class="feature-desc">Save videos to watch without internet</div></div>
+    <div class="feature"><div class="feature-icon">🔥</div><div class="feature-name">Trending</div><div class="feature-desc">See what everyone is watching</div></div>
+    <div class="feature"><div class="feature-icon">🛰️</div><div class="feature-name">Satellite</div><div class="feature-desc">Works even on slow connections</div></div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="section-title">❓ Frequently Asked Questions</div>
+  <div class="faq">
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How do I reset my password? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Go to the login page and click "Forgot password" — you'll receive an email with a reset link. Make sure to check your spam folder!</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What video formats are supported? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">VaultStream supports MP4, MKV, MOV, AVI and WEBM video formats. MP4 is recommended for best compatibility. Maximum file size is 4GB.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How do I install VaultStream as an app on my phone? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">On iPhone: Open vaultstream.online in Safari → tap the Share button → tap "Add to Home Screen". On Android: Open in Chrome → tap the menu → tap "Add to Home Screen". It works just like a real app!</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Why does my video not show up after uploading? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Videos are uploaded to the cloud and saved to the database automatically. Try refreshing the page. If it still doesn't appear, make sure you were logged in when you uploaded.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Can I watch videos without internet? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Yes! Open any video and click the "💾 Save Offline" button. The video will download to your device and you can watch it anytime without internet.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How do I delete one of my videos? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Open the video you want to delete and click the red "🗑 Delete" button on the right side. Only you can delete your own videos.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How do I report a video? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Click the ⋮ menu on any video card on the home page and select "🚩 Report". Choose a reason and submit — our admin will review it.</div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta">
+    <div class="cta-title">Ready to get started? 🚀</div>
+    <div class="cta-sub">Join VaultStream and start watching, uploading and going live!</div>
+    <a href="/signup" class="hero-btn primary">Create Free Account</a>
+  </div>
+
+</div>
+
+<script>
+function toggleFaq(el) {
+  const item = el.parentElement;
+  item.classList.toggle('open');
+}
+</script>
+</body>
+</html>
