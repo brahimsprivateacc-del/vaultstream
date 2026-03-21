@@ -763,6 +763,12 @@ def send_warning(video_id):
         )
     return jsonify({'success': True})
 
+
+@app.route('/help')
+def help():
+    user = get_current_user()
+    return render_template('help.html', user=user)
+
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
