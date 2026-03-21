@@ -718,6 +718,51 @@ def unread_notifications():
     count = len(r.json()) if r.ok else 0
     return jsonify({'count': count})
 
+
+@app.route('/report_video/<video_id>', methods=['POST'])
+def report_video(video_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'error': 'Login required'}), 401
+    reason = request.json.get('reason', 'No reason given')
+    # Get video info
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&select=title,user_id',
+        headers=supabase_service_headers()
+    )
+    videos = r.json()
+    if not videos:
+        return jsonify({'success': False}), 404
+    video = videos[0]
+    # Send notification to admin
+    msg = f'🚨 Video "{video["title"]}" was reported by a user. Reason: {reason}'
+    requests.post(
+        f'{SUPABASE_URL}/rest/v1/notifications',
+        headers=supabase_service_headers(),
+        json={'user_id': ADMIN_USER_ID, 'message': msg}
+    )
+    return jsonify({'success': True})
+
+
+@app.route('/send_warning/<video_id>', methods=['POST'])
+def send_warning(video_id):
+    user = get_current_user()
+    if not user or user['id'] != ADMIN_USER_ID:
+        return jsonify({'success': False}), 403
+    message = request.json.get('message', 'You have received a warning from an admin.')
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&select=user_id,title',
+        headers=supabase_service_headers()
+    )
+    videos = r.json()
+    if videos:
+        requests.post(
+            f'{SUPABASE_URL}/rest/v1/notifications',
+            headers=supabase_service_headers(),
+            json={'user_id': videos[0]['user_id'], 'message': f'⚠️ Warning: {message}'}
+        )
+    return jsonify({'success': True})
+
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
