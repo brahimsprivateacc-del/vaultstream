@@ -68,6 +68,23 @@ SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://wweckerzweqjrrrbqysq.supa
 SUPABASE_KEY = os.environ.get('SUPABASE_KEY', 'sb_publishable_cxxK6Id-_Ttl18yWep2oNQ_BgO2rghG')
 SUPABASE_SERVICE_KEY = os.environ.get('SUPABASE_SERVICE_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3ZWNrZXJ6d2VxanJycmJxeXNxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjgyNTg5NSwiZXhwIjoyMDg4NDAxODk1fQ.6ZOMljwV5qt7mPPjn_6kpxaQHlt44J89Xdm2eeHET4g')
 
+# Agora config
+AGORA_APP_ID = os.environ.get('AGORA_APP_ID', '12e74aedf9af43ba91472232295fc6c7')
+AGORA_APP_CERT = os.environ.get('AGORA_APP_CERT', '907ad51f2a20407d98d9d389a0665d5f')
+AGORA_CHANNEL = 'vaultstream'
+
+def generate_agora_token():
+    try:
+        import hmac, hashlib, struct, time, base64
+        current_time = int(time.time())
+        expire_time = current_time + 86400 * 7  # 7 days
+        # Simple RTC token generation
+        msg = f"{AGORA_APP_ID}{AGORA_CHANNEL}0{expire_time}"
+        sig = hmac.new(AGORA_APP_CERT.encode(), msg.encode(), hashlib.sha256).hexdigest()
+        return None  # fallback to hardcoded
+    except:
+        return None
+
 # Cloudinary config
 cloudinary.config(
     cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME', 'dkym11l9b'),
@@ -869,10 +886,17 @@ def set_session():
 
 @app.route('/agora_token')
 def agora_token():
-    token = generate_agora_token()
-    if token:
-        return jsonify({'token': token, 'channel': AGORA_CHANNEL, 'app_id': AGORA_APP_ID})
-    return jsonify({'error': 'Failed to generate token'}), 500
+    try:
+        from agora_token_builder import RtcTokenBuilder, Role_Publisher, Role_Subscriber
+        import time
+        channel = request.args.get('channel', AGORA_CHANNEL)
+        role_str = request.args.get('role', 'publisher')
+        role = Role_Publisher if role_str == 'publisher' else Role_Subscriber
+        expire = int(time.time()) + 86400 * 7  # 7 days
+        token = RtcTokenBuilder.buildTokenWithUid(AGORA_APP_ID, AGORA_APP_CERT, channel, 0, role, expire)
+        return jsonify({'token': token, 'channel': channel, 'app_id': AGORA_APP_ID})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':
