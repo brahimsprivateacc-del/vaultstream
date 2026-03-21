@@ -769,6 +769,58 @@ def help():
     user = get_current_user()
     return render_template('help.html', user=user)
 
+
+@app.route('/auth/google')
+def auth_google():
+    r = requests.post(
+        f'{SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=https://vaultstream.online/auth/callback',
+        headers=supabase_headers()
+    )
+    # Redirect to Google OAuth
+    redirect_url = f'{SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=https://vaultstream.online/auth/callback'
+    return redirect(redirect_url)
+
+@app.route('/auth/callback')
+def auth_callback():
+    # Supabase sends access_token in URL fragment — handle with JS
+    return render_template('auth_callback.html')
+
+
+@app.route('/auth/set_session', methods=['POST'])
+def set_session():
+    token = request.json.get('access_token')
+    if not token:
+        return jsonify({'success': False}), 400
+    # Get user info from Supabase
+    r = requests.get(
+        f'{SUPABASE_URL}/auth/v1/user',
+        headers={'apikey': SUPABASE_KEY, 'Authorization': f'Bearer {token}'}
+    )
+    if not r.ok:
+        return jsonify({'success': False}), 400
+    user_data = r.json()
+    user_id = user_data['id']
+    email = user_data.get('email', '')
+    # Check if profile exists
+    r2 = requests.get(
+        f'{SUPABASE_URL}/rest/v1/profiles?id=eq.{user_id}',
+        headers=supabase_service_headers()
+    )
+    profiles = r2.json()
+    if profiles:
+        username = profiles[0]['username']
+    else:
+        # Create profile with email prefix as username
+        username = email.split('@')[0] if email else f'user_{user_id[:8]}'
+        requests.post(
+            f'{SUPABASE_URL}/rest/v1/profiles',
+            headers=supabase_service_headers(),
+            json={'id': user_id, 'username': username}
+        )
+    session.permanent = True
+    session['user'] = {'id': user_id, 'username': username, 'token': token}
+    return jsonify({'success': True})
+
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
