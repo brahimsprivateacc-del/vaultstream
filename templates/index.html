@@ -130,33 +130,41 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
 .admin-delete-btn:hover { background: #cc0000; }
 
 /* Admin Panel Modal */
-.admin-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 600; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.admin-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 600; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(4px); }
 .admin-overlay.open { opacity: 1; pointer-events: all; }
-.admin-panel { background: #1a1a1a; border: 1px solid #3f3f3f; border-radius: 16px; width: 90%; max-width: 480px; overflow: hidden; transform: scale(0.95); transition: transform 0.2s; }
+.admin-panel { background: #000; border: 1px solid #ff0000; border-radius: 16px; width: 90%; max-width: 500px; overflow: hidden; transform: scale(0.95); transition: transform 0.2s; box-shadow: 0 0 40px rgba(255,0,0,0.3); }
 .admin-overlay.open .admin-panel { transform: scale(1); }
-.admin-header { background: #ff0000; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; }
-.admin-header-title { font-size: 1rem; font-weight: 700; color: white; display: flex; align-items: center; gap: 8px; }
-.admin-close { background: none; border: none; color: white; font-size: 1.3rem; cursor: pointer; opacity: 0.8; }
-.admin-close:hover { opacity: 1; }
+.admin-header { background: #000; border-bottom: 2px solid #ff0000; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; }
+.admin-header-title { font-size: 1.05rem; font-weight: 700; color: #ff0000; display: flex; align-items: center; gap: 10px; letter-spacing: 1px; text-transform: uppercase; }
+.admin-badge { background: #ff0000; color: white; font-size: 0.6rem; padding: 2px 8px; border-radius: 4px; font-weight: 800; letter-spacing: 1px; }
+.admin-close { background: none; border: 1px solid #ff0000; color: #ff0000; font-size: 1rem; cursor: pointer; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.admin-close:hover { background: #ff0000; color: white; }
 .admin-body { padding: 20px; }
-.admin-video-info { background: #111; border-radius: 10px; padding: 12px 14px; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
-.admin-video-thumb { width: 60px; height: 38px; border-radius: 6px; background: #272727; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; overflow: hidden; }
+.admin-video-info { background: #0a0a0a; border: 1px solid #222; border-left: 3px solid #ff0000; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+.admin-video-thumb { width: 64px; height: 40px; border-radius: 6px; background: #111; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; overflow: hidden; border: 1px solid #222; }
 .admin-video-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.admin-video-name { font-size: 0.85rem; font-weight: 500; }
-.admin-video-user { font-size: 0.75rem; color: #aaa; margin-top: 2px; }
-.admin-field { margin-bottom: 14px; }
-.admin-label { font-size: 0.78rem; color: #aaa; margin-bottom: 6px; display: block; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
-.admin-select { width: 100%; background: #111; border: 1px solid #3f3f3f; border-radius: 8px; padding: 9px 12px; color: #f1f1f1; font-size: 0.85rem; font-family: 'Roboto', sans-serif; outline: none; }
+.admin-video-name { font-size: 0.88rem; font-weight: 600; color: #fff; }
+.admin-video-user { font-size: 0.72rem; color: #ff0000; margin-top: 3px; }
+.admin-section { margin-bottom: 16px; }
+.admin-label { font-size: 0.7rem; color: #ff0000; margin-bottom: 8px; display: block; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+.admin-select { width: 100%; background: #0a0a0a; border: 1px solid #333; border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 0.85rem; font-family: 'Roboto', sans-serif; outline: none; transition: border 0.2s; }
 .admin-select:focus { border-color: #ff0000; }
-.admin-textarea { width: 100%; background: #111; border: 1px solid #3f3f3f; border-radius: 8px; padding: 9px 12px; color: #f1f1f1; font-size: 0.85rem; font-family: 'Roboto', sans-serif; outline: none; resize: vertical; min-height: 80px; }
+.admin-textarea { width: 100%; background: #0a0a0a; border: 1px solid #333; border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 0.85rem; font-family: 'Roboto', sans-serif; outline: none; resize: vertical; min-height: 80px; transition: border 0.2s; }
 .admin-textarea:focus { border-color: #ff0000; }
-.admin-actions { display: flex; gap: 10px; padding: 16px 20px; border-top: 1px solid #3f3f3f; }
-.admin-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; font-size: 0.88rem; font-weight: 600; font-family: 'Roboto', sans-serif; cursor: pointer; transition: all 0.2s; }
-.admin-btn.cancel { background: #272727; color: #f1f1f1; }
-.admin-btn.cancel:hover { background: #333; }
-.admin-btn.delete { background: #ff0000; color: white; }
-.admin-btn.delete:hover { background: #cc0000; }
-.admin-warn { background: rgba(255,180,0,0.1); border: 1px solid rgba(255,180,0,0.3); border-radius: 8px; padding: 10px 12px; font-size: 0.78rem; color: #ffb400; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.admin-action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.admin-action-card { background: #0a0a0a; border: 1px solid #222; border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.2s; text-align: center; }
+.admin-action-card:hover { border-color: #ff0000; background: rgba(255,0,0,0.05); }
+.admin-action-card.selected { border-color: #ff0000; background: rgba(255,0,0,0.1); }
+.admin-action-icon { font-size: 1.4rem; margin-bottom: 4px; }
+.admin-action-label { font-size: 0.75rem; color: #ff0000; font-weight: 600; }
+.admin-action-desc { font-size: 0.68rem; color: #666; margin-top: 2px; }
+.admin-warn { background: rgba(255,180,0,0.08); border: 1px solid rgba(255,180,0,0.2); border-radius: 8px; padding: 10px 12px; font-size: 0.78rem; color: #ffb400; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.admin-footer { display: flex; gap: 10px; padding: 16px 20px; border-top: 1px solid #1a1a1a; background: #000; }
+.admin-btn { flex: 1; padding: 11px; border-radius: 8px; border: none; font-size: 0.88rem; font-weight: 700; font-family: 'Roboto', sans-serif; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; }
+.admin-btn.cancel { background: #111; color: #666; border: 1px solid #222; }
+.admin-btn.cancel:hover { color: #fff; border-color: #444; }
+.admin-btn.delete { background: #ff0000; color: white; box-shadow: 0 0 20px rgba(255,0,0,0.3); }
+.admin-btn.delete:hover { background: #cc0000; box-shadow: 0 0 30px rgba(255,0,0,0.5); }
 
 .menu-dropdown { position: fixed; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 6px; min-width: 200px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); z-index: 500; display: none; }
 .menu-dropdown.show { display: block; }
@@ -418,37 +426,75 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
 <div class="admin-overlay" id="admin-overlay" onclick="closeAdminPanel(event)">
   <div class="admin-panel">
     <div class="admin-header">
-      <div class="admin-header-title">🛡️ Admin — Remove Video</div>
+      <div class="admin-header-title">
+        <span class="admin-badge">ADMIN</span>
+        Content Moderation
+      </div>
       <button class="admin-close" onclick="closeAdminPanelBtn()">✕</button>
     </div>
     <div class="admin-body">
+      <!-- Video info -->
       <div class="admin-video-info">
         <div class="admin-video-thumb" id="admin-thumb">🎬</div>
         <div>
           <div class="admin-video-name" id="admin-video-name">Video title</div>
-          <div class="admin-video-user" id="admin-video-user">by username</div>
+          <div class="admin-video-user" id="admin-video-user">Uploaded by user</div>
         </div>
       </div>
-      <div class="admin-warn">⚠️ The user will be notified with your message below.</div>
-      <div class="admin-field">
+
+      <!-- Action type -->
+      <div class="admin-section">
+        <label class="admin-label">Action</label>
+        <div class="admin-action-grid">
+          <div class="admin-action-card selected" onclick="selectAction(this,'delete')" id="action-delete">
+            <div class="admin-action-icon">🗑</div>
+            <div class="admin-action-label">Remove Video</div>
+            <div class="admin-action-desc">Delete & notify user</div>
+          </div>
+          <div class="admin-action-card" onclick="selectAction(this,'warn')" id="action-warn">
+            <div class="admin-action-icon">⚠️</div>
+            <div class="admin-action-label">Warn User</div>
+            <div class="admin-action-desc">Send warning only</div>
+          </div>
+          <div class="admin-action-card" onclick="selectAction(this,'strike')" id="action-strike">
+            <div class="admin-action-icon">🚨</div>
+            <div class="admin-action-label">Strike</div>
+            <div class="admin-action-desc">Remove + strike</div>
+          </div>
+          <div class="admin-action-card" onclick="selectAction(this,'ignore')" id="action-ignore">
+            <div class="admin-action-icon">✅</div>
+            <div class="admin-action-label">No Action</div>
+            <div class="admin-action-desc">Dismiss report</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Violation type -->
+      <div class="admin-section">
         <label class="admin-label">Violation Type</label>
         <select class="admin-select" id="admin-reason-select" onchange="updateMessage()">
-          <option value="Spam">🚫 Spam</option>
+          <option value="Spam">🚫 Spam or misleading</option>
           <option value="Inappropriate content">🔞 Inappropriate content</option>
-          <option value="Harassment">😡 Harassment</option>
+          <option value="Harassment">😡 Harassment or bullying</option>
           <option value="Copyright violation">©️ Copyright violation</option>
           <option value="Misinformation">❌ Misinformation</option>
-          <option value="Other">📋 Other</option>
+          <option value="Hate speech">🚫 Hate speech</option>
+          <option value="Violence">⚠️ Graphic violence</option>
+          <option value="Other">📋 Other violation</option>
         </select>
       </div>
-      <div class="admin-field">
-        <label class="admin-label">Message to user</label>
-        <textarea class="admin-textarea" id="admin-message" placeholder="Explain why the video was removed..."></textarea>
+
+      <!-- Message -->
+      <div class="admin-section">
+        <label class="admin-label">Message to User</label>
+        <textarea class="admin-textarea" id="admin-message" placeholder="Explain why this action was taken..."></textarea>
       </div>
+
+      <div class="admin-warn">⚠️ The user will receive a notification with your message.</div>
     </div>
-    <div class="admin-actions">
+    <div class="admin-footer">
       <button class="admin-btn cancel" onclick="closeAdminPanelBtn()">Cancel</button>
-      <button class="admin-btn delete" onclick="confirmAdminDelete()">🗑 Remove Video</button>
+      <button class="admin-btn delete" onclick="confirmAdminDelete()" id="admin-confirm-btn">🗑 Remove Video</button>
     </div>
   </div>
 </div>
