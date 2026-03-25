@@ -102,7 +102,7 @@ input[type="text"]:focus { border-color: var(--accent); }
 <div class="toast" id="toast"></div>
 
 <script>
-const AGORA_APP_ID = '12e74aedf9af43ba91472232295fc6c7';
+const AGORA_APP_ID = '5f982bff4e5b4545be3d1539af0538a5';
 const AGORA_CHANNEL = 'vaultstream';
 let AGORA_TOKEN = null;
 let client = null;
@@ -126,8 +126,7 @@ async function startStream() {
   try {
     showToast('Starting stream...');
 
-    AGORA_TOKEN = '007eJxTYAh8MMvbIHLX3Pn+qWlPml6wCsjImFw/9t6dqXTt/AOrq2oUGAyNUs1NElNT0iwT00yMkxItDU3MjYyMjYwsTdOSzZLNJwnvz2wIZGRI68xkYIRCEJ+LoSyxNKekqDg1MZeBAQD/VyGV';
-
+  
     // Create stream record
     const res = await fetch('/start_stream', {
       method: 'POST',
