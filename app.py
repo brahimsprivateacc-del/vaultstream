@@ -1,95 +1,37 @@
 from flask import Flask, render_template, request, send_from_directory, jsonify, redirect, url_for, session
 import os
-from datetime import datetime
 from werkzeug.utils import secure_filename
 import requests
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
-import hmac
-import hashlib
-import struct
-import time
-import random
-import zlib
-import base64
-
-# ── AGORA TOKEN GENERATOR ──
-AGORA_APP_ID = '12e74aedf9af43ba91472232295fc6c7'
-AGORA_APP_CERTIFICATE = '907ad51f2a20407d98d9d389a0665d5f'
-AGORA_CHANNEL = 'vaultstream'
-
-def generate_agora_token():
-    """Generate a fresh Agora RTC token valid for 24 hours."""
-    try:
-        expire_time = int(time.time()) + 86400  # 24 hours
-        current_time = int(time.time())
-        uid = 0
-        role = 1  # Publisher
-
-        # Pack privileges
-        privileges = {1: expire_time, 2: expire_time, 3: expire_time, 4: expire_time, 5: expire_time, 6: expire_time, 7: expire_time}
-
-        # Build message
-        msg = struct.pack('<HII', 1, current_time, random.randint(0, 2**32 - 1))
-        msg += struct.pack('<H', len(AGORA_APP_ID)) + AGORA_APP_ID.encode()
-        msg += struct.pack('<H', len(AGORA_CHANNEL)) + AGORA_CHANNEL.encode()
-        msg += struct.pack('<I', uid)
-        msg += struct.pack('<H', len(privileges))
-        for k, v in sorted(privileges.items()):
-            msg += struct.pack('<HI', k, v)
-
-        sig = hmac.new(AGORA_APP_CERTIFICATE.encode(), msg, hashlib.sha256).digest()
-        content_msg = struct.pack('<H', len(sig)) + sig + struct.pack('<I', len(msg)) + msg
-        compressed = zlib.compress(content_msg)
-        token = '007' + base64.b64encode(compressed).decode()
-        return token
-    except Exception as e:
-        print(f'Token generation error: {e}')
-        return None
 
 app = Flask(__name__)
 app.secret_key = 'vaultstream-secret-change-this-later'
+app.config['PERMANENT_SESSION_LIFETIME'] = 60 * 60 * 24 * 365  # 1 year
 
 VIDEOS_FOLDER = os.path.join(os.path.dirname(__file__), 'videos')
 ALLOWED_EXTENSIONS = {'mp4', 'mkv', 'mov', 'avi', 'webm'}
-MAX_UPLOAD_MB = 4096
-app.config['MAX_CONTENT_LENGTH'] = MAX_UPLOAD_MB * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 4096 * 1024 * 1024
 
-# Agora credentials
-AGORA_APP_ID = os.environ.get('AGORA_APP_ID', '12e74aedf9af43ba91472232295fc6c7')
-AGORA_APP_CERT = os.environ.get('AGORA_APP_CERT', '907ad51f2a20407d98d9d389a0665d5f')
-
-# Admin user ID - only this user can delete any video
+# Admin
 ADMIN_USER_ID = '9e186088-8134-43d3-9ea6-8a3330335845'
 
-# Supabase config
+# Supabase
 SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://wweckerzweqjrrrbqysq.supabase.co')
 SUPABASE_KEY = os.environ.get('SUPABASE_KEY', 'sb_publishable_cxxK6Id-_Ttl18yWep2oNQ_BgO2rghG')
 SUPABASE_SERVICE_KEY = os.environ.get('SUPABASE_SERVICE_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3ZWNrZXJ6d2VxanJycmJxeXNxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjgyNTg5NSwiZXhwIjoyMDg4NDAxODk1fQ.6ZOMljwV5qt7mPPjn_6kpxaQHlt44J89Xdm2eeHET4g')
 
-# Agora config
-AGORA_APP_ID = os.environ.get('AGORA_APP_ID', '12e74aedf9af43ba91472232295fc6c7')
+# Agora
+AGORA_APP_ID = os.environ.get('AGORA_APP_ID', '5f982bff4e5b4545be3d1539af0538a5')
 AGORA_APP_CERT = os.environ.get('AGORA_APP_CERT', '907ad51f2a20407d98d9d389a0665d5f')
 AGORA_CHANNEL = 'vaultstream'
 
-def generate_agora_token():
-    try:
-        import hmac, hashlib, struct, time, base64
-        current_time = int(time.time())
-        expire_time = current_time + 86400 * 7  # 7 days
-        # Simple RTC token generation
-        msg = f"{AGORA_APP_ID}{AGORA_CHANNEL}0{expire_time}"
-        sig = hmac.new(AGORA_APP_CERT.encode(), msg.encode(), hashlib.sha256).hexdigest()
-        return None  # fallback to hardcoded
-    except:
-        return None
-
-# Cloudinary config
+# Cloudinary
 cloudinary.config(
-    cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME', 'dkym11l9b'),
-    api_key = os.environ.get('CLOUDINARY_API_KEY', '372954551797955'),
-    api_secret = os.environ.get('CLOUDINARY_API_SECRET', 'l7p9Qa1jY5yJcK_kv4_jJFbIkdo')
+    cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME', 'dkym11l9b'),
+    api_key=os.environ.get('CLOUDINARY_API_KEY', '372954551797955'),
+    api_secret=os.environ.get('CLOUDINARY_API_SECRET', 'l7p9Qa1jY5yJcK_kv4_jJFbIkdo')
 )
 
 os.makedirs(VIDEOS_FOLDER, exist_ok=True)
@@ -120,80 +62,43 @@ def get_file_size(size_bytes):
 def get_current_user():
     return session.get('user')
 
-# ── ROUTES ──
-
 @app.route('/')
 def index():
     user = get_current_user()
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/videos?select=*,profiles(username,avatar_url)&order=created_at.desc',
-        headers=supabase_headers()
-    )
+    r = requests.get(f'{SUPABASE_URL}/rest/v1/videos?select=*,profiles(username,avatar_url)&order=created_at.desc', headers=supabase_headers())
     videos = r.json() if r.ok else []
-    # Get live streams
-    r2 = requests.get(
-        f'{SUPABASE_URL}/rest/v1/streams?is_live=eq.true&select=*,profiles(username)&order=created_at.desc',
-        headers=supabase_service_headers()
-    )
+    r2 = requests.get(f'{SUPABASE_URL}/rest/v1/streams?is_live=eq.true&select=*,profiles(username)&order=created_at.desc', headers=supabase_service_headers())
     live_streams = r2.json() if r2.ok else []
     return render_template('index.html', videos=videos, user=user, live_streams=live_streams)
 
 @app.route('/watch/<video_id>')
 def watch(video_id):
     user = get_current_user()
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&select=*,profiles(username,avatar_url)',
-        headers=supabase_headers()
-    )
+    r = requests.get(f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&select=*,profiles(username,avatar_url)', headers=supabase_headers())
     videos = r.json()
     if not videos:
         return redirect(url_for('index'))
     video = videos[0]
-
-    r2 = requests.get(
-        f'{SUPABASE_URL}/rest/v1/comments?video_id=eq.{video_id}&select=*,profiles(username)&order=created_at.asc',
-        headers=supabase_headers()
-    )
+    r2 = requests.get(f'{SUPABASE_URL}/rest/v1/comments?video_id=eq.{video_id}&select=*,profiles(username)&order=created_at.asc', headers=supabase_headers())
     comments = r2.json() if r2.ok else []
-
-    r3 = requests.get(
-        f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{video_id}&select=id',
-        headers=supabase_headers()
-    )
+    r3 = requests.get(f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{video_id}&select=id', headers=supabase_headers())
     likes = len(r3.json()) if r3.ok else 0
-
     user_liked = False
     if user:
-        r4 = requests.get(
-            f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{video_id}&user_id=eq.{user["id"]}',
-            headers=supabase_headers()
-        )
+        r4 = requests.get(f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{video_id}&user_id=eq.{user["id"]}', headers=supabase_headers())
         user_liked = len(r4.json()) > 0 if r4.ok else False
-
-    # Increment view count
-    requests.post(
-        f'{SUPABASE_URL}/rpc/increment_views',
-        headers=supabase_service_headers(),
-        json={'video_id': video_id}
-    )
-
+    requests.post(f'{SUPABASE_URL}/rpc/increment_views', headers=supabase_service_headers(), json={'video_id': video_id})
     return render_template('watch.html', video=video, comments=comments, likes=likes, user=user, user_liked=user_liked)
 
 @app.route('/profile/<username>')
 def profile(username):
     user = get_current_user()
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/profiles?username=eq.{username}&select=*',
-        headers=supabase_headers()
-    )
+    r = requests.get(f'{SUPABASE_URL}/rest/v1/profiles?username=eq.{username}&select=*', headers=supabase_headers())
     profiles = r.json()
     if not profiles:
         return redirect(url_for('index'))
     profile_user = profiles[0]
-    r2 = requests.get(
-        f'{SUPABASE_URL}/rest/v1/videos?user_id=eq.{profile_user["id"]}&order=created_at.desc',
-        headers=supabase_headers()
-    )
+    r2 = requests.get(f'{SUPABASE_URL}/rest/v1/videos?user_id=eq.{profile_user["id"]}&order=created_at.desc', headers=supabase_headers())
     user_videos = r2.json() if r2.ok else []
     return render_template('profile.html', profile_user=profile_user, videos=user_videos, user=user)
 
@@ -203,20 +108,12 @@ def signup():
         email = request.form.get('email')
         password = request.form.get('password')
         username = request.form.get('username')
-        r = requests.post(
-            f'{SUPABASE_URL}/auth/v1/signup',
-            headers=supabase_headers(),
-            json={'email': email, 'password': password}
-        )
+        r = requests.post(f'{SUPABASE_URL}/auth/v1/signup', headers=supabase_headers(), json={'email': email, 'password': password})
         data = r.json()
         if r.ok and data.get('user'):
             user_id = data['user']['id']
             token = data.get('access_token')
-            requests.post(
-                f'{SUPABASE_URL}/rest/v1/profiles',
-                headers=supabase_headers(token),
-                json={'id': user_id, 'username': username}
-            )
+            requests.post(f'{SUPABASE_URL}/rest/v1/profiles', headers=supabase_service_headers(), json={'id': user_id, 'username': username})
             session.permanent = True
             session['user'] = {'id': user_id, 'username': username, 'token': token}
             return redirect(url_for('index'))
@@ -230,21 +127,15 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
-        r = requests.post(
-            f'{SUPABASE_URL}/auth/v1/token?grant_type=password',
-            headers=supabase_headers(),
-            json={'email': email, 'password': password}
-        )
+        r = requests.post(f'{SUPABASE_URL}/auth/v1/token?grant_type=password', headers=supabase_headers(), json={'email': email, 'password': password})
         data = r.json()
         if r.ok and data.get('access_token'):
             user_id = data['user']['id']
             token = data['access_token']
-            r2 = requests.get(
-                f'{SUPABASE_URL}/rest/v1/profiles?id=eq.{user_id}',
-                headers=supabase_headers(token)
-            )
+            r2 = requests.get(f'{SUPABASE_URL}/rest/v1/profiles?id=eq.{user_id}', headers=supabase_headers(token))
             profiles = r2.json()
             username = profiles[0]['username'] if profiles else email
+            session.permanent = True
             session['user'] = {'id': user_id, 'username': username, 'token': token}
             return redirect(url_for('index'))
         else:
@@ -267,48 +158,21 @@ def upload():
     file = request.files['video']
     if not allowed_file(file.filename):
         return jsonify({'success': False, 'error': 'File type not allowed'}), 400
-
     filename = secure_filename(file.filename)
     ext = filename.rsplit('.', 1)[1].upper()
     default_title = os.path.splitext(filename)[0].replace('_', ' ').replace('-', ' ')
     title = request.form.get('title', '').strip() or default_title
     category = request.form.get('category', 'general')
     is_short = request.form.get('is_short', '0') == '1'
-    is_short = request.form.get('is_short', 'false') == 'true' 
-    is_short = request.form.get('is_short', 'false') == 'true'
-
-    # Upload to Cloudinary
-    result = cloudinary.uploader.upload(
-        file,
-        resource_type='video',
-        folder='vaultstream',
-        public_id=os.path.splitext(filename)[0],
-        overwrite=True
-    )
-
+    result = cloudinary.uploader.upload(file, resource_type='video', folder='vaultstream', public_id=os.path.splitext(filename)[0], overwrite=True)
     video_url = result.get('secure_url')
-    thumbnail_url = result.get('secure_url', '').replace('/upload/', '/upload/so_0,w_400,h_225,c_fill/')
-    # Make proper thumbnail
     thumbnail_url = result.get('secure_url', '').rsplit('.', 1)[0].replace('/video/upload/', '/video/upload/so_0,w_400,h_225,c_fill/') + '.jpg'
     size = get_file_size(result.get('bytes', 0))
-
-    # Save to Supabase using service key
-    r = requests.post(
-        f'{SUPABASE_URL}/rest/v1/videos',
-        headers=supabase_service_headers(),
-        json={
-            'user_id': user['id'],
-            'filename': filename,
-            'title': title,
-            'size': size,
-            'extension': ext,
-            'video_url': video_url,
-            'thumbnail_url': thumbnail_url,
-            'category': category,
-            'is_short': is_short,
-            'is_short': is_short
-        }
-    )
+    requests.post(f'{SUPABASE_URL}/rest/v1/videos', headers=supabase_service_headers(), json={
+        'user_id': user['id'], 'filename': filename, 'title': title, 'size': size,
+        'extension': ext, 'video_url': video_url, 'thumbnail_url': thumbnail_url,
+        'category': category, 'is_short': is_short
+    })
     return jsonify({'success': True, 'message': f'"{title}" uploaded!'})
 
 @app.route('/videos/<filename>')
@@ -324,22 +188,12 @@ def like(video_id):
     user = get_current_user()
     if not user:
         return jsonify({'success': False, 'error': 'Login required'}), 401
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{video_id}&user_id=eq.{user["id"]}',
-        headers=supabase_headers()
-    )
+    r = requests.get(f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{video_id}&user_id=eq.{user["id"]}', headers=supabase_headers())
     if r.json():
-        requests.delete(
-            f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{video_id}&user_id=eq.{user["id"]}',
-            headers=supabase_headers(user['token'])
-        )
+        requests.delete(f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{video_id}&user_id=eq.{user["id"]}', headers=supabase_headers(user['token']))
         liked = False
     else:
-        requests.post(
-            f'{SUPABASE_URL}/rest/v1/likes',
-            headers=supabase_headers(user['token']),
-            json={'user_id': user['id'], 'video_id': video_id}
-        )
+        requests.post(f'{SUPABASE_URL}/rest/v1/likes', headers=supabase_headers(user['token']), json={'user_id': user['id'], 'video_id': video_id})
         liked = True
     r2 = requests.get(f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{video_id}', headers=supabase_headers())
     count = len(r2.json()) if r2.ok else 0
@@ -353,11 +207,7 @@ def comment(video_id):
     content = request.json.get('content', '').strip()
     if not content:
         return jsonify({'success': False, 'error': 'Empty comment'}), 400
-    requests.post(
-        f'{SUPABASE_URL}/rest/v1/comments',
-        headers={**supabase_headers(user['token']), 'Prefer': 'return=representation'},
-        json={'user_id': user['id'], 'video_id': video_id, 'content': content}
-    )
+    requests.post(f'{SUPABASE_URL}/rest/v1/comments', headers={**supabase_headers(user['token']), 'Prefer': 'return=representation'}, json={'user_id': user['id'], 'video_id': video_id, 'content': content})
     return jsonify({'success': True, 'username': user['username'], 'content': content})
 
 @app.route('/upload_avatar', methods=['POST'])
@@ -368,42 +218,149 @@ def upload_avatar():
     if 'avatar' not in request.files:
         return jsonify({'success': False, 'error': 'No file'}), 400
     file = request.files['avatar']
-    result = cloudinary.uploader.upload(
-        file,
-        folder='vaultstream/avatars',
-        public_id=user['id'],
-        overwrite=True,
-        transformation=[{'width': 200, 'height': 200, 'crop': 'fill', 'gravity': 'face'}]
-    )
+    result = cloudinary.uploader.upload(file, folder='vaultstream/avatars', public_id=user['id'], overwrite=True, transformation=[{'width': 200, 'height': 200, 'crop': 'fill', 'gravity': 'face'}])
     avatar_url = result.get('secure_url')
-    requests.patch(
-        f"{SUPABASE_URL}/rest/v1/profiles?id=eq.{user['id']}",
-        headers=supabase_headers(user['token']),
-        json={'avatar_url': avatar_url}
-    )
+    requests.patch(f"{SUPABASE_URL}/rest/v1/profiles?id=eq.{user['id']}", headers=supabase_service_headers(), json={'avatar_url': avatar_url})
     return jsonify({'success': True, 'url': avatar_url})
 
-@app.route('/manifest.json')
-def manifest():
-    return send_from_directory('.', 'manifest.json', mimetype='application/manifest+json')
+@app.route('/update_bio', methods=['POST'])
+def update_bio():
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'error': 'Login required'}), 401
+    bio = request.json.get('bio', '').strip()
+    requests.patch(f"{SUPABASE_URL}/rest/v1/profiles?id=eq.{user['id']}", headers=supabase_service_headers(), json={'bio': bio})
+    return jsonify({'success': True})
 
-@app.route('/sw.js')
-def service_worker():
-    response = send_from_directory('.', 'sw.js', mimetype='application/javascript')
-    response.headers['Service-Worker-Allowed'] = '/'
-    return response
+@app.route('/update_title/<video_id>', methods=['POST'])
+def update_title(video_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'error': 'Login required'}), 401
+    title = request.json.get('title', '').strip()
+    if not title:
+        return jsonify({'success': False, 'error': 'Title cannot be empty'}), 400
+    r = requests.get(f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&user_id=eq.{user["id"]}', headers=supabase_service_headers())
+    if not r.json():
+        return jsonify({'success': False, 'error': 'Not your video'}), 403
+    requests.patch(f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}', headers=supabase_service_headers(), json={'title': title})
+    return jsonify({'success': True})
 
+@app.route('/delete_video/<video_id>', methods=['POST'])
+def delete_video(video_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'error': 'Login required'}), 401
+    r = requests.get(f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&select=*', headers=supabase_service_headers())
+    videos = r.json()
+    if not videos:
+        return jsonify({'success': False, 'error': 'Video not found'}), 404
+    video = videos[0]
+    if user['id'] != ADMIN_USER_ID:
+        if video['user_id'] != user['id']:
+            return jsonify({'success': False, 'error': 'Not your video'}), 403
+    reason = request.json.get('reason', '') if request.is_json else ''
+    if user['id'] == ADMIN_USER_ID and video['user_id'] != user['id']:
+        msg = f'Your video "{video["title"]}" was removed by an admin.'
+        if reason:
+            msg += f' Reason: {reason}'
+        requests.post(f'{SUPABASE_URL}/rest/v1/notifications', headers=supabase_service_headers(), json={'user_id': video['user_id'], 'message': msg})
+    requests.delete(f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}', headers=supabase_service_headers())
+    return jsonify({'success': True})
 
+@app.route('/send_warning/<video_id>', methods=['POST'])
+def send_warning(video_id):
+    user = get_current_user()
+    if not user or user['id'] != ADMIN_USER_ID:
+        return jsonify({'success': False}), 403
+    message = request.json.get('message', 'You have received a warning from an admin.')
+    r = requests.get(f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&select=user_id,title', headers=supabase_service_headers())
+    videos = r.json()
+    if videos:
+        requests.post(f'{SUPABASE_URL}/rest/v1/notifications', headers=supabase_service_headers(), json={'user_id': videos[0]['user_id'], 'message': f'⚠️ Warning: {message}'})
+    return jsonify({'success': True})
+
+@app.route('/report_video/<video_id>', methods=['POST'])
+def report_video(video_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'error': 'Login required'}), 401
+    reason = request.json.get('reason', 'No reason given')
+    r = requests.get(f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&select=title,user_id', headers=supabase_service_headers())
+    videos = r.json()
+    if not videos:
+        return jsonify({'success': False}), 404
+    msg = f'🚨 Video "{videos[0]["title"]}" was reported. Reason: {reason}'
+    requests.post(f'{SUPABASE_URL}/rest/v1/notifications', headers=supabase_service_headers(), json={'user_id': ADMIN_USER_ID, 'message': msg})
+    return jsonify({'success': True})
+
+@app.route('/notifications')
+def notifications():
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    r = requests.get(f'{SUPABASE_URL}/rest/v1/notifications?user_id=eq.{user["id"]}&order=created_at.desc', headers=supabase_service_headers())
+    notifs = r.json() if r.ok else []
+    requests.patch(f'{SUPABASE_URL}/rest/v1/notifications?user_id=eq.{user["id"]}', headers=supabase_service_headers(), json={'is_read': True})
+    return render_template('notifications.html', notifications=notifs, user=user)
+
+@app.route('/unread_notifications')
+def unread_notifications():
+    user = get_current_user()
+    if not user:
+        return jsonify({'count': 0})
+    r = requests.get(f'{SUPABASE_URL}/rest/v1/notifications?user_id=eq.{user["id"]}&is_read=eq.false', headers=supabase_service_headers())
+    return jsonify({'count': len(r.json()) if r.ok else 0})
 
 @app.route('/trending')
 def trending():
     user = get_current_user()
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/videos?select=*,profiles(username)&order=views.desc',
-        headers=supabase_headers()
-    )
+    r = requests.get(f'{SUPABASE_URL}/rest/v1/videos?select=*,profiles(username)&order=views.desc', headers=supabase_headers())
     videos = r.json() if r.ok else []
     return render_template('trending.html', videos=videos, user=user)
+
+@app.route('/search')
+def search():
+    user = get_current_user()
+    q = request.args.get('q', '').strip()
+    videos = []
+    if q:
+        r = requests.get(f'{SUPABASE_URL}/rest/v1/videos?select=*,profiles(username)&title=ilike.*{q}*&order=views.desc', headers=supabase_headers())
+        videos = r.json() if r.ok else []
+    return render_template('search.html', videos=videos, query=q, user=user)
+
+@app.route('/shorts')
+def shorts():
+    user = get_current_user()
+    r = requests.get(f'{SUPABASE_URL}/rest/v1/videos?is_short=eq.true&select=*,profiles(username)&order=created_at.desc', headers=supabase_headers())
+    shorts_list = r.json() if r.ok else []
+    for short in shorts_list:
+        r2 = requests.get(f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{short["id"]}', headers=supabase_service_headers())
+        short['like_count'] = len(r2.json()) if r2.ok else 0
+        short['user_liked'] = False
+        if user:
+            r3 = requests.get(f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{short["id"]}&user_id=eq.{user["id"]}', headers=supabase_service_headers())
+            short['user_liked'] = len(r3.json()) > 0 if r3.ok else False
+        r4 = requests.get(f'{SUPABASE_URL}/rest/v1/comments?video_id=eq.{short["id"]}', headers=supabase_service_headers())
+        short['comment_count'] = len(r4.json()) if r4.ok else 0
+    return render_template('shorts.html', shorts=shorts_list, user=user)
+
+@app.route('/dashboard')
+def dashboard():
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    r = requests.get(f'{SUPABASE_URL}/rest/v1/videos?user_id=eq.{user["id"]}&order=views.desc', headers=supabase_service_headers())
+    videos = r.json() if r.ok else []
+    for video in videos:
+        r2 = requests.get(f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{video["id"]}', headers=supabase_service_headers())
+        video['like_count'] = len(r2.json()) if r2.ok else 0
+        r3 = requests.get(f'{SUPABASE_URL}/rest/v1/comments?video_id=eq.{video["id"]}', headers=supabase_service_headers())
+        video['comment_count'] = len(r3.json()) if r3.ok else 0
+    total_views = sum(v.get('views') or 0 for v in videos)
+    total_likes = sum(v.get('like_count') or 0 for v in videos)
+    total_comments = sum(v.get('comment_count') or 0 for v in videos)
+    return render_template('dashboard.html', user=user, videos=videos, total_views=total_views, total_likes=total_likes, total_comments=total_comments)
 
 @app.route('/settings')
 def settings():
@@ -415,136 +372,10 @@ def about():
     user = get_current_user()
     return render_template('about.html', user=user)
 
-
-@app.route('/update_bio', methods=['POST'])
-def update_bio():
+@app.route('/help')
+def help():
     user = get_current_user()
-    if not user:
-        return jsonify({'success': False, 'error': 'Login required'}), 401
-    bio = request.json.get('bio', '').strip()
-    requests.patch(
-        f"{SUPABASE_URL}/rest/v1/profiles?id=eq.{user['id']}",
-        headers=supabase_service_headers(),
-        json={'bio': bio}
-    )
-    return jsonify({'success': True})
-
-
-@app.route('/delete_video/<video_id>', methods=['POST'])
-def delete_video(video_id):
-    user = get_current_user()
-    if not user:
-        return jsonify({'success': False, 'error': 'Login required'}), 401
-    # Get video info first
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&select=*',
-        headers=supabase_service_headers()
-    )
-    videos = r.json()
-    if not videos:
-        return jsonify({'success': False, 'error': 'Video not found'}), 404
-    video = videos[0]
-    # Allow admin or video owner to delete
-    if user['id'] != ADMIN_USER_ID:
-        if video['user_id'] != user['id']:
-            return jsonify({'success': False, 'error': 'Not your video'}), 403
-    # Get delete reason (admin only)
-    reason = request.json.get('reason', '') if request.is_json else ''
-    # Send notification to video owner if admin is deleting
-    if user['id'] == ADMIN_USER_ID and video['user_id'] != user['id']:
-        msg = f'Your video "{video["title"]}" was removed by an admin.'
-        if reason:
-            msg += f' Reason: {reason}'
-        requests.post(
-            f'{SUPABASE_URL}/rest/v1/notifications',
-            headers=supabase_service_headers(),
-            json={'user_id': video['user_id'], 'message': msg}
-        )
-    # Delete from Supabase
-    requests.delete(
-        f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}',
-        headers=supabase_service_headers()
-    )
-    return jsonify({'success': True})
-
-
-@app.route('/search')
-def search():
-    user = get_current_user()
-    q = request.args.get('q', '').strip()
-    videos = []
-    if q:
-        r = requests.get(
-            f'{SUPABASE_URL}/rest/v1/videos?select=*,profiles(username)&title=ilike.*{q}*&order=views.desc',
-            headers=supabase_headers()
-        )
-        videos = r.json() if r.ok else []
-    return render_template('search.html', videos=videos, query=q, user=user)
-
-
-@app.route('/dashboard')
-def dashboard():
-    user = get_current_user()
-    if not user:
-        return redirect(url_for('login'))
-
-    # Get user's videos with like and comment counts
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/videos?user_id=eq.{user["id"]}&order=views.desc',
-        headers=supabase_service_headers()
-    )
-    videos = r.json() if r.ok else []
-
-    # Get like counts per video
-    for video in videos:
-        r2 = requests.get(
-            f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{video["id"]}',
-            headers=supabase_service_headers()
-        )
-        video['like_count'] = len(r2.json()) if r2.ok else 0
-
-        r3 = requests.get(
-            f'{SUPABASE_URL}/rest/v1/comments?video_id=eq.{video["id"]}',
-            headers=supabase_service_headers()
-        )
-        video['comment_count'] = len(r3.json()) if r3.ok else 0
-
-    total_views = sum(v.get('views') or 0 for v in videos)
-    total_likes = sum(v.get('like_count') or 0 for v in videos)
-    total_comments = sum(v.get('comment_count') or 0 for v in videos)
-
-    return render_template('dashboard.html',
-        user=user,
-        videos=videos,
-        total_views=total_views,
-        total_likes=total_likes,
-        total_comments=total_comments
-    )
-
-
-@app.route('/update_title/<video_id>', methods=['POST'])
-def update_title(video_id):
-    user = get_current_user()
-    if not user:
-        return jsonify({'success': False, 'error': 'Login required'}), 401
-    title = request.json.get('title', '').strip()
-    if not title:
-        return jsonify({'success': False, 'error': 'Title cannot be empty'}), 400
-    # Check ownership
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&user_id=eq.{user["id"]}',
-        headers=supabase_service_headers()
-    )
-    if not r.json():
-        return jsonify({'success': False, 'error': 'Not your video'}), 403
-    requests.patch(
-        f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}',
-        headers=supabase_service_headers(),
-        json={'title': title}
-    )
-    return jsonify({'success': True})
-
-
+    return render_template('help.html', user=user)
 
 @app.route('/privacy')
 def privacy():
@@ -556,16 +387,10 @@ def terms():
     user = get_current_user()
     return render_template('terms.html', user=user)
 
-
-@app.route('/ads.txt')
-def ads_txt():
-    return send_from_directory('.', 'ads.txt', mimetype='text/plain')
-
-
 @app.route('/live')
 def live():
     user = get_current_user()
-    return render_template('live.html', user=user, supabase_url=SUPABASE_URL, supabase_key=SUPABASE_KEY)
+    return render_template('live.html', user=user)
 
 @app.route('/start_stream', methods=['POST'])
 def start_stream():
@@ -573,18 +398,8 @@ def start_stream():
     if not user:
         return jsonify({'success': False, 'error': 'Login required'}), 401
     title = request.json.get('title', 'Live Stream')
-    # End any existing streams by this user
-    requests.patch(
-        f'{SUPABASE_URL}/rest/v1/streams?user_id=eq.{user["id"]}',
-        headers=supabase_service_headers(),
-        json={'is_live': False}
-    )
-    # Create new stream
-    r = requests.post(
-        f'{SUPABASE_URL}/rest/v1/streams',
-        headers=supabase_service_headers(),
-        json={'user_id': user['id'], 'title': title, 'is_live': True, 'viewer_count': 0}
-    )
+    requests.patch(f'{SUPABASE_URL}/rest/v1/streams?user_id=eq.{user["id"]}', headers=supabase_service_headers(), json={'is_live': False})
+    r = requests.post(f'{SUPABASE_URL}/rest/v1/streams', headers=supabase_service_headers(), json={'user_id': user['id'], 'title': title, 'is_live': True, 'viewer_count': 0})
     data = r.json()
     stream_id = data[0]['id'] if isinstance(data, list) and data else None
     return jsonify({'success': True, 'stream_id': stream_id})
@@ -594,295 +409,31 @@ def end_stream(stream_id):
     user = get_current_user()
     if not user:
         return jsonify({'success': False}), 401
-    requests.patch(
-        f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}&user_id=eq.{user["id"]}',
-        headers=supabase_service_headers(),
-        json={'is_live': False}
-    )
+    requests.patch(f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}&user_id=eq.{user["id"]}', headers=supabase_service_headers(), json={'is_live': False})
     return jsonify({'success': True})
 
 @app.route('/watch_live/<stream_id>')
 def watch_live(stream_id):
     user = get_current_user()
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}',
-        headers=supabase_service_headers()
-    )
+    r = requests.get(f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}', headers=supabase_service_headers())
     streams = r.json()
     if not streams:
         return redirect(url_for('index'))
     return render_template('watch_live.html', stream=streams[0], user=user)
 
-@app.route('/join_stream/<stream_id>', methods=['POST'])
-def join_stream(stream_id):
-    requests.rpc if False else None
-    requests.post(
-        f'{SUPABASE_URL}/rest/v1/rpc/increment_viewers',
-        headers=supabase_service_headers(),
-        json={'stream_id': stream_id}
-    )
-    return jsonify({'success': True})
-
-@app.route('/leave_stream/<stream_id>', methods=['POST'])
-def leave_stream(stream_id):
-    requests.post(
-        f'{SUPABASE_URL}/rest/v1/rpc/decrement_viewers',
-        headers=supabase_service_headers(),
-        json={'stream_id': stream_id}
-    )
-    return jsonify({'success': True})
-
 @app.route('/stream_viewers/<stream_id>')
 def stream_viewers(stream_id):
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}&select=viewer_count,is_live,peer_id',
-        headers=supabase_service_headers()
-    )
+    r = requests.get(f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}&select=viewer_count,is_live', headers=supabase_service_headers())
     data = r.json()
     if data:
-        return jsonify({'count': data[0]['viewer_count'], 'is_live': data[0]['is_live'], 'peer_id': data[0].get('peer_id')})
+        return jsonify({'count': data[0]['viewer_count'], 'is_live': data[0]['is_live']})
     return jsonify({'count': 0, 'is_live': False})
-
 
 @app.route('/update_viewers/<stream_id>', methods=['POST'])
 def update_viewers(stream_id):
     count = request.json.get('count', 0)
-    requests.patch(
-        f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}',
-        headers=supabase_service_headers(),
-        json={'viewer_count': count}
-    )
+    requests.patch(f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}', headers=supabase_service_headers(), json={'viewer_count': count})
     return jsonify({'success': True})
-
-
-@app.route('/send_signal', methods=['POST'])
-def send_signal():
-    data = request.json
-    requests.post(
-        f'{SUPABASE_URL}/rest/v1/signals',
-        headers=supabase_service_headers(),
-        json={
-            'stream_id': data['stream_id'],
-            'target_id': data['target_id'],
-            'type': data['type'],
-            'data': json.dumps(data['data'])
-        }
-    )
-    return jsonify({'success': True})
-
-@app.route('/get_signals/<stream_id>/<signal_type>')
-def get_signals(stream_id, signal_type):
-    viewer_id = request.args.get('viewer_id', '')
-    if viewer_id:
-        r = requests.get(
-            f'{SUPABASE_URL}/rest/v1/signals?stream_id=eq.{stream_id}&target_id=eq.{viewer_id}&order=created_at.asc',
-            headers=supabase_service_headers()
-        )
-    else:
-        r = requests.get(
-            f'{SUPABASE_URL}/rest/v1/signals?stream_id=eq.{stream_id}&type=eq.{signal_type}&order=created_at.asc',
-            headers=supabase_service_headers()
-        )
-    signals = r.json() if r.ok else []
-    for s in signals:
-        if isinstance(s.get('data'), str):
-            try:
-                s['data'] = json.loads(s['data'])
-            except:
-                pass
-    return jsonify(signals)
-
-@app.route('/delete_signal/<signal_id>', methods=['POST'])
-def delete_signal(signal_id):
-    requests.delete(
-        f'{SUPABASE_URL}/rest/v1/signals?id=eq.{signal_id}',
-        headers=supabase_service_headers()
-    )
-    return jsonify({'success': True})
-
-
-@app.route('/save_peer_id/<stream_id>', methods=['POST'])
-def save_peer_id(stream_id):
-    peer_id = request.json.get('peer_id')
-    requests.patch(
-        f'{SUPABASE_URL}/rest/v1/streams?id=eq.{stream_id}',
-        headers=supabase_service_headers(),
-        json={'peer_id': peer_id}
-    )
-    return jsonify({'success': True})
-
-
-@app.route('/favicon.svg')
-def favicon():
-    return send_from_directory('.', 'favicon.svg', mimetype='image/svg+xml')
-
-
-@app.route('/shorts')
-def shorts():
-    user = get_current_user()
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/videos?is_short=eq.true&select=*,profiles(username)&order=created_at.desc',
-        headers=supabase_headers()
-    )
-    shorts_list = r.json() if r.ok else []
-
-    # Get like counts and check if user liked
-    for short in shorts_list:
-        r2 = requests.get(
-            f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{short["id"]}',
-            headers=supabase_service_headers()
-        )
-        short['like_count'] = len(r2.json()) if r2.ok else 0
-        short['user_liked'] = False
-        if user:
-            r3 = requests.get(
-                f'{SUPABASE_URL}/rest/v1/likes?video_id=eq.{short["id"]}&user_id=eq.{user["id"]}',
-                headers=supabase_service_headers()
-            )
-            short['user_liked'] = len(r3.json()) > 0 if r3.ok else False
-        r4 = requests.get(
-            f'{SUPABASE_URL}/rest/v1/comments?video_id=eq.{short["id"]}',
-            headers=supabase_service_headers()
-        )
-        short['comment_count'] = len(r4.json()) if r4.ok else 0
-
-    return render_template('shorts.html', shorts=shorts_list, user=user)
-
-
-
-@app.route('/notifications')
-def notifications():
-    user = get_current_user()
-    if not user:
-        return redirect(url_for('login'))
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/notifications?user_id=eq.{user["id"]}&order=created_at.desc',
-        headers=supabase_service_headers()
-    )
-    notifs = r.json() if r.ok else []
-    # Mark all as read
-    requests.patch(
-        f'{SUPABASE_URL}/rest/v1/notifications?user_id=eq.{user["id"]}',
-        headers=supabase_service_headers(),
-        json={'is_read': True}
-    )
-    return render_template('notifications.html', notifications=notifs, user=user)
-
-@app.route('/unread_notifications')
-def unread_notifications():
-    user = get_current_user()
-    if not user:
-        return jsonify({'count': 0})
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/notifications?user_id=eq.{user["id"]}&is_read=eq.false',
-        headers=supabase_service_headers()
-    )
-    count = len(r.json()) if r.ok else 0
-    return jsonify({'count': count})
-
-
-@app.route('/report_video/<video_id>', methods=['POST'])
-def report_video(video_id):
-    user = get_current_user()
-    if not user:
-        return jsonify({'success': False, 'error': 'Login required'}), 401
-    reason = request.json.get('reason', 'No reason given')
-    # Get video info
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&select=title,user_id',
-        headers=supabase_service_headers()
-    )
-    videos = r.json()
-    if not videos:
-        return jsonify({'success': False}), 404
-    video = videos[0]
-    # Send notification to admin
-    msg = f'🚨 Video "{video["title"]}" was reported by a user. Reason: {reason}'
-    requests.post(
-        f'{SUPABASE_URL}/rest/v1/notifications',
-        headers=supabase_service_headers(),
-        json={'user_id': ADMIN_USER_ID, 'message': msg}
-    )
-    return jsonify({'success': True})
-
-
-@app.route('/send_warning/<video_id>', methods=['POST'])
-def send_warning(video_id):
-    user = get_current_user()
-    if not user or user['id'] != ADMIN_USER_ID:
-        return jsonify({'success': False}), 403
-    message = request.json.get('message', 'You have received a warning from an admin.')
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/videos?id=eq.{video_id}&select=user_id,title',
-        headers=supabase_service_headers()
-    )
-    videos = r.json()
-    if videos:
-        requests.post(
-            f'{SUPABASE_URL}/rest/v1/notifications',
-            headers=supabase_service_headers(),
-            json={'user_id': videos[0]['user_id'], 'message': f'⚠️ Warning: {message}'}
-        )
-    return jsonify({'success': True})
-
-
-@app.route('/help')
-def help():
-    user = get_current_user()
-    return render_template('help.html', user=user)
-
-
-@app.route('/auth/google')
-def auth_google():
-    r = requests.post(
-        f'{SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=https://vaultstream.online/auth/callback',
-        headers=supabase_headers()
-    )
-    # Redirect to Google OAuth
-    redirect_url = f'{SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=https://vaultstream.online/auth/callback'
-    return redirect(redirect_url)
-
-@app.route('/auth/callback')
-def auth_callback():
-    # Supabase sends access_token in URL fragment — handle with JS
-    return render_template('auth_callback.html')
-
-
-@app.route('/auth/set_session', methods=['POST'])
-def set_session():
-    token = request.json.get('access_token')
-    if not token:
-        return jsonify({'success': False}), 400
-    # Get user info from Supabase
-    r = requests.get(
-        f'{SUPABASE_URL}/auth/v1/user',
-        headers={'apikey': SUPABASE_KEY, 'Authorization': f'Bearer {token}'}
-    )
-    if not r.ok:
-        return jsonify({'success': False}), 400
-    user_data = r.json()
-    user_id = user_data['id']
-    email = user_data.get('email', '')
-    # Check if profile exists
-    r2 = requests.get(
-        f'{SUPABASE_URL}/rest/v1/profiles?id=eq.{user_id}',
-        headers=supabase_service_headers()
-    )
-    profiles = r2.json()
-    if profiles:
-        username = profiles[0]['username']
-    else:
-        # Create profile with email prefix as username
-        username = email.split('@')[0] if email else f'user_{user_id[:8]}'
-        requests.post(
-            f'{SUPABASE_URL}/rest/v1/profiles',
-            headers=supabase_service_headers(),
-            json={'id': user_id, 'username': username}
-        )
-    session.permanent = True
-    session['user'] = {'id': user_id, 'username': username, 'token': token}
-    return jsonify({'success': True})
-
 
 @app.route('/agora_token')
 def agora_token():
@@ -890,14 +441,61 @@ def agora_token():
         from agora_token_builder import RtcTokenBuilder
         import time
         channel = request.args.get('channel', AGORA_CHANNEL)
-        role_str = request.args.get('role', 'publisher')
-        role = 1 if role_str == 'publisher' else 2  # 1=publisher, 2=subscriber
-        expire = int(time.time()) + 86400 * 7  # 7 days
+        role = 1 if request.args.get('role', 'publisher') == 'publisher' else 2
+        expire = int(time.time()) + 86400 * 7
         token = RtcTokenBuilder.buildTokenWithUid(AGORA_APP_ID, AGORA_APP_CERT, channel, 0, role, expire)
         return jsonify({'token': token, 'channel': channel, 'app_id': AGORA_APP_ID})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/auth/google')
+def auth_google():
+    redirect_url = f'{SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=https://vaultstream.online/auth/callback'
+    return redirect(redirect_url)
+
+@app.route('/auth/callback')
+def auth_callback():
+    return render_template('auth_callback.html')
+
+@app.route('/auth/set_session', methods=['POST'])
+def set_session():
+    token = request.json.get('access_token')
+    if not token:
+        return jsonify({'success': False}), 400
+    r = requests.get(f'{SUPABASE_URL}/auth/v1/user', headers={'apikey': SUPABASE_KEY, 'Authorization': f'Bearer {token}'})
+    if not r.ok:
+        return jsonify({'success': False}), 400
+    user_data = r.json()
+    user_id = user_data['id']
+    email = user_data.get('email', '')
+    r2 = requests.get(f'{SUPABASE_URL}/rest/v1/profiles?id=eq.{user_id}', headers=supabase_service_headers())
+    profiles = r2.json()
+    if profiles:
+        username = profiles[0]['username']
+    else:
+        username = email.split('@')[0] if email else f'user_{user_id[:8]}'
+        requests.post(f'{SUPABASE_URL}/rest/v1/profiles', headers=supabase_service_headers(), json={'id': user_id, 'username': username})
+    session.permanent = True
+    session['user'] = {'id': user_id, 'username': username, 'token': token}
+    return jsonify({'success': True})
+
+@app.route('/manifest.json')
+def manifest():
+    return send_from_directory('.', 'manifest.json', mimetype='application/manifest+json')
+
+@app.route('/sw.js')
+def service_worker():
+    response = send_from_directory('.', 'sw.js', mimetype='application/javascript')
+    response.headers['Service-Worker-Allowed'] = '/'
+    return response
+
+@app.route('/favicon.svg')
+def favicon():
+    return send_from_directory('.', 'favicon.svg', mimetype='image/svg+xml')
+
+@app.route('/ads.txt')
+def ads_txt():
+    return send_from_directory('.', 'ads.txt', mimetype='text/plain')
 
 if __name__ == '__main__':
     print("\n🎬 VAULTSTREAM — http://localhost:5000\n")
