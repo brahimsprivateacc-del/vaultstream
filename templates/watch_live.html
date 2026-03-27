@@ -85,9 +85,7 @@ async function joinStream() {
   try {
     client = AgoraRTC.createClient({ mode: 'live', codec: 'vp8' });
     await client.setClientRole('audience');
-    const tokenRes = await fetch('/agora_token?channel=' + AGORA_CHANNEL + '&role=publisher');
-    const tokenData = await tokenRes.json();
-    await client.join(AGORA_APP_ID, AGORA_CHANNEL, tokenData.token, null);
+    await client.join(AGORA_APP_ID, AGORA_CHANNEL, null, null);
 
     // When streamer publishes their video
     client.on('user-published', async (user, mediaType) => {
