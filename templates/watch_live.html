@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1673723146227353" crossorigin="anonymous"></script>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ stream.title }} — Live on VaultStream</title>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1673723146227353" crossorigin="anonymous"></script>
 <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
@@ -18,7 +18,7 @@ nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56
 .logo-text { font-size: 1.1rem; font-weight: 700; }
 .nav-right { margin-left: auto; display: flex; gap: 10px; }
 .btn { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--text); font-size: 0.82rem; cursor: pointer; text-decoration: none; }
-.wrap { margin-top: 56px; max-width: 900px; margin-left: auto; margin-right: auto; padding: 28px 20px; }
+.wrap { margin-top: 80px; max-width: 900px; margin-left: auto; margin-right: auto; padding: 0 20px 40px; }
 .video-container { position: relative; border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 16/9; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; }
 #remote-video { width: 100%; height: 100%; }
 .status-msg { position: absolute; text-align: center; color: var(--text2); }
@@ -59,7 +59,6 @@ nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56
   </div>
   <div class="stream-title">{{ stream.title }}</div>
   <div class="stream-meta">🔴 Live now</div>
-
   {% else %}
   <div class="video-container">
     <div class="status-msg">
@@ -78,6 +77,8 @@ nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56
 
 {% if stream.is_live %}
 <script>
+const AGORA_APP_ID = '5f982bff4e5b4545be3d1539af0538a5';
+const AGORA_CHANNEL = 'vaultstream';
 const streamId = '{{ stream.id }}';
 let client = null;
 
@@ -87,7 +88,6 @@ async function joinStream() {
     await client.setClientRole('audience');
     await client.join(AGORA_APP_ID, AGORA_CHANNEL, null, null);
 
-    // When streamer publishes their video
     client.on('user-published', async (user, mediaType) => {
       await client.subscribe(user, mediaType);
       if (mediaType === 'video') {
@@ -100,12 +100,11 @@ async function joinStream() {
       }
     });
 
-    client.on('user-unpublished', (user) => {
+    client.on('user-unpublished', () => {
       document.getElementById('status-msg').style.display = 'flex';
       document.getElementById('status-msg').innerHTML = '<div class="status-icon">📴</div><div>Stream ended</div>';
     });
 
-    // Update viewer count every 5s
     setInterval(() => {
       fetch('/stream_viewers/' + streamId)
         .then(r => r.json())
