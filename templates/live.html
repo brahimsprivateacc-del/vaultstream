@@ -185,16 +185,33 @@ async function toggleScreenShare() {
   const btn = document.getElementById('screen-btn');
   if (!screenSharing) {
     try {
-      screenTrack = await AgoraRTC.createScreenVideoTrack({}, 'disable');
-      await client.unpublish(localVideoTrack);
-      await client.publish(screenTrack);
+      // Create screen track WITH audio
+      const screenResult = await AgoraRTC.createScreenVideoTrack({
+        encoderConfig: '1080p_1',
+        optimizationMode: 'detail'
+      }, 'enable');
+
+      // screenResult can be [videoTrack, audioTrack] or just videoTrack
+      if (Array.isArray(screenResult)) {
+        screenTrack = screenResult[0];
+        const screenAudioTrack = screenResult[1];
+        await client.unpublish([localVideoTrack, localAudioTrack]);
+        await client.publish([screenTrack, screenAudioTrack]);
+      } else {
+        screenTrack = screenResult;
+        await client.unpublish(localVideoTrack);
+        await client.publish(screenTrack);
+      }
+
       screenTrack.play('local-video');
       screenSharing = true;
       btn.textContent = '📷 Back to Camera';
       btn.style.color = 'var(--accent)';
       screenTrack.on('track-ended', switchBackToCamera);
-      showToast('🖥️ Screen sharing!');
-    } catch(e) { showToast('❌ Could not share screen'); }
+      showToast('🖥️ Screen sharing with audio!');
+    } catch(e) {
+      showToast('❌ Could not share screen: ' + e.message);
+    }
   } else {
     switchBackToCamera();
   }
