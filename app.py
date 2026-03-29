@@ -7,8 +7,11 @@ import cloudinary.uploader
 import cloudinary.api
 
 app = Flask(__name__)
-app.secret_key = 'vaultstream-secret-change-this-later'
+app.secret_key = os.environ.get('SECRET_KEY', 'vaultstream-secret-key-2026-change-this')
 app.config['PERMANENT_SESSION_LIFETIME'] = 60 * 60 * 24 * 365  # 1 year
+app.config['SESSION_COOKIE_SECURE'] = True      # Only send over HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True    # JS can't read the cookie
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Prevents CSRF attacks
 
 VIDEOS_FOLDER = os.path.join(os.path.dirname(__file__), 'videos')
 ALLOWED_EXTENSIONS = {'mp4', 'mkv', 'mov', 'avi', 'webm'}
