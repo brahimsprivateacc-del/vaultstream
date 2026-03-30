@@ -102,6 +102,48 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); color: var(--text); border-radius: 8px; padding: 12px 24px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 999; transition: transform 0.3s; white-space: nowrap; }
 .toast.show { transform: translateX(-50%) translateY(0); }
 .search-label { font-size: 0.92rem; color: var(--text2); margin-bottom: 16px; }
+
+/* Splash Screen */
+.splash { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity 0.5s, visibility 0.5s; }
+.splash.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.splash-logo { display: flex; align-items: center; gap: 12px; animation: splashPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; opacity: 0; }
+.splash-icon { background: #ff0000; color: white; padding: 10px 16px; border-radius: 12px; font-size: 1.6rem; font-weight: 900; box-shadow: 0 0 40px rgba(255,0,0,0.5); }
+.splash-text { font-size: 2.2rem; font-weight: 700; color: white; letter-spacing: -0.5px; }
+.splash-bar-wrap { width: 200px; height: 3px; background: #1a1a1a; border-radius: 999px; overflow: hidden; animation: splashFadeIn 0.3s 0.4s forwards; opacity: 0; }
+.splash-bar { height: 100%; width: 0%; background: #ff0000; border-radius: 999px; animation: splashLoad 1.2s 0.5s cubic-bezier(0.4,0,0.2,1) forwards; }
+.splash-tagline { font-size: 0.82rem; color: #444; animation: splashFadeIn 0.3s 0.6s forwards; opacity: 0; letter-spacing: 1px; text-transform: uppercase; }
+@keyframes splashPop { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes splashFadeIn { to { opacity: 1; } }
+@keyframes splashLoad { 0% { width: 0%; } 100% { width: 100%; } }
+
+/* Onboarding Modal */
+.onboard-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(8px); }
+.onboard-overlay.open { opacity: 1; pointer-events: all; }
+.onboard-modal { background: #0a0a0a; border: 1px solid #2a2a2a; border-radius: 20px; width: 92%; max-width: 520px; overflow: hidden; transform: scale(0.95) translateY(20px); transition: transform 0.3s; box-shadow: 0 24px 80px rgba(0,0,0,0.8); }
+.onboard-overlay.open .onboard-modal { transform: scale(1) translateY(0); }
+.onboard-progress { display: flex; gap: 6px; padding: 20px 24px 0; }
+.onboard-dot { flex: 1; height: 3px; border-radius: 999px; background: #2a2a2a; transition: background 0.3s; }
+.onboard-dot.active { background: #ff0000; }
+.onboard-dot.done { background: #660000; }
+.onboard-slide { display: none; padding: 28px 28px 8px; }
+.onboard-slide.show { display: block; }
+.onboard-icon { font-size: 3.5rem; margin-bottom: 16px; text-align: center; }
+.onboard-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 10px; text-align: center; }
+.onboard-desc { font-size: 0.88rem; color: #aaa; line-height: 1.7; text-align: center; margin-bottom: 8px; }
+.onboard-steps { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+.onboard-step { display: flex; align-items: flex-start; gap: 12px; background: #111; border-radius: 10px; padding: 12px 14px; }
+.onboard-step-num { width: 24px; height: 24px; border-radius: 50%; background: #ff0000; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.onboard-step-text { font-size: 0.82rem; color: #ccc; line-height: 1.5; }
+.onboard-step-text strong { color: white; }
+.onboard-footer { display: flex; align-items: center; justify-content: space-between; padding: 20px 28px 24px; }
+.onboard-skip { font-size: 0.78rem; color: #555; cursor: pointer; background: none; border: none; font-family: 'Roboto', sans-serif; transition: color 0.2s; }
+.onboard-skip:hover { color: #888; }
+.onboard-nav { display: flex; gap: 10px; align-items: center; }
+.onboard-back { padding: 9px 20px; border-radius: 8px; border: 1px solid #2a2a2a; background: none; color: #888; font-size: 0.85rem; cursor: pointer; font-family: 'Roboto', sans-serif; transition: all 0.2s; }
+.onboard-back:hover { border-color: #444; color: #ccc; }
+.onboard-next { padding: 9px 24px; border-radius: 8px; border: none; background: #ff0000; color: white; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: 'Roboto', sans-serif; transition: background 0.2s; }
+.onboard-next:hover { background: #cc0000; }
+.onboard-tag { display: inline-block; background: rgba(255,0,0,0.12); color: #ff0000; font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; border: 1px solid rgba(255,0,0,0.2); margin-bottom: 12px; }
 /* Admin Modal */
 .admin-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 600; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .admin-modal-overlay.open { opacity: 1; pointer-events: all; }
@@ -195,6 +237,18 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
 </style>
 </head>
 <body>
+<!-- SPLASH SCREEN -->
+<div class="splash" id="splash">
+  <div class="splash-logo">
+    <div class="splash-icon">VS</div>
+    <div class="splash-text">VaultStream</div>
+  </div>
+  <div class="splash-bar-wrap">
+    <div class="splash-bar"></div>
+  </div>
+  <div class="splash-tagline">Stream Everywhere</div>
+</div>
+
 <div class="topbar">
   <div class="topbar-left">
     <button class="menu-btn" onclick="toggleSidebar()">☰</button>
@@ -500,6 +554,78 @@ body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-se
   </div>
 </div>
 
+<!-- ONBOARDING MODAL -->
+<div class="onboard-overlay" id="onboard-overlay">
+  <div class="onboard-modal">
+    <!-- Progress dots -->
+    <div class="onboard-progress" id="onboard-progress"></div>
+
+    <!-- Slide 1: Welcome -->
+    <div class="onboard-slide show" id="slide-0">
+      <div class="onboard-icon">🎬</div>
+      <div style="text-align:center;"><span class="onboard-tag">NEW HERE?</span></div>
+      <div class="onboard-title">Welcome to VaultStream!</div>
+      <div class="onboard-desc">Your video platform for watching, uploading and sharing — even from remote areas. Let us show you around in 4 quick steps!</div>
+    </div>
+
+    <!-- Slide 2: Create account -->
+    <div class="onboard-slide" id="slide-1">
+      <div class="onboard-icon">👤</div>
+      <div class="onboard-title">Create your account</div>
+      <div class="onboard-desc">Getting started is completely free and takes less than a minute!</div>
+      <div class="onboard-steps">
+        <div class="onboard-step"><div class="onboard-step-num">1</div><div class="onboard-step-text">Click <strong>Sign Up</strong> in the top right corner</div></div>
+        <div class="onboard-step"><div class="onboard-step-num">2</div><div class="onboard-step-text">Enter a <strong>username</strong>, your <strong>email</strong> and a <strong>password</strong></div></div>
+        <div class="onboard-step"><div class="onboard-step-num">3</div><div class="onboard-step-text">Click <strong>Create Account</strong> — you're in! 🎉</div></div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Watch & interact -->
+    <div class="onboard-slide" id="slide-2">
+      <div class="onboard-icon">▶️</div>
+      <div class="onboard-title">Watch & interact</div>
+      <div class="onboard-desc">Browse videos on the home page and start interacting!</div>
+      <div class="onboard-steps">
+        <div class="onboard-step"><div class="onboard-step-num">1</div><div class="onboard-step-text"><strong>Click any video</strong> to watch it in full screen</div></div>
+        <div class="onboard-step"><div class="onboard-step-num">2</div><div class="onboard-step-text">Hit <strong>❤️ Like</strong> and leave a <strong>💬 comment</strong></div></div>
+        <div class="onboard-step"><div class="onboard-step-num">3</div><div class="onboard-step-text">Click <strong>💾 Save Offline</strong> to download for later</div></div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Upload -->
+    <div class="onboard-slide" id="slide-3">
+      <div class="onboard-icon">📤</div>
+      <div class="onboard-title">Upload your videos</div>
+      <div class="onboard-desc">Share your videos with everyone on VaultStream!</div>
+      <div class="onboard-steps">
+        <div class="onboard-step"><div class="onboard-step-num">1</div><div class="onboard-step-text">Click the <strong>📤 Upload</strong> button in the top bar</div></div>
+        <div class="onboard-step"><div class="onboard-step-num">2</div><div class="onboard-step-text">Give it a <strong>title</strong> and pick a <strong>category</strong></div></div>
+        <div class="onboard-step"><div class="onboard-step-num">3</div><div class="onboard-step-text">Drag & drop your file or click <strong>Select File</strong></div></div>
+      </div>
+    </div>
+
+    <!-- Slide 5: Live & Shorts -->
+    <div class="onboard-slide" id="slide-4">
+      <div class="onboard-icon">🔴</div>
+      <div class="onboard-title">Go Live & Shorts</div>
+      <div class="onboard-desc">VaultStream has more than just videos!</div>
+      <div class="onboard-steps">
+        <div class="onboard-step"><div class="onboard-step-num">🔴</div><div class="onboard-step-text">Click <strong>Go Live</strong> in the sidebar to stream live to friends</div></div>
+        <div class="onboard-step"><div class="onboard-step-num">📱</div><div class="onboard-step-text">Visit <strong>Shorts</strong> to watch & upload vertical short videos</div></div>
+        <div class="onboard-step"><div class="onboard-step-num">📖</div><div class="onboard-step-text">Visit <strong>Help</strong> in the sidebar for a full tutorial anytime</div></div>
+      </div>
+    </div>
+
+    <div class="onboard-footer">
+      <button class="onboard-skip" onclick="closeOnboarding()">Skip tutorial</button>
+      <div class="onboard-nav">
+        <button class="onboard-back" id="onboard-back" onclick="prevSlide()" style="display:none;">← Back</button>
+        <button class="onboard-next" id="onboard-next" onclick="nextSlide()">Get Started →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- VIDEO MENU DROPDOWN -->
 <div class="menu-dropdown" id="menu-dropdown">
   <button class="menu-item" onclick="saveVideo()">💾 Save video</button>
@@ -720,6 +846,83 @@ fetch('/unread_notifications')
     }
   });
 {% endif %}
+</script>
+<script>
+// Splash screen
+(function() {
+  const splash = document.getElementById('splash');
+  // Hide splash after animation completes
+  setTimeout(() => {
+    splash.classList.add('hidden');
+  }, 1800);
+})();
+
+// Onboarding
+const TOTAL_SLIDES = 5;
+let currentSlide = 0;
+
+function initOnboarding() {
+  // Check if first visit using localStorage
+  if (localStorage.getItem('vs_onboarded')) return;
+
+  // Build progress dots
+  const progress = document.getElementById('onboard-progress');
+  for (let i = 0; i < TOTAL_SLIDES; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'onboard-dot' + (i === 0 ? ' active' : '');
+    dot.id = 'dot-' + i;
+    progress.appendChild(dot);
+  }
+
+  // Show after short delay
+  setTimeout(() => {
+    document.getElementById('onboard-overlay').classList.add('open');
+  }, 800);
+}
+
+function updateSlide() {
+  // Hide all slides
+  document.querySelectorAll('.onboard-slide').forEach(s => s.classList.remove('show'));
+  document.getElementById('slide-' + currentSlide).classList.add('show');
+
+  // Update dots
+  for (let i = 0; i < TOTAL_SLIDES; i++) {
+    const dot = document.getElementById('dot-' + i);
+    if (!dot) continue;
+    dot.className = 'onboard-dot';
+    if (i < currentSlide) dot.classList.add('done');
+    else if (i === currentSlide) dot.classList.add('active');
+  }
+
+  // Update buttons
+  const back = document.getElementById('onboard-back');
+  const next = document.getElementById('onboard-next');
+  back.style.display = currentSlide > 0 ? 'block' : 'none';
+  next.textContent = currentSlide === TOTAL_SLIDES - 1 ? "Let's go! 🚀" : 'Next →';
+}
+
+function nextSlide() {
+  if (currentSlide < TOTAL_SLIDES - 1) {
+    currentSlide++;
+    updateSlide();
+  } else {
+    closeOnboarding();
+  }
+}
+
+function prevSlide() {
+  if (currentSlide > 0) {
+    currentSlide--;
+    updateSlide();
+  }
+}
+
+function closeOnboarding() {
+  document.getElementById('onboard-overlay').classList.remove('open');
+  localStorage.setItem('vs_onboarded', '1');
+}
+
+initOnboarding();
 </script>
 </body>
 </html>
