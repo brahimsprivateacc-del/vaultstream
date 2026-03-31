@@ -103,7 +103,7 @@ input[type="text"]:focus { border-color: var(--accent); }
 
 <script>
 const AGORA_APP_ID = '5f982bff4e5b4545be3d1539af0538a5';
-const AGORA_CHANNEL = 'vaultstream';
+let AGORA_CHANNEL = 'vaultstream';
 let AGORA_TOKEN = null;
 let client = null;
 let localVideoTrack = null;
@@ -136,6 +136,7 @@ async function startStream() {
     const data = await res.json();
     if (!data.success) throw new Error('Could not start stream');
     streamId = data.stream_id;
+    AGORA_CHANNEL = data.channel || streamId.replace(/-/g,'').substring(0,16);
 
     // Join Agora
     client = AgoraRTC.createClient({ mode: 'live', codec: 'vp8' });
