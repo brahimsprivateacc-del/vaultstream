@@ -405,7 +405,9 @@ def start_stream():
     r = requests.post(f'{SUPABASE_URL}/rest/v1/streams', headers=supabase_service_headers(), json={'user_id': user['id'], 'title': title, 'is_live': True, 'viewer_count': 0})
     data = r.json()
     stream_id = data[0]['id'] if isinstance(data, list) and data else None
-    return jsonify({'success': True, 'stream_id': stream_id})
+    # Use short channel name based on stream ID
+    channel = stream_id.replace('-','')[:16] if stream_id else 'vaultstream'
+    return jsonify({'success': True, 'stream_id': stream_id, 'channel': channel})
 
 @app.route('/end_stream/<stream_id>', methods=['POST'])
 def end_stream(stream_id):
