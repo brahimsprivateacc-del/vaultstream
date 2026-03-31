@@ -54,6 +54,11 @@ nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56
       <div class="status-icon">📡</div>
       <div>Connecting to stream...</div>
     </div>
+    <!-- Mobile tap to unmute -->
+    <div id="tap-overlay" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.7);flex-direction:column;align-items:center;justify-content:center;gap:12px;cursor:pointer;" onclick="enableAudio()">
+      <div style="font-size:3rem;">🔊</div>
+      <div style="color:white;font-size:0.9rem;font-weight:600;">Tap to enable audio</div>
+    </div>
     <div class="live-badge"><div class="live-dot"></div> LIVE</div>
     <div class="viewer-badge">👁️ <span id="viewer-count">{{ stream.viewer_count or 0 }}</span> viewers</div>
   </div>
@@ -78,9 +83,16 @@ nav { display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 56
 {% if stream.is_live %}
 <script>
 const AGORA_APP_ID = '5f982bff4e5b4545be3d1539af0538a5';
-const AGORA_CHANNEL = 'vaultstream';
 const streamId = '{{ stream.id }}';
+const AGORA_CHANNEL = '{{ stream.channel }}' || streamId.replace(/-/g,'').substring(0,16);
 let client = null;
+
+let remoteAudioTrack = null;
+
+function enableAudio() {
+  document.getElementById('tap-overlay').style.display = 'none';
+  if (remoteAudioTrack) remoteAudioTrack.play();
+}
 
 async function joinStream() {
   try {
@@ -96,7 +108,14 @@ async function joinStream() {
         showToast('✅ Connected to stream!');
       }
       if (mediaType === 'audio') {
-        user.audioTrack.play();
+        remoteAudioTrack = user.audioTrack;
+        // On mobile, autoplay is blocked - show tap overlay
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+          document.getElementById('tap-overlay').style.display = 'flex';
+        } else {
+          user.audioTrack.play();
+        }
       }
     });
 
@@ -115,7 +134,8 @@ async function joinStream() {
 
   } catch(e) {
     console.error(e);
-    document.getElementById('status-msg').innerHTML = '<div class="status-icon">❌</div><div>Could not connect: ' + e.message + '</div>';
+    const msg = e.message + ' (type: ' + (e.type || 'unknown') + ') Browser: ' + navigator.userAgent.substring(0,50);
+    document.getElementById('status-msg').innerHTML = '<div class="status-icon">❌</div><div style="font-size:0.7rem;padding:10px;">' + msg + '</div>';
   }
 }
 
